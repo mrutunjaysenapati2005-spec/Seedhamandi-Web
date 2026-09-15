@@ -1,0 +1,652 @@
+import React, { useState } from 'react';
+import { 
+  X, 
+  Sprout, 
+  ShoppingBag, 
+  Truck, 
+  Users, 
+  Mail, 
+  Phone, 
+  Lock, 
+  User as UserIcon, 
+  CheckCircle2, 
+  AlertCircle, 
+  ArrowRight,
+  ShieldCheck,
+  KeyRound,
+  RotateCcw
+} from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { UserRole } from '../types';
+import { api } from '../services/api';
+
+export const AuthModal: React.FC = () => {
+  const { authModalState, closeAuthModal, login, quickSwitchRole } = useAuth();
+  const [tab, setTab] = useState<'login' | 'register'>(authModalState.mode);
+  const [step, setStep] = useState<'FORM' | 'EMAIL_OTP' | 'SMS_OTP' | 'DONE'>('FORM');
+
+  // Registration form
+  const [role, setRole] = useState<UserRole>(authModalState.defaultRole);
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [password, setPassword] = useState('');
+  const [district, setDistrict] = useState('Pune');
+  const [state, setState] = useState('Maharashtra');
+  const [village, setVillage] = useState('');
+  const [fpoName, setFpoName] = useState('');
+  const [fpoFarmersCount, setFpoFarmersCount] = useState('45');
+  const [vehicleType, setVehicleType] = useState('Pickup Truck (1.5T)');
+  const [vehicleNumber, setVehicleNumber] = useState('MH 12 AB 1234');
+
+  // OTP inputs
+  const [emailOtp, setEmailOtp] = useState('');
+  const [smsOtp, setSmsOtp] = useState('');
+  const [previewOtpNotice, setPreviewOtpNotice] = useState<string | null>(null);
+
+  // States
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+
+  // Login form
+  const [loginIdentifier, setLoginIdentifier] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+
+  if (!authModalState.isOpen) return null;
+
+  const handleRegisterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+
+    try {
+      const payload = {
+        name,
+        email,
+        phone,
+        role,
+        password,
+        district,
+        state,
+        village: village || undefined,
+        fpoName: role === 'FPO_REP' ? fpoName : undefined,
+        fpoFarmersCount: role === 'FPO_REP' ? Number(fpoFarmersCount) : undefined,
+        vehicleType: role === 'LOGISTICS' ? vehicleType : undefined,
+        vehicleNumber: role === 'LOGISTICS' ? vehicleNumber : undefined,
+      };
+
+      const res = await api.register(payload);
+      if (res.error) {
+        setError(res.error);
+        setLoading(false);
+        return;
+      }
+
+      // Automatically trigger email OTP
+      const emailRes = await api.sendEmailOtp(email);
+      if (emailRes.previewOtp) {
+        setPreviewOtpNotice(`Demo Email OTP: ${emailRes.previewOtp}`);
+      }
+
+      setStep('EMAIL_OTP');
+      setSuccess('Account created! Please enter the 6-digit OTP sent to your email.');
+    } catch (err: any) {
+      setError(err.message || 'Registration failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyEmailOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+
+    try {
+      const res = await api.verifyEmailOtp(email, emailOtp);
+      if (res.error) {
+        setError(res.error);
+        setLoading(false);
+        return;
+      }
+
+      // Next: Send SMS OTP
+      const smsRes = await api.sendSmsOtp(phone);
+      if (smsRes.previewOtp) {
+        setPreviewOtpNotice(`Demo SMS OTP: ${smsRes.previewOtp}`);
+      }
+
+      setStep('SMS_OTP');
+      setSuccess('Email verified! Now enter the 6-digit Mobile SMS OTP.');
+    } catch (err: any) {
+      setError(err.message || 'Email OTP verification failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifySmsOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+
+    try {
+      const res = await api.verifySmsOtp(phone, smsOtp);
+      if (res.error) {
+        setError(res.error);
+        setLoading(false);
+        return;
+      }
+
+      setStep('DONE');
+      setSuccess('All verifications complete! Your SeedhaMandi profile is active.');
+      // Auto login
+      await login(email, password);
+      setTimeout(() => {
+        closeAuthModal();
+      }, 1500);
+    } catch (err: any) {
+      setError(err.message || 'SMS OTP verification failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLoginSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+
+    const res = await login(loginIdentifier, loginPassword);
+    setLoading(false);
+
+    if (res.success) {
+      closeAuthModal();
+    } else {
+      setError(res.message || 'Invalid credentials.');
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-sm animate-in fade-in duration-200 overflow-y-auto">
+      <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-stone-200 overflow-hidden my-8">
+        {/* Modal Header */}
+        <div className="bg-emerald-900 text-white p-5 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-lg bg-amber-400 text-emerald-950 flex items-center justify-center font-black">
+              <Sprout className="w-5 h-5 text-emerald-950" />
+            </div>
+            <div>
+              <h3 className="text-lg font-extrabold tracking-tight">
+                {tab === 'login' ? 'Sign In to SeedhaMandi' : 'Create Verified Account'}
+              </h3>
+              <p className="text-xs text-emerald-200">
+                Direct Agricultural Trading with 2-Factor OTP Security
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={closeAuthModal}
+            className="p-1.5 text-emerald-200 hover:text-white hover:bg-emerald-800 rounded-lg"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Tab switchers */}
+        <div className="flex border-b border-stone-200 bg-stone-50">
+          <button
+            onClick={() => {
+              setTab('login');
+              setError(null);
+              setSuccess(null);
+            }}
+            className={`flex-1 py-3 text-xs font-bold uppercase tracking-wider transition ${
+              tab === 'login'
+                ? 'bg-white text-emerald-800 border-b-2 border-emerald-700'
+                : 'text-stone-500 hover:text-stone-800'
+            }`}
+          >
+            Registered Login
+          </button>
+          <button
+            onClick={() => {
+              setTab('register');
+              setStep('FORM');
+              setError(null);
+              setSuccess(null);
+            }}
+            className={`flex-1 py-3 text-xs font-bold uppercase tracking-wider transition ${
+              tab === 'register'
+                ? 'bg-white text-emerald-800 border-b-2 border-emerald-700'
+                : 'text-stone-500 hover:text-stone-800'
+            }`}
+          >
+            New Registration & OTP
+          </button>
+        </div>
+
+        <div className="p-6">
+          {/* Status Banners */}
+          {error && (
+            <div className="mb-4 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
+
+          {success && (
+            <div className="mb-4 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span>{success}</span>
+            </div>
+          )}
+
+          {previewOtpNotice && (
+            <div className="mb-4 p-3 rounded-xl bg-amber-50 border border-amber-300 text-amber-900 text-xs flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <KeyRound className="w-4 h-4 text-amber-600 shrink-0" />
+                <span className="font-bold">{previewOtpNotice}</span>
+              </div>
+              <span className="text-[10px] bg-amber-200 text-amber-800 px-2 py-0.5 rounded font-mono font-semibold">
+                Auto Generated
+              </span>
+            </div>
+          )}
+
+          {/* ======================= LOGIN TAB ======================= */}
+          {tab === 'login' && (
+            <div className="space-y-4">
+              <form onSubmit={handleLoginSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">
+                    Email or Mobile Number
+                  </label>
+                  <div className="relative">
+                    <Mail className="w-4 h-4 text-stone-400 absolute left-3.5 top-3" />
+                    <input
+                      type="text"
+                      required
+                      value={loginIdentifier}
+                      onChange={e => setLoginIdentifier(e.target.value)}
+                      placeholder="e.g. ramesh.farmer@seedhamandi.in or 9823411201"
+                      className="w-full bg-stone-50 border border-stone-300 rounded-xl pl-10 pr-3.5 py-2.5 text-sm focus:outline-none focus:border-emerald-600 focus:bg-white"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">
+                    Password
+                  </label>
+                  <div className="relative">
+                    <Lock className="w-4 h-4 text-stone-400 absolute left-3.5 top-3" />
+                    <input
+                      type="password"
+                      required
+                      value={loginPassword}
+                      onChange={e => setLoginPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="w-full bg-stone-50 border border-stone-300 rounded-xl pl-10 pr-3.5 py-2.5 text-sm focus:outline-none focus:border-emerald-600 focus:bg-white"
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full py-3 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl font-bold text-sm shadow-md transition active:scale-98 flex items-center justify-center gap-2"
+                >
+                  <ShieldCheck className="w-4 h-4 text-amber-300" />
+                  <span>{loading ? 'Authenticating...' : 'Secure Sign In'}</span>
+                </button>
+              </form>
+
+              {/* Instant Demo Account Selector */}
+              <div className="pt-4 border-t border-stone-200">
+                <p className="text-xs font-bold text-stone-500 uppercase tracking-wider mb-2 text-center">
+                  Or Instant 1-Click Persona Sign-In:
+                </p>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={() => {
+                      quickSwitchRole('CONSUMER');
+                      closeAuthModal();
+                    }}
+                    className="p-2.5 rounded-xl border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-left transition text-xs"
+                  >
+                    <div className="font-bold text-emerald-900 flex items-center gap-1.5">
+                      <ShoppingBag className="w-3.5 h-3.5 text-emerald-600" /> Ananya (Consumer)
+                    </div>
+                    <div className="text-[11px] text-emerald-700 mt-0.5">Household Buyer</div>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      quickSwitchRole('FARMER');
+                      closeAuthModal();
+                    }}
+                    className="p-2.5 rounded-xl border border-amber-200 bg-amber-50 hover:bg-amber-100 text-left transition text-xs"
+                  >
+                    <div className="font-bold text-amber-900 flex items-center gap-1.5">
+                      <Sprout className="w-3.5 h-3.5 text-amber-600" /> Ramesh Patel (Farmer)
+                    </div>
+                    <div className="text-[11px] text-amber-700 mt-0.5">Baramati, Pune</div>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      quickSwitchRole('FPO_REP');
+                      closeAuthModal();
+                    }}
+                    className="p-2.5 rounded-xl border border-orange-200 bg-orange-50 hover:bg-orange-100 text-left transition text-xs"
+                  >
+                    <div className="font-bold text-orange-900 flex items-center gap-1.5">
+                      <Users className="w-3.5 h-3.5 text-orange-600" /> Sahyadri FPO
+                    </div>
+                    <div className="text-[11px] text-orange-700 mt-0.5">54 Village Farmers</div>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      quickSwitchRole('LOGISTICS');
+                      closeAuthModal();
+                    }}
+                    className="p-2.5 rounded-xl border border-blue-200 bg-blue-50 hover:bg-blue-100 text-left transition text-xs"
+                  >
+                    <div className="font-bold text-blue-900 flex items-center gap-1.5">
+                      <Truck className="w-3.5 h-3.5 text-blue-600" /> KisanVahan Fleet
+                    </div>
+                    <div className="text-[11px] text-blue-700 mt-0.5">Refrigerated Transit</div>
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ======================= REGISTER TAB ======================= */}
+          {tab === 'register' && (
+            <div>
+              {step === 'FORM' && (
+                <form onSubmit={handleRegisterSubmit} className="space-y-4">
+                  {/* Role Selector Cards */}
+                  <div>
+                    <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-2">
+                      Select Your Role
+                    </label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div
+                        onClick={() => setRole('CONSUMER')}
+                        className={`p-3 rounded-xl border cursor-pointer transition ${
+                          role === 'CONSUMER'
+                            ? 'border-emerald-600 bg-emerald-50 shadow-xs'
+                            : 'border-stone-200 hover:bg-stone-50'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2 font-bold text-xs text-stone-800">
+                          <ShoppingBag className="w-4 h-4 text-emerald-600" />
+                          <span>Consumer / Buyer</span>
+                        </div>
+                        <p className="text-[11px] text-stone-500 mt-1">Buy direct fresh produce</p>
+                      </div>
+
+                      <div
+                        onClick={() => setRole('FARMER')}
+                        className={`p-3 rounded-xl border cursor-pointer transition ${
+                          role === 'FARMER'
+                            ? 'border-amber-600 bg-amber-50 shadow-xs'
+                            : 'border-stone-200 hover:bg-stone-50'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2 font-bold text-xs text-stone-800">
+                          <Sprout className="w-4 h-4 text-amber-600" />
+                          <span>Farmer (Direct)</span>
+                        </div>
+                        <p className="text-[11px] text-stone-500 mt-1">Sell own harvest at 0% cut</p>
+                      </div>
+
+                      <div
+                        onClick={() => setRole('FPO_REP')}
+                        className={`p-3 rounded-xl border cursor-pointer transition ${
+                          role === 'FPO_REP'
+                            ? 'border-orange-600 bg-orange-50 shadow-xs'
+                            : 'border-stone-200 hover:bg-stone-50'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2 font-bold text-xs text-stone-800">
+                          <Users className="w-4 h-4 text-orange-600" />
+                          <span>FPO Representative</span>
+                        </div>
+                        <p className="text-[11px] text-stone-500 mt-1">List for village cluster</p>
+                      </div>
+
+                      <div
+                        onClick={() => setRole('LOGISTICS')}
+                        className={`p-3 rounded-xl border cursor-pointer transition ${
+                          role === 'LOGISTICS'
+                            ? 'border-blue-600 bg-blue-50 shadow-xs'
+                            : 'border-stone-200 hover:bg-stone-50'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2 font-bold text-xs text-stone-800">
+                          <Truck className="w-4 h-4 text-blue-600" />
+                          <span>Logistics Partner</span>
+                        </div>
+                        <p className="text-[11px] text-stone-500 mt-1">Cold chain farm delivery</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Primary Fields */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-semibold text-stone-700 mb-1">Full Name</label>
+                      <input
+                        type="text"
+                        required
+                        value={name}
+                        onChange={e => setName(e.target.value)}
+                        placeholder="e.g. Ramesh Patel"
+                        className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-emerald-600"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-stone-700 mb-1">Mobile Number (for SMS OTP)</label>
+                      <input
+                        type="tel"
+                        required
+                        value={phone}
+                        onChange={e => setPhone(e.target.value)}
+                        placeholder="+91 98234 11201"
+                        className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-emerald-600"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-semibold text-stone-700 mb-1">Email (for Email OTP)</label>
+                      <input
+                        type="email"
+                        required
+                        value={email}
+                        onChange={e => setEmail(e.target.value)}
+                        placeholder="ramesh@seedhamandi.in"
+                        className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-emerald-600"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-stone-700 mb-1">Password</label>
+                      <input
+                        type="password"
+                        required
+                        value={password}
+                        onChange={e => setPassword(e.target.value)}
+                        placeholder="••••••••"
+                        className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-emerald-600"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Conditional Role Details */}
+                  {role === 'FPO_REP' && (
+                    <div className="p-3 bg-orange-50 border border-orange-200 rounded-xl space-y-2">
+                      <div className="text-xs font-bold text-orange-900">FPO Organization Details:</div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <input
+                          type="text"
+                          required
+                          value={fpoName}
+                          onChange={e => setFpoName(e.target.value)}
+                          placeholder="FPO Name (e.g. Sahyadri Kisan Samriddhi)"
+                          className="bg-white border border-orange-300 rounded-lg px-2.5 py-1.5 text-xs focus:outline-none"
+                        />
+                        <input
+                          type="number"
+                          required
+                          value={fpoFarmersCount}
+                          onChange={e => setFpoFarmersCount(e.target.value)}
+                          placeholder="Farmer Members (e.g. 54)"
+                          className="bg-white border border-orange-300 rounded-lg px-2.5 py-1.5 text-xs focus:outline-none"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {role === 'LOGISTICS' && (
+                    <div className="p-3 bg-blue-50 border border-blue-200 rounded-xl space-y-2">
+                      <div className="text-xs font-bold text-blue-900">Logistics Vehicle Information:</div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <input
+                          type="text"
+                          required
+                          value={vehicleType}
+                          onChange={e => setVehicleType(e.target.value)}
+                          placeholder="Vehicle Type (e.g. Tata 407 3.5T)"
+                          className="bg-white border border-blue-300 rounded-lg px-2.5 py-1.5 text-xs focus:outline-none"
+                        />
+                        <input
+                          type="text"
+                          required
+                          value={vehicleNumber}
+                          onChange={e => setVehicleNumber(e.target.value)}
+                          placeholder="Reg. Number (e.g. MH 12 QX 4902)"
+                          className="bg-white border border-blue-300 rounded-lg px-2.5 py-1.5 text-xs focus:outline-none"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <input
+                      type="text"
+                      value={district}
+                      onChange={e => setDistrict(e.target.value)}
+                      placeholder="District / City"
+                      className="bg-stone-50 border border-stone-300 rounded-xl px-3 py-2 text-xs"
+                    />
+                    <input
+                      type="text"
+                      value={state}
+                      onChange={e => setState(e.target.value)}
+                      placeholder="State (e.g. Maharashtra)"
+                      className="bg-stone-50 border border-stone-300 rounded-xl px-3 py-2 text-xs"
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full py-3 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl font-bold text-sm shadow-md transition flex items-center justify-center gap-2"
+                  >
+                    <span>{loading ? 'Creating Account...' : 'Continue to 2-Factor OTP Verification'}</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                </form>
+              )}
+
+              {/* STEP 2: EMAIL OTP */}
+              {step === 'EMAIL_OTP' && (
+                <form onSubmit={handleVerifyEmailOtp} className="space-y-4 text-center py-4">
+                  <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center mx-auto">
+                    <Mail className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h4 className="font-extrabold text-stone-900 text-base">Step 1 of 2: Verify Email</h4>
+                    <p className="text-xs text-stone-500 mt-1">
+                      Enter the 6-digit code sent to <span className="font-semibold text-stone-800">{email}</span>
+                    </p>
+                  </div>
+
+                  <input
+                    type="text"
+                    maxLength={6}
+                    required
+                    value={emailOtp}
+                    onChange={e => setEmailOtp(e.target.value)}
+                    placeholder="Enter 6-digit OTP"
+                    className="w-48 mx-auto text-center tracking-widest text-2xl font-mono font-bold bg-stone-50 border-2 border-emerald-600 rounded-xl py-2 focus:outline-none"
+                  />
+
+                  <button
+                    type="submit"
+                    disabled={loading || emailOtp.length < 6}
+                    className="w-full py-3 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 text-white rounded-xl font-bold text-sm shadow-md transition"
+                  >
+                    {loading ? 'Verifying...' : 'Verify Email & Proceed to Mobile SMS'}
+                  </button>
+                </form>
+              )}
+
+              {/* STEP 3: SMS OTP */}
+              {step === 'SMS_OTP' && (
+                <form onSubmit={handleVerifySmsOtp} className="space-y-4 text-center py-4">
+                  <div className="w-12 h-12 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center mx-auto">
+                    <Phone className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h4 className="font-extrabold text-stone-900 text-base">Step 2 of 2: Verify Mobile SMS</h4>
+                    <p className="text-xs text-stone-500 mt-1">
+                      Enter the 6-digit SMS code sent to <span className="font-semibold text-stone-800">{phone}</span>
+                    </p>
+                  </div>
+
+                  <input
+                    type="text"
+                    maxLength={6}
+                    required
+                    value={smsOtp}
+                    onChange={e => setSmsOtp(e.target.value)}
+                    placeholder="Enter 6-digit OTP"
+                    className="w-48 mx-auto text-center tracking-widest text-2xl font-mono font-bold bg-stone-50 border-2 border-amber-600 rounded-xl py-2 focus:outline-none"
+                  />
+
+                  <button
+                    type="submit"
+                    disabled={loading || smsOtp.length < 6}
+                    className="w-full py-3 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 text-white rounded-xl font-bold text-sm shadow-md transition"
+                  >
+                    {loading ? 'Verifying Mobile...' : 'Complete Account Activation'}
+                  </button>
+                </form>
+              )}
+
+              {step === 'DONE' && (
+                <div className="text-center py-8 space-y-3">
+                  <div className="w-14 h-14 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto">
+                    <CheckCircle2 className="w-8 h-8" />
+                  </div>
+                  <h4 className="font-extrabold text-stone-900 text-lg">Account Activated!</h4>
+                  <p className="text-xs text-stone-600">
+                    Welcome to SeedhaMandi. Redirecting you to your workspace...
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
