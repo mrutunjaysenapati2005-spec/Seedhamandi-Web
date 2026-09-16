@@ -400,7 +400,8 @@ const initialProducts: ProductDoc[] = [
     organicCertified: false,
     createdAt: new Date().toISOString(),
   },
-];
+
+  ];
 
 const initialOrders: OrderDoc[] = [
   {
