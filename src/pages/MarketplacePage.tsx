@@ -22,9 +22,11 @@ import {
   AlertCircle,
   ArrowRight
 } from 'lucide-react';
+import { motion } from 'motion/react';
 import { Product, ProductCategory, BulkRfq } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
+import { CropsAnalytics } from '../components/CropsAnalytics';
 
 interface MarketplacePageProps {
   products: Product[];
@@ -465,15 +467,20 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {sortedProducts.map(product => {
-                  const isBulk = marketMode === 'bulk';
+              <>
+                <CropsAnalytics />
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-8">
+                  {sortedProducts.map((product, index) => {
+                    const isBulk = marketMode === 'bulk';
                   const displayPrice = isBulk ? Math.round(product.price * 0.88) : product.price;
                   const lotQty = isBulk ? 100 : 1;
 
                   return (
-                    <div
+                    <motion.div
                       key={product.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.4, delay: index * 0.05, ease: 'easeOut' }}
                       className="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-2xs hover:shadow-md transition-shadow flex flex-col justify-between group"
                     >
                       <div>
@@ -577,10 +584,11 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                           </button>
                         </div>
                       </div>
-                    </div>
+                    </motion.div>
                   );
                 })}
-              </div>
+                </div>
+              </>
             )}
           </>
         )}

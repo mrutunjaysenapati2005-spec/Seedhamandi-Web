@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import nodemailer from 'nodemailer';
 import { db, OtpDoc, UserDoc } from './db.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'seedhamandi_super_secret_jwt_key_2026_agro';
@@ -75,11 +76,34 @@ export async function sendEmailOtp(email: string): Promise<{ success: boolean; m
   if (emailUser && emailPass) {
     try {
       // In production with credentials, sends real email via SMTP
-      console.log(`[REAL EMAIL] Sending OTP ${otp} to ${email} via Gmail SMTP (${emailUser})`);
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: emailUser,
+          pass: emailPass,
+        },
+      });
+
+      await transporter.sendMail({
+        from: `"SeedhaMandi" <${emailUser}>`,
+        to: email,
+        subject: 'Your SeedhaMandi Login OTP',
+        text: `Your OTP for SeedhaMandi login is: ${otp}. It is valid for 10 minutes.`,
+        html: `
+          <div style="font-family: sans-serif; padding: 20px;">
+            <h2>Welcome to SeedhaMandi</h2>
+            <p>Your one-time password (OTP) for login is:</p>
+            <h1 style="color: #16a34a; font-size: 32px; letter-spacing: 2px;">${otp}</h1>
+            <p>This code is valid for 10 minutes. Do not share this code with anyone.</p>
+          </div>
+        `,
+      });
+
+      console.log(`[REAL EMAIL] Sent OTP to ${email} via Gmail SMTP.`);
       return {
         success: true,
         message: `OTP dispatched to your official email ${email}.`,
-        previewOtp: otp,
+        // NO previewOtp HERE - user must check their real email!
       };
     } catch (err: any) {
       console.error('Failed to send real email OTP:', err);
@@ -97,7 +121,7 @@ export async function sendEmailOtp(email: string): Promise<{ success: boolean; m
 export async function sendSmsOtp(phone: string): Promise<{ success: boolean; message: string; previewOtp?: string }> {
   const otp = generateOtp();
   const otpHash = hashString(otp);
-  const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes
+  const expiresAt = Date.now() + 5 * 60 * 1000; // 5 minutes
 
   const otpDoc: OtpDoc = {
     id: 'otp_sms_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
@@ -111,17 +135,35 @@ export async function sendSmsOtp(phone: string): Promise<{ success: boolean; mes
   };
   db.saveOtp(otpDoc);
 
-  const msg91Key = process.env.MSG91_AUTH_KEY;
-  if (msg91Key) {
+  const fast2smsKey = process.env.FAST2SMS_API_KEY;
+  if (fast2smsKey) {
     try {
-      console.log(`[REAL SMS] Dispatched OTP ${otp} to mobile ${phone} via MSG91.`);
-      return {
-        success: true,
-        message: `SMS OTP sent to mobile ${phone} via MSG91.`,
-        previewOtp: otp,
-      };
+      const response = await fetch('https://www.fast2sms.com/dev/bulkV2', {
+        method: 'POST',
+        headers: {
+          'authorization': fast2smsKey,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          variables_values: otp,
+          route: 'otp',
+          numbers: phone.replace(/\D/g, '').slice(-10)
+        })
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Fast2SMS Dispatch error:', errorText);
+      } else {
+        console.log(`[REAL SMS] Dispatched OTP to mobile ${phone} via Fast2SMS.`);
+        return {
+          success: true,
+          message: `SMS OTP sent to mobile ${phone} via Fast2SMS.`,
+          // NO previewOtp HERE - user must check their real SMS!
+        };
+      }
     } catch (err) {
-      console.error('MSG91 Dispatch error:', err);
+      console.error('Fast2SMS Dispatch error:', err);
     }
   }
 
