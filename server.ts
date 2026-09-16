@@ -118,13 +118,9 @@ app.post('/api/auth/register', (req, res) => {
 
     db.addUser(newUser);
 
-    // Send initial verification OTPs
-    sendEmailOtp(newUser.email);
-    sendSmsOtp(newUser.phone);
-
     const token = createJwtToken(newUser);
     res.status(201).json({
-      message: 'Registration initiated. Please verify your Email and Mobile OTP.',
+      message: 'Registration initiated. Please verify your account.',
       user: {
         id: newUser.id,
         name: newUser.name,

@@ -23,7 +23,7 @@ import { api } from '../services/api';
 export const AuthModal: React.FC = () => {
   const { authModalState, closeAuthModal, login, quickSwitchRole } = useAuth();
   const [tab, setTab] = useState<'login' | 'register'>(authModalState.mode);
-  const [step, setStep] = useState<'FORM' | 'EMAIL_OTP' | 'SMS_OTP' | 'DONE'>('FORM');
+  const [step, setStep] = useState<'FORM' | 'CHOOSE_VERIFICATION' | 'EMAIL_OTP' | 'SMS_OTP' | 'DONE'>('FORM');
 
   // Registration form
   const [role, setRole] = useState<UserRole>(authModalState.defaultRole);
@@ -82,13 +82,38 @@ export const AuthModal: React.FC = () => {
         return;
       }
 
-      // Automatically trigger email OTP
-      await api.sendEmailOtp(email);
-
-      setStep('EMAIL_OTP');
-      setSuccess('Account created! Please enter the 6-digit OTP sent to your email.');
+      setStep('CHOOSE_VERIFICATION');
+      setSuccess('Account created! Please choose how you want to verify your account.');
     } catch (err: any) {
       setError(err.message || 'Registration failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleChooseEmail = async () => {
+    setError(null);
+    setLoading(true);
+    try {
+      const emailRes = await api.sendEmailOtp(email);
+      setStep('EMAIL_OTP');
+      setSuccess(emailRes.message || 'Please enter the 6-digit OTP sent to your email.');
+    } catch (err: any) {
+      setError(err.message || 'Failed to send Email OTP');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleChooseSms = async () => {
+    setError(null);
+    setLoading(true);
+    try {
+      const smsRes = await api.sendSmsOtp(phone);
+      setStep('SMS_OTP');
+      setSuccess(smsRes.message || 'Please enter the 6-digit OTP sent to your mobile phone.');
+    } catch (err: any) {
+      setError(err.message || 'Failed to send SMS OTP');
     } finally {
       setLoading(false);
     }
@@ -107,11 +132,13 @@ export const AuthModal: React.FC = () => {
         return;
       }
 
-      // Next: Send SMS OTP
-      await api.sendSmsOtp(phone);
-
-      setStep('SMS_OTP');
-      setSuccess('Email verified! Now enter the 6-digit Mobile SMS OTP.');
+      setStep('DONE');
+      setSuccess('Email verified! Your SeedhaMandi profile is active.');
+      // Auto login
+      await login(email, password);
+      setTimeout(() => {
+        closeAuthModal();
+      }, 1500);
     } catch (err: any) {
       setError(err.message || 'Email OTP verification failed');
     } finally {
@@ -133,9 +160,9 @@ export const AuthModal: React.FC = () => {
       }
 
       setStep('DONE');
-      setSuccess('All verifications complete! Your SeedhaMandi profile is active.');
+      setSuccess('Mobile verified! Your SeedhaMandi profile is active.');
       // Auto login
-      await login(email, password);
+      await login(phone, password);
       setTimeout(() => {
         closeAuthModal();
       }, 1500);
@@ -541,10 +568,44 @@ export const AuthModal: React.FC = () => {
                     disabled={loading}
                     className="w-full py-3 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl font-bold text-sm shadow-md transition flex items-center justify-center gap-2"
                   >
-                    <span>{loading ? 'Creating Account...' : 'Continue to 2-Factor OTP Verification'}</span>
+                    <span>{loading ? 'Creating Account...' : 'Continue to OTP Verification'}</span>
                     <ArrowRight className="w-4 h-4" />
                   </button>
                 </form>
+              )}
+
+              {/* STEP 1.5: CHOOSE OTP METHOD */}
+              {step === 'CHOOSE_VERIFICATION' && (
+                <div className="space-y-4 text-center py-4">
+                  <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center mx-auto mb-2">
+                    <ShieldCheck className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h4 className="font-extrabold text-stone-900 text-base">Choose Verification Method</h4>
+                    <p className="text-xs text-stone-500 mt-1">
+                      Where would you like to receive your 6-digit OTP?
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 mt-6">
+                    <button
+                      onClick={handleChooseEmail}
+                      disabled={loading}
+                      className="p-4 border-2 border-stone-200 rounded-xl hover:border-emerald-600 hover:bg-emerald-50 transition flex flex-col items-center gap-2"
+                    >
+                      <Mail className="w-6 h-6 text-emerald-700" />
+                      <span className="font-bold text-stone-800 text-sm">Send to Email</span>
+                    </button>
+                    <button
+                      onClick={handleChooseSms}
+                      disabled={loading}
+                      className="p-4 border-2 border-stone-200 rounded-xl hover:border-emerald-600 hover:bg-emerald-50 transition flex flex-col items-center gap-2"
+                    >
+                      <Phone className="w-6 h-6 text-emerald-700" />
+                      <span className="font-bold text-stone-800 text-sm">Send to Mobile</span>
+                    </button>
+                  </div>
+                </div>
               )}
 
               {/* STEP 2: EMAIL OTP */}
@@ -554,7 +615,7 @@ export const AuthModal: React.FC = () => {
                     <Mail className="w-6 h-6" />
                   </div>
                   <div>
-                    <h4 className="font-extrabold text-stone-900 text-base">Step 1 of 2: Verify Email</h4>
+                    <h4 className="font-extrabold text-stone-900 text-base">Verify Email</h4>
                     <p className="text-xs text-stone-500 mt-1">
                       Enter the 6-digit code sent to <span className="font-semibold text-stone-800">{email}</span>
                     </p>
@@ -575,7 +636,7 @@ export const AuthModal: React.FC = () => {
                     disabled={loading || emailOtp.length < 6}
                     className="w-full py-3 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 text-white rounded-xl font-bold text-sm shadow-md transition"
                   >
-                    {loading ? 'Verifying...' : 'Verify Email & Proceed to Mobile SMS'}
+                    {loading ? 'Verifying...' : 'Verify & Complete Account Activation'}
                   </button>
                 </form>
               )}
@@ -583,11 +644,11 @@ export const AuthModal: React.FC = () => {
               {/* STEP 3: SMS OTP */}
               {step === 'SMS_OTP' && (
                 <form onSubmit={handleVerifySmsOtp} className="space-y-4 text-center py-4">
-                  <div className="w-12 h-12 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center mx-auto">
+                  <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center mx-auto">
                     <Phone className="w-6 h-6" />
                   </div>
                   <div>
-                    <h4 className="font-extrabold text-stone-900 text-base">Step 2 of 2: Verify Mobile SMS</h4>
+                    <h4 className="font-extrabold text-stone-900 text-base">Verify Mobile SMS</h4>
                     <p className="text-xs text-stone-500 mt-1">
                       Enter the 6-digit SMS code sent to <span className="font-semibold text-stone-800">{phone}</span>
                     </p>
@@ -600,7 +661,7 @@ export const AuthModal: React.FC = () => {
                     value={smsOtp}
                     onChange={e => setSmsOtp(e.target.value)}
                     placeholder="Enter 6-digit OTP"
-                    className="w-48 mx-auto text-center tracking-widest text-2xl font-mono font-bold bg-stone-50 border-2 border-amber-600 rounded-xl py-2 focus:outline-none"
+                    className="w-48 mx-auto text-center tracking-widest text-2xl font-mono font-bold bg-stone-50 border-2 border-emerald-600 rounded-xl py-2 focus:outline-none"
                   />
 
                   <button
@@ -608,7 +669,7 @@ export const AuthModal: React.FC = () => {
                     disabled={loading || smsOtp.length < 6}
                     className="w-full py-3 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 text-white rounded-xl font-bold text-sm shadow-md transition"
                   >
-                    {loading ? 'Verifying Mobile...' : 'Complete Account Activation'}
+                    {loading ? 'Verifying Mobile...' : 'Verify & Complete Account Activation'}
                   </button>
                 </form>
               )}
