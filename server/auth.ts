@@ -1,6 +1,10 @@
 import crypto from 'crypto';
 import nodemailer from 'nodemailer';
+import dns from 'dns';
 import { db, OtpDoc, UserDoc } from './db.js';
+
+// Force Node to prioritize IPv4 over IPv6 in DNS resolutions to avoid Gmail IPv6 timeouts on Render.
+dns.setDefaultResultOrder('ipv4first');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'seedhamandi_super_secret_jwt_key_2026_agro';
 
@@ -75,27 +79,21 @@ export async function sendEmailOtp(email: string): Promise<{ success: boolean; m
 
   if (emailUser && emailPass) {
     try {
-      // In production with credentials, sends real email via SMTP
-      // Render has known issues with IPv6 and Gmail, so we force IPv4 on port 587 if RENDER env is present
-      const isRender = process.env.RENDER === 'true' || !!process.env.RENDER;
-      const transporter = isRender
-        ? nodemailer.createTransport({
-            host: 'smtp.gmail.com',
-            port: 587,
-            secure: false, // Upgrade to TLS
-            auth: {
-              user: emailUser,
-              pass: emailPass,
-            },
-            family: 4, // Force IPv4
-          } as any)
-        : nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-              user: emailUser,
-              pass: emailPass,
-            },
-          });
+      // Use explicit IPv4 for Gmail to prevent ENETUNREACH IPv6 timeout on Render
+      const transporter = nodemailer.createTransport({
+        host: 'smtp.gmail.com',
+        port: 587,
+        secure: false, // Upgrade to TLS
+        auth: {
+          user: emailUser,
+          pass: emailPass,
+        },
+        family: 4, // Force IPv4 explicitly at the socket level
+      } as any);
+
+      // Optionally verify transporter
+      await transporter.verify();
+      console.log('[SMTP] Transporter verified successfully via IPv4.');
 
       await transporter.sendMail({
         from: `"SeedhaMandi" <${emailUser}>`,
@@ -118,15 +116,18 @@ export async function sendEmailOtp(email: string): Promise<{ success: boolean; m
         message: `OTP dispatched to your official email ${email}.`,
       };
     } catch (err: any) {
-      console.error('Failed to send real email OTP:', err);
+      console.error('[SMTP ERROR] Failed to send real email OTP:', err);
     }
   }
 
   // Safe evaluation fallback
+  const isDemoDisabled = process.env.DEMO_OTP === 'false';
   return {
     success: true,
-    message: `Verification code generated for ${email} (Demo Mode).`,
-    demoOtp: otp,
+    message: isDemoDisabled 
+      ? `OTP generation recorded (Real dispatch skipped).`
+      : `Verification code generated for ${email} (Demo Mode).`,
+    demoOtp: isDemoDisabled ? undefined : otp,
   };
 }
 
@@ -147,10 +148,14 @@ export async function sendSmsOtp(phone: string): Promise<{ success: boolean; mes
   };
   db.saveOtp(otpDoc);
 
+  const isDemoDisabled = process.env.DEMO_OTP === 'false';
+
   return {
     success: true,
-    message: `OTP generated successfully (Demo Mode)`,
-    demoOtp: otp,
+    message: isDemoDisabled
+      ? `OTP generation recorded (Real dispatch skipped).`
+      : `OTP generated successfully (Demo Mode)`,
+    demoOtp: isDemoDisabled ? undefined : otp,
   };
 }
 
