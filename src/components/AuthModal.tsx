@@ -42,7 +42,6 @@ export const AuthModal: React.FC = () => {
   // OTP inputs
   const [emailOtp, setEmailOtp] = useState('');
   const [smsOtp, setSmsOtp] = useState('');
-  const [previewOtpNotice, setPreviewOtpNotice] = useState<string | null>(null);
 
   // States
   const [loading, setLoading] = useState(false);
@@ -84,10 +83,7 @@ export const AuthModal: React.FC = () => {
       }
 
       // Automatically trigger email OTP
-      const emailRes = await api.sendEmailOtp(email);
-      if (emailRes.previewOtp) {
-        setPreviewOtpNotice(`Demo Email OTP: ${emailRes.previewOtp}`);
-      }
+      await api.sendEmailOtp(email);
 
       setStep('EMAIL_OTP');
       setSuccess('Account created! Please enter the 6-digit OTP sent to your email.');
@@ -112,10 +108,7 @@ export const AuthModal: React.FC = () => {
       }
 
       // Next: Send SMS OTP
-      const smsRes = await api.sendSmsOtp(phone);
-      if (smsRes.previewOtp) {
-        setPreviewOtpNotice(`Demo SMS OTP: ${smsRes.previewOtp}`);
-      }
+      await api.sendSmsOtp(phone);
 
       setStep('SMS_OTP');
       setSuccess('Email verified! Now enter the 6-digit Mobile SMS OTP.');
@@ -240,18 +233,6 @@ export const AuthModal: React.FC = () => {
             <div className="mb-4 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
               <span>{success}</span>
-            </div>
-          )}
-
-          {previewOtpNotice && (
-            <div className="mb-4 p-3 rounded-xl bg-amber-50 border border-amber-300 text-amber-900 text-xs flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <KeyRound className="w-4 h-4 text-amber-600 shrink-0" />
-                <span className="font-bold">{previewOtpNotice}</span>
-              </div>
-              <span className="text-[10px] bg-amber-200 text-amber-800 px-2 py-0.5 rounded font-mono font-semibold">
-                Auto Generated
-              </span>
             </div>
           )}
 
