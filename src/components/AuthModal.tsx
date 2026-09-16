@@ -740,9 +740,6 @@ export const AuthModal: React.FC = () => {
                       />
                     </div>
                   </div>
-                  <p className="text-[11px] text-stone-500 mt-1">
-                    Provide either Mobile Number or Email (optional). If both are given, you can choose where to receive OTP.
-                  </p>
 
                   {/* Conditional Role Details */}
                   {role === 'FPO_REP' && (
