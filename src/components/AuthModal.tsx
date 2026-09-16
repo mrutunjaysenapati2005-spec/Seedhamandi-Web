@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   X, 
   Sprout, 
@@ -21,7 +21,7 @@ import { UserRole } from '../types';
 import { api } from '../services/api';
 
 export const AuthModal: React.FC = () => {
-  const { authModalState, closeAuthModal, login, quickSwitchRole } = useAuth();
+  const { authModalState, closeAuthModal, login, loginWithOtp, quickSwitchRole } = useAuth();
   const [tab, setTab] = useState<'login' | 'register'>(authModalState.mode);
   const [step, setStep] = useState<'FORM' | 'CHOOSE_VERIFICATION' | 'EMAIL_OTP' | 'SMS_OTP' | 'DONE'>('FORM');
 
@@ -47,23 +47,53 @@ export const AuthModal: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [resendCountdown, setResendCountdown] = useState(0);
+
+  useEffect(() => {
+    let timer: any;
+    if (resendCountdown > 0) {
+      timer = setTimeout(() => setResendCountdown(resendCountdown - 1), 1000);
+    }
+    return () => clearTimeout(timer);
+  }, [resendCountdown]);
 
   // Login form
+  const [loginMode, setLoginMode] = useState<'PASSWORD' | 'OTP'>('PASSWORD');
   const [loginIdentifier, setLoginIdentifier] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
+  const [loginOtp, setLoginOtp] = useState('');
+  const [loginOtpSent, setLoginOtpSent] = useState(false);
+  const [loginOtpCountdown, setLoginOtpCountdown] = useState(0);
+
+  useEffect(() => {
+    let timer: any;
+    if (loginOtpCountdown > 0) {
+      timer = setTimeout(() => setLoginOtpCountdown(loginOtpCountdown - 1), 1000);
+    }
+    return () => clearTimeout(timer);
+  }, [loginOtpCountdown]);
 
   if (!authModalState.isOpen) return null;
 
   const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    const trimmedEmail = email.trim();
+    const trimmedPhone = phone.trim();
+
+    if (!trimmedEmail && !trimmedPhone) {
+      setError('Please provide at least one contact method: Mobile Number or Email (optional).');
+      return;
+    }
+
     setLoading(true);
 
     try {
       const payload = {
-        name,
-        email,
-        phone,
+        name: name.trim(),
+        email: trimmedEmail,
+        phone: trimmedPhone,
         role,
         password,
         district,
@@ -82,11 +112,38 @@ export const AuthModal: React.FC = () => {
         return;
       }
 
-      setStep('CHOOSE_VERIFICATION');
-      setSuccess('Account created! Please choose how you want to verify your account.');
+      // If user gives both email and mobile, give them the choice
+      if (trimmedEmail && trimmedPhone) {
+        setStep('CHOOSE_VERIFICATION');
+        setSuccess('Account created! Please choose where to receive your 6-digit verification OTP.');
+        setLoading(false);
+      } else if (trimmedEmail) {
+        // User gave only email -> OTP directly to email
+        try {
+          const emailRes = await api.sendEmailOtp(trimmedEmail);
+          setStep('EMAIL_OTP');
+          setResendCountdown(30);
+          setSuccess(emailRes.message || `OTP sent directly to ${trimmedEmail}. Enter the 6-digit code.`);
+        } catch (err: any) {
+          setError(err.message || 'Failed to send Email OTP');
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        // User gave only mobile -> OTP directly to mobile
+        try {
+          const smsRes = await api.sendSmsOtp(trimmedPhone);
+          setStep('SMS_OTP');
+          setResendCountdown(30);
+          setSuccess(smsRes.message || `OTP sent directly to ${trimmedPhone}. Enter the 6-digit code.`);
+        } catch (err: any) {
+          setError(err.message || 'Failed to send SMS OTP');
+        } finally {
+          setLoading(false);
+        }
+      }
     } catch (err: any) {
       setError(err.message || 'Registration failed');
-    } finally {
       setLoading(false);
     }
   };
@@ -95,8 +152,9 @@ export const AuthModal: React.FC = () => {
     setError(null);
     setLoading(true);
     try {
-      const emailRes = await api.sendEmailOtp(email);
+      const emailRes = await api.sendEmailOtp(email.trim());
       setStep('EMAIL_OTP');
+      setResendCountdown(30);
       setSuccess(emailRes.message || 'Please enter the 6-digit OTP sent to your email.');
     } catch (err: any) {
       setError(err.message || 'Failed to send Email OTP');
@@ -109,8 +167,9 @@ export const AuthModal: React.FC = () => {
     setError(null);
     setLoading(true);
     try {
-      const smsRes = await api.sendSmsOtp(phone);
+      const smsRes = await api.sendSmsOtp(phone.trim());
       setStep('SMS_OTP');
+      setResendCountdown(30);
       setSuccess(smsRes.message || 'Please enter the 6-digit OTP sent to your mobile phone.');
     } catch (err: any) {
       setError(err.message || 'Failed to send SMS OTP');
@@ -125,7 +184,7 @@ export const AuthModal: React.FC = () => {
     setLoading(true);
 
     try {
-      const res = await api.verifyEmailOtp(email, emailOtp);
+      const res = await api.verifyEmailOtp(email.trim(), emailOtp.trim());
       if (res.error) {
         setError(res.error);
         setLoading(false);
@@ -134,8 +193,8 @@ export const AuthModal: React.FC = () => {
 
       setStep('DONE');
       setSuccess('Email verified! Your SeedhaMandi profile is active.');
-      // Auto login
-      await login(email, password);
+      // Auto login with email or phone
+      await login(email.trim() || phone.trim(), password);
       setTimeout(() => {
         closeAuthModal();
       }, 1500);
@@ -152,7 +211,7 @@ export const AuthModal: React.FC = () => {
     setLoading(true);
 
     try {
-      const res = await api.verifySmsOtp(phone, smsOtp);
+      const res = await api.verifySmsOtp(phone.trim(), smsOtp.trim());
       if (res.error) {
         setError(res.error);
         setLoading(false);
@@ -161,8 +220,8 @@ export const AuthModal: React.FC = () => {
 
       setStep('DONE');
       setSuccess('Mobile verified! Your SeedhaMandi profile is active.');
-      // Auto login
-      await login(phone, password);
+      // Auto login with phone or email
+      await login(phone.trim() || email.trim(), password);
       setTimeout(() => {
         closeAuthModal();
       }, 1500);
@@ -170,6 +229,51 @@ export const AuthModal: React.FC = () => {
       setError(err.message || 'SMS OTP verification failed');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSendLoginOtp = async () => {
+    setError(null);
+    setSuccess(null);
+    const trimmed = loginIdentifier.trim();
+    if (!trimmed) {
+      setError('Please enter your Email or Mobile Number to receive an OTP.');
+      return;
+    }
+    setLoading(true);
+    try {
+      const isEmail = trimmed.includes('@');
+      if (isEmail) {
+        const res = await api.sendEmailOtp(trimmed);
+        setSuccess(res.message || `OTP sent directly to ${trimmed}`);
+      } else {
+        const res = await api.sendSmsOtp(trimmed);
+        setSuccess(res.message || `OTP sent directly to ${trimmed}`);
+      }
+      setLoginOtpSent(true);
+      setLoginOtpCountdown(30);
+    } catch (err: any) {
+      setError(err.message || 'Failed to send OTP.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyLoginOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    const trimmed = loginIdentifier.trim();
+    if (!trimmed || !loginOtp.trim()) {
+      setError('Please provide your identifier and 6-digit OTP code.');
+      return;
+    }
+    setLoading(true);
+    const res = await loginWithOtp(trimmed, loginOtp.trim());
+    setLoading(false);
+    if (res.success) {
+      closeAuthModal();
+    } else {
+      setError(res.message || 'Invalid OTP code.');
     }
   };
 
@@ -221,6 +325,8 @@ export const AuthModal: React.FC = () => {
               setTab('login');
               setError(null);
               setSuccess(null);
+              setLoginOtpSent(false);
+              setLoginOtp('');
             }}
             className={`flex-1 py-3 text-xs font-bold uppercase tracking-wider transition ${
               tab === 'login'
@@ -266,50 +372,170 @@ export const AuthModal: React.FC = () => {
           {/* ======================= LOGIN TAB ======================= */}
           {tab === 'login' && (
             <div className="space-y-4">
-              <form onSubmit={handleLoginSubmit} className="space-y-4">
-                <div>
-                  <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">
-                    Email or Mobile Number
-                  </label>
-                  <div className="relative">
-                    <Mail className="w-4 h-4 text-stone-400 absolute left-3.5 top-3" />
-                    <input
-                      type="text"
-                      required
-                      value={loginIdentifier}
-                      onChange={e => setLoginIdentifier(e.target.value)}
-                      placeholder="e.g. ramesh.farmer@seedhamandi.in or 9823411201"
-                      className="w-full bg-stone-50 border border-stone-300 rounded-xl pl-10 pr-3.5 py-2.5 text-sm focus:outline-none focus:border-emerald-600 focus:bg-white"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">
-                    Password
-                  </label>
-                  <div className="relative">
-                    <Lock className="w-4 h-4 text-stone-400 absolute left-3.5 top-3" />
-                    <input
-                      type="password"
-                      required
-                      value={loginPassword}
-                      onChange={e => setLoginPassword(e.target.value)}
-                      placeholder="••••••••"
-                      className="w-full bg-stone-50 border border-stone-300 rounded-xl pl-10 pr-3.5 py-2.5 text-sm focus:outline-none focus:border-emerald-600 focus:bg-white"
-                    />
-                  </div>
-                </div>
-
+              {/* Login Method Toggle: Password vs OTP */}
+              <div className="flex bg-stone-100 p-1 rounded-xl gap-1">
                 <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full py-3 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl font-bold text-sm shadow-md transition active:scale-98 flex items-center justify-center gap-2"
+                  type="button"
+                  onClick={() => {
+                    setLoginMode('PASSWORD');
+                    setError(null);
+                    setSuccess(null);
+                  }}
+                  className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition ${
+                    loginMode === 'PASSWORD'
+                      ? 'bg-white text-emerald-900 shadow-xs'
+                      : 'text-stone-600 hover:text-stone-900'
+                  }`}
                 >
-                  <ShieldCheck className="w-4 h-4 text-amber-300" />
-                  <span>{loading ? 'Authenticating...' : 'Secure Sign In'}</span>
+                  Password Sign In
                 </button>
-              </form>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setLoginMode('OTP');
+                    setError(null);
+                    setSuccess(null);
+                  }}
+                  className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition ${
+                    loginMode === 'OTP'
+                      ? 'bg-white text-emerald-900 shadow-xs'
+                      : 'text-stone-600 hover:text-stone-900'
+                  }`}
+                >
+                  OTP Sign In
+                </button>
+              </div>
+
+              {loginMode === 'PASSWORD' ? (
+                <form onSubmit={handleLoginSubmit} className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">
+                      Email or Mobile Number
+                    </label>
+                    <div className="relative">
+                      <Mail className="w-4 h-4 text-stone-400 absolute left-3.5 top-3" />
+                      <input
+                        type="text"
+                        required
+                        value={loginIdentifier}
+                        onChange={e => setLoginIdentifier(e.target.value)}
+                        placeholder="e.g. 9823411201 or ramesh.farmer@seedhamandi.in"
+                        className="w-full bg-stone-50 border border-stone-300 rounded-xl pl-10 pr-3.5 py-2.5 text-sm focus:outline-none focus:border-emerald-600 focus:bg-white"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">
+                      Password
+                    </label>
+                    <div className="relative">
+                      <Lock className="w-4 h-4 text-stone-400 absolute left-3.5 top-3" />
+                      <input
+                        type="password"
+                        required
+                        value={loginPassword}
+                        onChange={e => setLoginPassword(e.target.value)}
+                        placeholder="••••••••"
+                        className="w-full bg-stone-50 border border-stone-300 rounded-xl pl-10 pr-3.5 py-2.5 text-sm focus:outline-none focus:border-emerald-600 focus:bg-white"
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full py-3 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl font-bold text-sm shadow-md transition active:scale-98 flex items-center justify-center gap-2"
+                  >
+                    <ShieldCheck className="w-4 h-4 text-amber-300" />
+                    <span>{loading ? 'Authenticating...' : 'Secure Sign In'}</span>
+                  </button>
+                </form>
+              ) : (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">
+                      Email or Mobile Number
+                    </label>
+                    <div className="relative">
+                      <Mail className="w-4 h-4 text-stone-400 absolute left-3.5 top-3" />
+                      <input
+                        type="text"
+                        required
+                        value={loginIdentifier}
+                        onChange={e => setLoginIdentifier(e.target.value)}
+                        placeholder="e.g. 9823411201 or ramesh.farmer@seedhamandi.in"
+                        disabled={loginOtpSent}
+                        className="w-full bg-stone-50 border border-stone-300 rounded-xl pl-10 pr-3.5 py-2.5 text-sm focus:outline-none focus:border-emerald-600 focus:bg-white disabled:opacity-60"
+                      />
+                    </div>
+                    <p className="text-[11px] text-stone-500 mt-1">
+                      OTP will go directly to whichever option (Email or Mobile) you provide.
+                    </p>
+                  </div>
+
+                  {!loginOtpSent ? (
+                    <button
+                      type="button"
+                      onClick={() => handleSendLoginOtp()}
+                      disabled={loading || !loginIdentifier.trim()}
+                      className="w-full py-3 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 text-white rounded-xl font-bold text-sm shadow-md transition flex items-center justify-center gap-2"
+                    >
+                      <ShieldCheck className="w-4 h-4 text-amber-300" />
+                      <span>{loading ? 'Sending OTP...' : 'Send OTP to Email / Mobile'}</span>
+                    </button>
+                  ) : (
+                    <form onSubmit={handleVerifyLoginOtp} className="space-y-4 text-center">
+                      <div>
+                        <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5 text-left">
+                          Enter 6-Digit Login OTP
+                        </label>
+                        <input
+                          type="text"
+                          maxLength={6}
+                          required
+                          value={loginOtp}
+                          onChange={e => setLoginOtp(e.target.value)}
+                          placeholder="Enter OTP"
+                          className="w-48 mx-auto text-center tracking-widest text-2xl font-mono font-bold bg-stone-50 border-2 border-emerald-600 rounded-xl py-2 focus:outline-none"
+                        />
+                      </div>
+
+                      <button
+                        type="submit"
+                        disabled={loading || loginOtp.length < 6}
+                        className="w-full py-3 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 text-white rounded-xl font-bold text-sm shadow-md transition flex items-center justify-center gap-2"
+                      >
+                        <span>{loading ? 'Verifying...' : 'Verify OTP & Sign In'}</span>
+                      </button>
+
+                      <div className="flex items-center justify-between text-xs text-stone-500 mt-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setLoginOtpSent(false);
+                            setLoginOtp('');
+                          }}
+                          className="text-stone-600 hover:text-stone-900 underline"
+                        >
+                          Change identifier
+                        </button>
+                        {loginOtpCountdown > 0 ? (
+                          <span className="font-semibold">Resend OTP in {loginOtpCountdown}s</span>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => handleSendLoginOtp()}
+                            className="text-emerald-700 font-bold hover:underline"
+                          >
+                            Resend OTP
+                          </button>
+                        )}
+                      </div>
+                    </form>
+                  )}
+                </div>
+              )}
 
               {/* Instant Demo Account Selector */}
               <div className="pt-4 border-t border-stone-200">
@@ -460,10 +686,9 @@ export const AuthModal: React.FC = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-stone-700 mb-1">Mobile Number (for SMS OTP)</label>
+                      <label className="block text-xs font-semibold text-stone-700 mb-1">Mobile Number</label>
                       <input
                         type="tel"
-                        required
                         value={phone}
                         onChange={e => setPhone(e.target.value)}
                         placeholder="+91 98234 11201"
@@ -474,10 +699,9 @@ export const AuthModal: React.FC = () => {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-semibold text-stone-700 mb-1">Email (for Email OTP)</label>
+                      <label className="block text-xs font-semibold text-stone-700 mb-1">Email (optional)</label>
                       <input
                         type="email"
-                        required
                         value={email}
                         onChange={e => setEmail(e.target.value)}
                         placeholder="ramesh@seedhamandi.in"
@@ -496,6 +720,9 @@ export const AuthModal: React.FC = () => {
                       />
                     </div>
                   </div>
+                  <p className="text-[11px] text-stone-500 mt-1">
+                    Provide either Mobile Number or Email (optional). If both are given, you can choose where to receive OTP.
+                  </p>
 
                   {/* Conditional Role Details */}
                   {role === 'FPO_REP' && (
@@ -595,6 +822,7 @@ export const AuthModal: React.FC = () => {
                     >
                       <Mail className="w-6 h-6 text-emerald-700" />
                       <span className="font-bold text-stone-800 text-sm">Send to Email</span>
+                      <span className="text-[11px] text-stone-500 truncate max-w-full">{email}</span>
                     </button>
                     <button
                       onClick={handleChooseSms}
@@ -603,6 +831,7 @@ export const AuthModal: React.FC = () => {
                     >
                       <Phone className="w-6 h-6 text-emerald-700" />
                       <span className="font-bold text-stone-800 text-sm">Send to Mobile</span>
+                      <span className="text-[11px] text-stone-500 truncate max-w-full">{phone}</span>
                     </button>
                   </div>
                 </div>
@@ -638,6 +867,20 @@ export const AuthModal: React.FC = () => {
                   >
                     {loading ? 'Verifying...' : 'Verify & Complete Account Activation'}
                   </button>
+                  <div className="mt-4 text-xs font-semibold text-stone-500">
+                    {resendCountdown > 0 ? (
+                      <span>Resend OTP in {resendCountdown}s</span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={handleChooseEmail}
+                        className="text-emerald-700 hover:underline cursor-pointer"
+                        disabled={loading}
+                      >
+                        Resend OTP
+                      </button>
+                    )}
+                  </div>
                 </form>
               )}
 
@@ -671,6 +914,20 @@ export const AuthModal: React.FC = () => {
                   >
                     {loading ? 'Verifying Mobile...' : 'Verify & Complete Account Activation'}
                   </button>
+                  <div className="mt-4 text-xs font-semibold text-stone-500">
+                    {resendCountdown > 0 ? (
+                      <span>Resend OTP in {resendCountdown}s</span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={handleChooseSms}
+                        className="text-emerald-700 hover:underline cursor-pointer"
+                        disabled={loading}
+                      >
+                        Resend OTP
+                      </button>
+                    )}
+                  </div>
                 </form>
               )}
 

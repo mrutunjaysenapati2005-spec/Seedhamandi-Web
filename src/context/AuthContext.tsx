@@ -19,6 +19,7 @@ interface AuthContextType {
   openCart: (step?: 'basket' | 'checkout') => void;
   closeCart: () => void;
   login: (identifier: string, pass: string) => Promise<{ success: boolean; message?: string }>;
+  loginWithOtp: (identifier: string, otp: string) => Promise<{ success: boolean; message?: string }>;
   logout: () => void;
   quickSwitchRole: (role: UserRole) => void;
   openAuthModal: (mode?: 'login' | 'register', defaultRole?: UserRole) => void;
@@ -199,6 +200,22 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  const loginWithOtp = async (identifier: string, otp: string) => {
+    try {
+      const res = await api.loginWithOtp(identifier, otp);
+      if (res.token && res.user) {
+        setUser(res.user);
+        setToken(res.token);
+        localStorage.setItem('seedhamandi_token', res.token);
+        localStorage.setItem('seedhamandi_user', JSON.stringify(res.user));
+        return { success: true };
+      }
+      return { success: false, message: res.error || 'OTP Login failed' };
+    } catch (err: any) {
+      return { success: false, message: err.message };
+    }
+  };
+
   const logout = () => {
     setUser(null);
     setToken(null);
@@ -256,6 +273,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         openCart,
         closeCart,
         login,
+        loginWithOtp,
         logout,
         quickSwitchRole,
         openAuthModal,

@@ -83,25 +83,32 @@ app.post('/api/auth/register', (req, res) => {
   try {
     const { name, email, phone, role, password, village, district, state, fpoName, fpoFarmersCount, vehicleType, vehicleNumber } = req.body;
 
-    if (!name || !email || !phone || !password || !role) {
-      return res.status(400).json({ error: 'All primary fields (name, email, phone, role, password) are required.' });
+    const trimmedEmail = email ? String(email).trim().toLowerCase() : '';
+    const trimmedPhone = phone ? String(phone).trim() : '';
+
+    if (!name || (!trimmedEmail && !trimmedPhone) || !password || !role) {
+      return res.status(400).json({ error: 'Name, role, password, and at least one contact method (email or mobile phone) are required.' });
     }
 
-    const existingEmail = db.getUserByEmail(email);
-    if (existingEmail) {
-      return res.status(400).json({ error: 'An account with this email already exists.' });
+    if (trimmedEmail) {
+      const existingEmail = db.getUserByEmail(trimmedEmail);
+      if (existingEmail) {
+        return res.status(400).json({ error: 'An account with this email already exists.' });
+      }
     }
 
-    const existingPhone = db.getUserByPhone(phone);
-    if (existingPhone) {
-      return res.status(400).json({ error: 'An account with this mobile phone already exists.' });
+    if (trimmedPhone) {
+      const existingPhone = db.getUserByPhone(trimmedPhone);
+      if (existingPhone) {
+        return res.status(400).json({ error: 'An account with this mobile phone already exists.' });
+      }
     }
 
     const newUser: UserDoc = {
       id: 'usr_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
       name: name.trim(),
-      email: email.trim().toLowerCase(),
-      phone: phone.trim(),
+      email: trimmedEmail,
+      phone: trimmedPhone,
       role,
       passwordHash: hashString(password),
       isEmailVerified: false,
@@ -225,6 +232,58 @@ app.post('/api/auth/login', (req, res) => {
     const token = createJwtToken(user);
     res.json({
       message: 'Login successful',
+      token,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        role: user.role,
+        isEmailVerified: user.isEmailVerified,
+        isPhoneVerified: user.isPhoneVerified,
+        village: user.village,
+        district: user.district,
+        state: user.state,
+        fpoName: user.fpoName,
+        fpoFarmersCount: user.fpoFarmersCount,
+        vehicleType: user.vehicleType,
+        vehicleNumber: user.vehicleNumber,
+      },
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/auth/login-with-otp', (req, res) => {
+  try {
+    const { identifier, otp } = req.body;
+    if (!identifier || !otp) {
+      return res.status(400).json({ error: 'Identifier (email or mobile) and OTP are required.' });
+    }
+
+    const trimmed = identifier.trim();
+    const isEmail = trimmed.includes('@');
+    const otpResult = verifyOtp(trimmed, isEmail ? 'EMAIL' : 'SMS', otp);
+
+    if (!otpResult.success) {
+      return res.status(400).json({ error: otpResult.message });
+    }
+
+    const user = isEmail ? db.getUserByEmail(trimmed) : db.getUserByPhone(trimmed);
+    if (!user) {
+      return res.status(404).json({ error: 'No account found with this ' + (isEmail ? 'email address' : 'mobile number') + '.' });
+    }
+
+    if (isEmail) {
+      db.updateUser(user.id, { isEmailVerified: true });
+    } else {
+      db.updateUser(user.id, { isPhoneVerified: true });
+    }
+
+    const token = createJwtToken(user);
+    res.json({
+      message: 'Login successful via OTP',
       token,
       user: {
         id: user.id,

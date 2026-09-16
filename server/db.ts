@@ -747,11 +747,18 @@ class DatabaseStore {
   }
 
   getUserByEmail(email: string) {
-    return this.users.find(u => u.email.toLowerCase() === email.toLowerCase());
+    if (!email || !email.trim()) return undefined;
+    return this.users.find(u => u.email && u.email.toLowerCase() === email.trim().toLowerCase());
   }
 
   getUserByPhone(phone: string) {
-    return this.users.find(u => u.phone === phone);
+    if (!phone || !phone.trim()) return undefined;
+    const clean = phone.replace(/\D/g, '').slice(-10);
+    return this.users.find(u => {
+      if (!u.phone || !u.phone.trim()) return false;
+      const uClean = u.phone.replace(/\D/g, '').slice(-10);
+      return (clean && uClean === clean) || u.phone.trim() === phone.trim();
+    });
   }
 
   addUser(user: UserDoc) {

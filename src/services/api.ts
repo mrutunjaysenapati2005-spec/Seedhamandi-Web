@@ -31,6 +31,15 @@ export const api = {
     return res.json();
   },
 
+  async loginWithOtp(identifier: string, otp: string) {
+    const res = await fetch('/api/auth/login-with-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ identifier, otp }),
+    });
+    return res.json();
+  },
+
   async sendEmailOtp(email: string) {
     const res = await fetch('/api/auth/send-email-otp', {
       method: 'POST',
