@@ -76,13 +76,26 @@ export async function sendEmailOtp(email: string): Promise<{ success: boolean; m
   if (emailUser && emailPass) {
     try {
       // In production with credentials, sends real email via SMTP
-      const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-          user: emailUser,
-          pass: emailPass,
-        },
-      });
+      // Render has known issues with IPv6 and Gmail, so we force IPv4 on port 587 if RENDER env is present
+      const isRender = process.env.RENDER === 'true' || !!process.env.RENDER;
+      const transporter = isRender
+        ? nodemailer.createTransport({
+            host: 'smtp.gmail.com',
+            port: 587,
+            secure: false, // Upgrade to TLS
+            auth: {
+              user: emailUser,
+              pass: emailPass,
+            },
+            family: 4, // Force IPv4
+          } as any)
+        : nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+              user: emailUser,
+              pass: emailPass,
+            },
+          });
 
       await transporter.sendMail({
         from: `"SeedhaMandi" <${emailUser}>`,
