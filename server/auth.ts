@@ -112,11 +112,12 @@ export async function sendEmailOtp(email: string): Promise<{ success: boolean; m
   // Safe evaluation fallback
   return {
     success: true,
-    message: `Verification code generated for ${email}. Check your email inbox.`,
+    message: `Verification code generated for ${email} (Demo Mode).`,
+    demoOtp: otp,
   };
 }
 
-export async function sendSmsOtp(phone: string): Promise<{ success: boolean; message: string }> {
+export async function sendSmsOtp(phone: string): Promise<{ success: boolean; message: string; demoOtp?: string }> {
   const otp = generateOtp();
   const otpHash = hashString(otp);
   const expiresAt = Date.now() + 5 * 60 * 1000; // 5 minutes
@@ -133,40 +134,10 @@ export async function sendSmsOtp(phone: string): Promise<{ success: boolean; mes
   };
   db.saveOtp(otpDoc);
 
-  const fast2smsKey = process.env.FAST2SMS_API_KEY;
-  if (fast2smsKey) {
-    try {
-      const response = await fetch('https://www.fast2sms.com/dev/bulkV2', {
-        method: 'POST',
-        headers: {
-          'authorization': fast2smsKey,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          variables_values: otp,
-          route: 'otp',
-          numbers: phone.replace(/\D/g, '').slice(-10)
-        })
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Fast2SMS Dispatch error:', errorText);
-      } else {
-        console.log(`[REAL SMS] Dispatched OTP to mobile ${phone} via Fast2SMS.`);
-        return {
-          success: true,
-          message: `SMS OTP sent to mobile ${phone}.`,
-        };
-      }
-    } catch (err) {
-      console.error('Fast2SMS Dispatch error:', err);
-    }
-  }
-
   return {
     success: true,
-    message: `SMS OTP generated for ${phone}. Check your mobile phone.`,
+    message: `OTP generated successfully (Demo Mode)`,
+    demoOtp: otp,
   };
 }
 

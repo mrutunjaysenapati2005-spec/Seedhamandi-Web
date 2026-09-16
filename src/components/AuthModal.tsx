@@ -42,6 +42,7 @@ export const AuthModal: React.FC = () => {
   // OTP inputs
   const [emailOtp, setEmailOtp] = useState('');
   const [smsOtp, setSmsOtp] = useState('');
+  const [demoOtp, setDemoOtp] = useState<string | null>(null);
 
   // States
   const [loading, setLoading] = useState(false);
@@ -124,6 +125,7 @@ export const AuthModal: React.FC = () => {
           setStep('EMAIL_OTP');
           setResendCountdown(30);
           setSuccess(emailRes.message || `OTP sent directly to ${trimmedEmail}. Enter the 6-digit code.`);
+          if (emailRes.demoOtp) setDemoOtp(emailRes.demoOtp);
         } catch (err: any) {
           setError(err.message || 'Failed to send Email OTP');
         } finally {
@@ -136,6 +138,7 @@ export const AuthModal: React.FC = () => {
           setStep('SMS_OTP');
           setResendCountdown(30);
           setSuccess(smsRes.message || `OTP sent directly to ${trimmedPhone}. Enter the 6-digit code.`);
+          if (smsRes.demoOtp) setDemoOtp(smsRes.demoOtp);
         } catch (err: any) {
           setError(err.message || 'Failed to send SMS OTP');
         } finally {
@@ -156,6 +159,7 @@ export const AuthModal: React.FC = () => {
       setStep('EMAIL_OTP');
       setResendCountdown(30);
       setSuccess(emailRes.message || 'Please enter the 6-digit OTP sent to your email.');
+      if (emailRes.demoOtp) setDemoOtp(emailRes.demoOtp);
     } catch (err: any) {
       setError(err.message || 'Failed to send Email OTP');
     } finally {
@@ -171,6 +175,7 @@ export const AuthModal: React.FC = () => {
       setStep('SMS_OTP');
       setResendCountdown(30);
       setSuccess(smsRes.message || 'Please enter the 6-digit OTP sent to your mobile phone.');
+      if (smsRes.demoOtp) setDemoOtp(smsRes.demoOtp);
     } catch (err: any) {
       setError(err.message || 'Failed to send SMS OTP');
     } finally {
@@ -246,9 +251,11 @@ export const AuthModal: React.FC = () => {
       if (isEmail) {
         const res = await api.sendEmailOtp(trimmed);
         setSuccess(res.message || `OTP sent directly to ${trimmed}`);
+        if (res.demoOtp) setDemoOtp(res.demoOtp);
       } else {
         const res = await api.sendSmsOtp(trimmed);
         setSuccess(res.message || `OTP sent directly to ${trimmed}`);
+        if (res.demoOtp) setDemoOtp(res.demoOtp);
       }
       setLoginOtpSent(true);
       setLoginOtpCountdown(30);
@@ -486,6 +493,19 @@ export const AuthModal: React.FC = () => {
                     </button>
                   ) : (
                     <form onSubmit={handleVerifyLoginOtp} className="space-y-4 text-center">
+                      {demoOtp && (
+                        <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-2 text-sm flex flex-col items-center">
+                          <span className="font-bold text-amber-800 mb-1">Demo Mode Active</span>
+                          <span className="text-amber-900">Your verification code is: <strong className="text-lg bg-amber-100 px-2 py-0.5 rounded">{demoOtp}</strong></span>
+                          <button
+                            type="button"
+                            onClick={() => setLoginOtp(demoOtp)}
+                            className="mt-2 px-3 py-1.5 bg-amber-200 hover:bg-amber-300 text-amber-900 rounded-md font-semibold text-xs transition"
+                          >
+                            Auto-fill OTP
+                          </button>
+                        </div>
+                      )}
                       <div>
                         <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5 text-left">
                           Enter 6-Digit Login OTP
@@ -840,6 +860,19 @@ export const AuthModal: React.FC = () => {
               {/* STEP 2: EMAIL OTP */}
               {step === 'EMAIL_OTP' && (
                 <form onSubmit={handleVerifyEmailOtp} className="space-y-4 text-center py-4">
+                  {demoOtp && (
+                    <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-2 text-sm flex flex-col items-center">
+                      <span className="font-bold text-amber-800 mb-1">Demo Mode Active</span>
+                      <span className="text-amber-900">Your verification code is: <strong className="text-lg bg-amber-100 px-2 py-0.5 rounded">{demoOtp}</strong></span>
+                      <button
+                        type="button"
+                        onClick={() => setEmailOtp(demoOtp)}
+                        className="mt-2 px-3 py-1.5 bg-amber-200 hover:bg-amber-300 text-amber-900 rounded-md font-semibold text-xs transition"
+                      >
+                        Auto-fill OTP
+                      </button>
+                    </div>
+                  )}
                   <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center mx-auto">
                     <Mail className="w-6 h-6" />
                   </div>
@@ -887,6 +920,19 @@ export const AuthModal: React.FC = () => {
               {/* STEP 3: SMS OTP */}
               {step === 'SMS_OTP' && (
                 <form onSubmit={handleVerifySmsOtp} className="space-y-4 text-center py-4">
+                  {demoOtp && (
+                    <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-2 text-sm flex flex-col items-center">
+                      <span className="font-bold text-amber-800 mb-1">Demo Mode Active</span>
+                      <span className="text-amber-900">Your verification code is: <strong className="text-lg bg-amber-100 px-2 py-0.5 rounded">{demoOtp}</strong></span>
+                      <button
+                        type="button"
+                        onClick={() => setSmsOtp(demoOtp)}
+                        className="mt-2 px-3 py-1.5 bg-amber-200 hover:bg-amber-300 text-amber-900 rounded-md font-semibold text-xs transition"
+                      >
+                        Auto-fill OTP
+                      </button>
+                    </div>
+                  )}
                   <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center mx-auto">
                     <Phone className="w-6 h-6" />
                   </div>

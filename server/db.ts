@@ -733,19 +733,16 @@ class DatabaseStore {
         this.mongoConnectionStatus = 'Connected to MongoDB Atlas';
         console.log('Successfully connected to MongoDB Atlas for SeedhaMandi!');
       } catch (err: any) {
-        console.warn('\n================ MONGODB ATLAS CONNECTION FAILED ================');
-        console.warn('Could not connect to MongoDB Atlas. Falling back to embedded store.');
-        console.warn('Reason:', err.message);
+        console.info('\n--- MONGODB ATLAS CONNECTION FALLBACK ---');
+        console.info('Could not connect to MongoDB Atlas. Safely falling back to the embedded document store.');
+        console.info('Reason:', err.message);
         if (err.message.includes('IP that isn\'t whitelisted') || err.message.includes('network')) {
-          console.warn('\nACTION REQUIRED:');
-          console.warn('The AI Studio environment uses dynamic IP addresses.');
-          console.warn('To connect to MongoDB Atlas, you MUST allow access from anywhere:');
-          console.warn('1. Go to your MongoDB Atlas Dashboard -> Network Access');
-          console.warn('2. Click "Add IP Address"');
-          console.warn('3. Click "ALLOW ACCESS FROM ANYWHERE" (which adds 0.0.0.0/0)');
-          console.warn('4. Confirm and wait 2-3 minutes for the rules to deploy.');
+          console.info('ACTION REQUIRED to connect to your live database:');
+          console.info('1. Go to your MongoDB Atlas Dashboard -> Network Access');
+          console.info('2. Click "Add IP Address" -> "ALLOW ACCESS FROM ANYWHERE" (0.0.0.0/0)');
+          console.info('3. Confirm and wait 2-3 minutes.');
         }
-        console.warn('=================================================================\n');
+        console.info('-----------------------------------------\n');
         this.mongoConnectionStatus = `Atlas unreachable (${err.message}). Using Resilient Document Store.`;
       }
     } else {
