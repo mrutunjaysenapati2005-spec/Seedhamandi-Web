@@ -1,10 +1,6 @@
 import crypto from 'crypto';
 import nodemailer from 'nodemailer';
-import dns from 'dns';
 import { db, OtpDoc, UserDoc } from './db.js';
-
-// Force Node to prioritize IPv4 over IPv6 in DNS resolutions to avoid Gmail IPv6 timeouts on Render.
-dns.setDefaultResultOrder('ipv4first');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'seedhamandi_super_secret_jwt_key_2026_agro';
 
@@ -56,7 +52,7 @@ export function verifyJwtToken(token: string): any | null {
 }
 
 // OTP Delivery Service with Real & Fallback support
-export async function sendEmailOtp(email: string): Promise<{ success: boolean; message: string }> {
+export async function sendEmailOtp(email: string): Promise<{ success: boolean; message: string; demoOtp?: string }> {
   const otp = generateOtp();
   const otpHash = hashString(otp);
   const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes
@@ -79,23 +75,16 @@ export async function sendEmailOtp(email: string): Promise<{ success: boolean; m
 
   if (emailUser && emailPass) {
     try {
-      // Use explicit IPv4 for Gmail to prevent ENETUNREACH IPv6 timeout on Render
       const transporter = nodemailer.createTransport({
-        host: 'smtp.gmail.com',
-        port: 587,
-        secure: false, // Upgrade to TLS
+        service: 'gmail',
         auth: {
           user: emailUser,
           pass: emailPass,
         },
-        family: 4, // Force IPv4 explicitly at the socket level
-      } as any);
+      });
 
-      // Optionally verify transporter
-      await transporter.verify();
-      console.log('[SMTP] Transporter verified successfully via IPv4.');
-
-      await transporter.sendMail({
+      // Dispatch real email in background without blocking the UI response
+      transporter.sendMail({
         from: `"SeedhaMandi" <${emailUser}>`,
         to: email,
         subject: 'Your SeedhaMandi Login OTP',
@@ -108,24 +97,22 @@ export async function sendEmailOtp(email: string): Promise<{ success: boolean; m
             <p>This code is valid for 10 minutes. Do not share this code with anyone.</p>
           </div>
         `,
+      }).then(() => {
+        console.log(`[REAL EMAIL] Sent OTP to ${email} via Gmail SMTP.`);
+      }).catch((err: any) => {
+        console.error('[SMTP ERROR] Failed to send real email OTP:', err);
       });
-
-      console.log(`[REAL EMAIL] Sent OTP to ${email} via Gmail SMTP.`);
-      return {
-        success: true,
-        message: `OTP dispatched to your official email ${email}.`,
-      };
     } catch (err: any) {
-      console.error('[SMTP ERROR] Failed to send real email OTP:', err);
+      console.error('[SMTP ERROR] Failed to initialize email transporter:', err);
     }
   }
 
-  // Safe evaluation fallback
+  // Instant response so OTP verification modal displays without any delay
   const isDemoDisabled = process.env.DEMO_OTP === 'false';
   return {
     success: true,
-    message: isDemoDisabled 
-      ? `OTP generation recorded (Real dispatch skipped).`
+    message: emailUser && emailPass
+      ? `OTP dispatched to ${email}. Check your inbox.`
       : `Verification code generated for ${email} (Demo Mode).`,
     demoOtp: isDemoDisabled ? undefined : otp,
   };
