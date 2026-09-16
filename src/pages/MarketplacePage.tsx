@@ -146,19 +146,19 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   });
 
   return (
-    <div className="min-h-screen bg-stone-50 py-8">
+    <div className="min-h-screen bg-stone-50 dark:bg-stone-950 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
 
         {/* Top Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-stone-200 pb-5">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-stone-200 dark:border-stone-700 pb-5">
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-black text-stone-900 tracking-tight">Direct Agro Marketplace</h1>
+              <h1 className="text-2xl font-black text-stone-900 dark:text-stone-100 tracking-tight">Direct Agro Marketplace</h1>
               <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold">
                 {products.length} Lots Available
               </span>
             </div>
-            <p className="text-xs text-stone-500 mt-1">
+            <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">
               Source farm-fresh produce direct from registered village growers and FPOs. Zero middleman markup.
             </p>
           </div>
@@ -182,14 +182,14 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
         </div>
 
         {/* Market Mode Switcher (Retail Basket vs Bulk Wholesale vs RFQ Desk) */}
-        <div className="bg-white p-2 rounded-2xl border border-stone-200 shadow-2xs flex flex-wrap items-center justify-between gap-2">
+        <div className="bg-white dark:bg-stone-900 transition-colors p-2 rounded-2xl border border-stone-200 dark:border-stone-700 shadow-2xs flex flex-wrap items-center justify-between gap-2">
           <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => setMarketMode('retail')}
               className={`px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 transition ${
                 marketMode === 'retail'
                   ? 'bg-emerald-800 text-white shadow-xs'
-                  : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100'
+                  : 'text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:text-stone-100 hover:bg-stone-100'
               }`}
             >
               <ShoppingBag className="w-4 h-4" />
@@ -201,7 +201,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
               className={`px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 transition ${
                 marketMode === 'bulk'
                   ? 'bg-emerald-800 text-white shadow-xs'
-                  : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100'
+                  : 'text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:text-stone-100 hover:bg-stone-100'
               }`}
             >
               <Truck className="w-4 h-4" />
@@ -216,7 +216,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
               className={`px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 transition ${
                 marketMode === 'rfq'
                   ? 'bg-emerald-800 text-white shadow-xs'
-                  : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100'
+                  : 'text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:text-stone-100 hover:bg-stone-100'
               }`}
             >
               <Building className="w-4 h-4" />
@@ -272,7 +272,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
               {rfqs.map(rfq => (
                 <div
                   key={rfq.id}
-                  className="bg-white rounded-3xl border border-stone-200 p-5 shadow-xs flex flex-col justify-between space-y-4"
+                  className="bg-white dark:bg-stone-900 transition-colors rounded-3xl border border-stone-200 dark:border-stone-700 p-5 shadow-xs flex flex-col justify-between space-y-4"
                 >
                   <div className="space-y-3">
                     <div className="flex items-start justify-between gap-2">
@@ -280,7 +280,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                         <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400">
                           {rfq.organization}
                         </span>
-                        <h3 className="font-extrabold text-stone-900 text-base">{rfq.cropName}</h3>
+                        <h3 className="font-extrabold text-stone-900 dark:text-stone-100 text-base">{rfq.cropName}</h3>
                       </div>
                       <span className={`px-2.5 py-1 rounded-full text-[10px] font-black tracking-wider uppercase ${
                         rfq.status === 'MATCHED'
@@ -291,20 +291,20 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                       </span>
                     </div>
 
-                    <div className="p-3 rounded-2xl bg-stone-50 border border-stone-100 space-y-2 text-xs">
-                      <div className="flex justify-between text-stone-600">
+                    <div className="p-3 rounded-2xl bg-stone-50 dark:bg-stone-950 border border-stone-100 space-y-2 text-xs">
+                      <div className="flex justify-between text-stone-600 dark:text-stone-300">
                         <span>Required Volume:</span>
-                        <span className="font-extrabold text-stone-900">{rfq.quantityRequired.toLocaleString()} {rfq.unit}</span>
+                        <span className="font-extrabold text-stone-900 dark:text-stone-100">{rfq.quantityRequired.toLocaleString()} {rfq.unit}</span>
                       </div>
-                      <div className="flex justify-between text-stone-600">
+                      <div className="flex justify-between text-stone-600 dark:text-stone-300">
                         <span>Target Fair Price:</span>
                         <span className="font-extrabold text-emerald-800">₹{rfq.targetPricePerUnit}/{rfq.unit}</span>
                       </div>
-                      <div className="flex justify-between text-stone-600">
+                      <div className="flex justify-between text-stone-600 dark:text-stone-300">
                         <span>Delivery By:</span>
-                        <span className="font-bold text-stone-800">{rfq.requiredByDate}</span>
+                        <span className="font-bold text-stone-800 dark:text-stone-200">{rfq.requiredByDate}</span>
                       </div>
-                      <div className="flex justify-between text-stone-600">
+                      <div className="flex justify-between text-stone-600 dark:text-stone-300">
                         <span>Logistics Fleet:</span>
                         <span className="font-bold text-blue-800">
                           {rfq.vehicleTypeRequired === 'TRACTOR' ? '🚜 Tractor / Agro Trolley' : '🚚 Mini Truck'}
@@ -312,7 +312,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                       </div>
                     </div>
 
-                    <div className="text-[11px] text-stone-500 space-y-1">
+                    <div className="text-[11px] text-stone-500 dark:text-stone-400 space-y-1">
                       <div className="flex items-center gap-1.5">
                         <MapPin className="w-3.5 h-3.5 text-stone-400 shrink-0" />
                         <span className="truncate">{rfq.deliveryLocation}</span>
@@ -369,7 +369,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                     value={searchQuery}
                     onChange={e => setSearchQuery(e.target.value)}
                     placeholder="Search crops, varieties, farm locations, or farmer names..."
-                    className="w-full bg-white border border-stone-200 rounded-xl pl-10 pr-4 py-2.5 text-xs text-stone-800 focus:outline-none focus:border-emerald-600 shadow-xs"
+                    className="w-full bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded-xl pl-10 pr-4 py-2.5 text-xs text-stone-800 dark:text-stone-200 focus:outline-none focus:border-emerald-600 shadow-xs"
                   />
                 </div>
 
@@ -378,7 +378,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                   <select
                     value={sortBy}
                     onChange={e => setSortBy(e.target.value as any)}
-                    className="w-full bg-white border border-stone-200 rounded-xl px-3.5 py-2.5 text-xs text-stone-700 font-medium focus:outline-none focus:border-emerald-600 shadow-xs"
+                    className="w-full bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded-xl px-3.5 py-2.5 text-xs text-stone-700 dark:text-stone-300 font-medium focus:outline-none focus:border-emerald-600 shadow-xs"
                   >
                     <option value="featured">Sort by: Featured & Freshness</option>
                     <option value="price_low">Price: Low to High</option>
@@ -387,8 +387,8 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                 </div>
 
                 {/* Organic Toggle */}
-                <div className="md:col-span-3 flex items-center justify-between md:justify-end gap-2 bg-white px-4 py-2 rounded-xl border border-stone-200 shadow-xs">
-                  <span className="text-xs font-bold text-stone-700">Certified Organic Only</span>
+                <div className="md:col-span-3 flex items-center justify-between md:justify-end gap-2 bg-white dark:bg-stone-900 px-4 py-2 rounded-xl border border-stone-200 dark:border-stone-700 shadow-xs">
+                  <span className="text-xs font-bold text-stone-700 dark:text-stone-300">Certified Organic Only</span>
                   <button
                     type="button"
                     onClick={() => setOrganicOnly(!organicOnly)}
@@ -397,7 +397,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                     }`}
                   >
                     <span
-                      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+                      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white dark:bg-stone-900 shadow-md ring-0 transition duration-200 ease-in-out ${
                         organicOnly ? 'translate-x-5' : 'translate-x-0'
                       }`}
                     />
@@ -414,7 +414,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                     className={`px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${
                       selectedCategory === cat
                         ? 'bg-emerald-800 text-white shadow-xs'
-                        : 'bg-white text-stone-600 hover:bg-stone-100 border border-stone-200'
+                        : 'bg-white dark:bg-stone-900 text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:bg-stone-800 border border-stone-200'
                     }`}
                   >
                     {cat}
@@ -451,10 +451,10 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
 
             {/* Product Grid */}
             {sortedProducts.length === 0 ? (
-              <div className="text-center py-16 bg-white rounded-2xl border border-stone-200">
+              <div className="text-center py-16 bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-700">
                 <Sprout className="w-12 h-12 text-stone-300 mx-auto mb-3" />
-                <h3 className="text-base font-bold text-stone-700">No produce matching your criteria</h3>
-                <p className="text-xs text-stone-500 mt-1">Try resetting filters or category selections.</p>
+                <h3 className="text-base font-bold text-stone-700 dark:text-stone-300">No produce matching your criteria</h3>
+                <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">Try resetting filters or category selections.</p>
                 <button
                   onClick={() => {
                     setSelectedCategory('All');
@@ -481,11 +481,11 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.4, delay: index * 0.05, ease: 'easeOut' }}
-                      className="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-2xs hover:shadow-md transition-shadow flex flex-col justify-between group"
+                      className="bg-white dark:bg-stone-900 transition-colors rounded-2xl border border-stone-200 dark:border-stone-700 overflow-hidden shadow-2xs hover:shadow-md transition-shadow flex flex-col justify-between group"
                     >
                       <div>
                         {/* Image Container */}
-                        <div className="relative h-48 bg-stone-100 overflow-hidden">
+                        <div className="relative h-48 bg-stone-100 dark:bg-stone-800 overflow-hidden">
                           <img
                             src={product.image}
                             alt={product.name}
@@ -514,13 +514,13 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                           <div className="flex items-start justify-between gap-1">
                             <h3 
                               onClick={() => setSelectedProductDetail(product)}
-                              className="font-bold text-stone-900 text-sm hover:text-emerald-700 cursor-pointer line-clamp-1"
+                              className="font-bold text-stone-900 dark:text-stone-100 text-sm hover:text-emerald-700 cursor-pointer line-clamp-1"
                             >
                               {product.name}
                             </h3>
                           </div>
 
-                          <div className="space-y-1 text-xs text-stone-500">
+                          <div className="space-y-1 text-xs text-stone-500 dark:text-stone-400">
                             <div className="flex items-center gap-1">
                               <Sprout className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                               <span className="truncate">{product.farmerName}</span>
@@ -531,7 +531,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                             </div>
                           </div>
 
-                          <p className="text-xs text-stone-600 line-clamp-2 leading-relaxed">
+                          <p className="text-xs text-stone-600 dark:text-stone-300 line-clamp-2 leading-relaxed">
                             {product.description}
                           </p>
                         </div>
@@ -542,7 +542,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                         <div>
                           <div className="text-base font-black text-emerald-900">
                             ₹{displayPrice}
-                            <span className="text-xs font-normal text-stone-500">/{product.unit}</span>
+                            <span className="text-xs font-normal text-stone-500 dark:text-stone-400">/{product.unit}</span>
                           </div>
                           {isBulk ? (
                             <div className="text-[10px] text-amber-800 font-bold">
@@ -599,7 +599,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
       {/* ===================================================================== */}
       {isRfqModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/70 backdrop-blur-xs overflow-y-auto">
-          <div className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-stone-200 overflow-hidden my-8">
+          <div className="relative w-full max-w-lg bg-white dark:bg-stone-900 rounded-3xl shadow-2xl border border-stone-200 dark:border-stone-700 overflow-hidden my-8">
             <div className="bg-emerald-900 text-white p-6 relative">
               <button
                 onClick={() => setIsRfqModalOpen(false)}
@@ -618,36 +618,36 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
 
             <form onSubmit={handleCreateRfq} className="p-6 space-y-4">
               <div className="space-y-1">
-                <label className="text-xs font-bold text-stone-700">Organization / Buyer Name</label>
+                <label className="text-xs font-bold text-stone-700 dark:text-stone-300">Organization / Buyer Name</label>
                 <input
                   type="text"
                   required
                   value={rfqOrganization}
                   onChange={e => setRfqOrganization(e.target.value)}
                   placeholder="e.g. Kalinga Hotel & Convention / KIIT Hostel Mess"
-                  className="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-xs text-stone-800 focus:outline-none focus:border-emerald-600"
+                  className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 rounded-xl px-3.5 py-2.5 text-xs text-stone-800 dark:text-stone-200 focus:outline-none focus:border-emerald-600"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-stone-700">Crop / Variety</label>
+                  <label className="text-xs font-bold text-stone-700 dark:text-stone-300">Crop / Variety</label>
                   <input
                     type="text"
                     required
                     value={rfqCropName}
                     onChange={e => setRfqCropName(e.target.value)}
                     placeholder="e.g. Nashik Red Onions"
-                    className="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-xs text-stone-800 focus:outline-none focus:border-emerald-600"
+                    className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 rounded-xl px-3.5 py-2.5 text-xs text-stone-800 dark:text-stone-200 focus:outline-none focus:border-emerald-600"
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-stone-700">Category</label>
+                  <label className="text-xs font-bold text-stone-700 dark:text-stone-300">Category</label>
                   <select
                     value={rfqCategory}
                     onChange={e => setRfqCategory(e.target.value as any)}
-                    className="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-xs text-stone-800 focus:outline-none focus:border-emerald-600"
+                    className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 rounded-xl px-3.5 py-2.5 text-xs text-stone-800 dark:text-stone-200 focus:outline-none focus:border-emerald-600"
                   >
                     <option value="Vegetables">Vegetables</option>
                     <option value="Fruits">Fruits</option>
@@ -661,7 +661,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-stone-700">Required Quantity (kg)</label>
+                  <label className="text-xs font-bold text-stone-700 dark:text-stone-300">Required Quantity (kg)</label>
                   <input
                     type="number"
                     min="50"
@@ -669,12 +669,12 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                     required
                     value={rfqQuantity}
                     onChange={e => setRfqQuantity(e.target.value)}
-                    className="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-xs text-stone-800 focus:outline-none focus:border-emerald-600"
+                    className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 rounded-xl px-3.5 py-2.5 text-xs text-stone-800 dark:text-stone-200 focus:outline-none focus:border-emerald-600"
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-stone-700">Target Price (₹/kg)</label>
+                  <label className="text-xs font-bold text-stone-700 dark:text-stone-300">Target Price (₹/kg)</label>
                   <input
                     type="number"
                     min="5"
@@ -682,31 +682,31 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                     required
                     value={rfqTargetPrice}
                     onChange={e => setRfqTargetPrice(e.target.value)}
-                    className="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-xs text-stone-800 focus:outline-none focus:border-emerald-600"
+                    className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 rounded-xl px-3.5 py-2.5 text-xs text-stone-800 dark:text-stone-200 focus:outline-none focus:border-emerald-600"
                   />
                 </div>
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-bold text-stone-700">Delivery Destination in Bhubaneswar</label>
+                <label className="text-xs font-bold text-stone-700 dark:text-stone-300">Delivery Destination in Bhubaneswar</label>
                 <input
                   type="text"
                   required
                   value={rfqLocation}
                   onChange={e => setRfqLocation(e.target.value)}
                   placeholder="e.g. Saheed Nagar Market / Patia Campus Depot"
-                  className="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-xs text-stone-800 focus:outline-none focus:border-emerald-600"
+                  className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 rounded-xl px-3.5 py-2.5 text-xs text-stone-800 dark:text-stone-200 focus:outline-none focus:border-emerald-600"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-bold text-stone-700">Required By Date</label>
+                <label className="text-xs font-bold text-stone-700 dark:text-stone-300">Required By Date</label>
                 <input
                   type="date"
                   required
                   value={rfqDate}
                   onChange={e => setRfqDate(e.target.value)}
-                  className="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-xs text-stone-800 focus:outline-none focus:border-emerald-600"
+                  className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 rounded-xl px-3.5 py-2.5 text-xs text-stone-800 dark:text-stone-200 focus:outline-none focus:border-emerald-600"
                 />
               </div>
 
@@ -726,8 +726,8 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
       {/* Product Detail Modal */}
       {selectedProductDetail && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-xs animate-in fade-in">
-          <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-stone-200 overflow-hidden">
-            <div className="relative h-56 bg-stone-100">
+          <div className="bg-white dark:bg-stone-900 transition-colors w-full max-w-lg rounded-2xl shadow-2xl border border-stone-200 dark:border-stone-700 overflow-hidden">
+            <div className="relative h-56 bg-stone-100 dark:bg-stone-800">
               <img
                 src={selectedProductDetail.image}
                 alt={selectedProductDetail.name}
@@ -746,8 +746,8 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
 
             <div className="p-6 space-y-4">
               <div>
-                <h3 className="text-lg font-black text-stone-900">{selectedProductDetail.name}</h3>
-                <p className="text-xs text-stone-500 mt-0.5">
+                <h3 className="text-lg font-black text-stone-900 dark:text-stone-100">{selectedProductDetail.name}</h3>
+                <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5">
                   Category: {selectedProductDetail.category} • Harvested: {selectedProductDetail.harvestDate}
                 </p>
               </div>
@@ -758,10 +758,10 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                   <ShieldCheck className="w-4 h-4 text-emerald-700" />
                   <span>Direct Farm Traceability Certificate</span>
                 </div>
-                <div className="text-stone-600">
+                <div className="text-stone-600 dark:text-stone-300">
                   • <strong>Grower:</strong> {selectedProductDetail.farmerName} ({selectedProductDetail.location}, {selectedProductDetail.state})
                 </div>
-                <div className="text-stone-600">
+                <div className="text-stone-600 dark:text-stone-300">
                   • <strong>Fair Farmgate Realization:</strong> 100% of ₹{selectedProductDetail.price}/{selectedProductDetail.unit} directly to farmer bank account.
                 </div>
               </div>
@@ -769,7 +769,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
               <div className="flex items-center justify-between pt-2">
                 <div className="text-2xl font-black text-emerald-900">
                   ₹{selectedProductDetail.price}
-                  <span className="text-xs font-normal text-stone-500">/{selectedProductDetail.unit}</span>
+                  <span className="text-xs font-normal text-stone-500 dark:text-stone-400">/{selectedProductDetail.unit}</span>
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -832,12 +832,12 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
 
       {/* Immediate 'Just Added' Notification Popover */}
       {justAddedProduct && (
-        <div className="fixed top-20 right-6 z-50 bg-white border-2 border-emerald-600 rounded-2xl shadow-xl p-3.5 max-w-sm animate-in slide-in-from-top-3">
+        <div className="fixed top-20 right-6 z-50 bg-white dark:bg-stone-900 border-2 border-emerald-600 rounded-2xl shadow-xl p-3.5 max-w-sm animate-in slide-in-from-top-3">
           <div className="flex items-start gap-2.5">
             <img
               src={justAddedProduct.product.image}
               alt={justAddedProduct.product.name}
-              className="w-11 h-11 rounded-lg object-cover border border-stone-200 shrink-0"
+              className="w-11 h-11 rounded-lg object-cover border border-stone-200 dark:border-stone-700 shrink-0"
             />
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between">
@@ -847,12 +847,12 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                 <button
                   type="button"
                   onClick={() => setJustAddedProduct(null)}
-                  className="text-stone-400 hover:text-stone-700 text-xs font-bold"
+                  className="text-stone-400 hover:text-stone-700 dark:text-stone-300 text-xs font-bold"
                 >
                   ✕
                 </button>
               </div>
-              <h5 className="font-bold text-xs text-stone-900 truncate mt-0.5">
+              <h5 className="font-bold text-xs text-stone-900 dark:text-stone-100 truncate mt-0.5">
                 {justAddedProduct.product.name} ({justAddedProduct.quantity} {justAddedProduct.product.unit})
               </h5>
               <div className="flex items-center gap-2 mt-2">
@@ -870,7 +870,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                 <button
                   type="button"
                   onClick={() => setJustAddedProduct(null)}
-                  className="px-2.5 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-lg text-xs font-medium cursor-pointer"
+                  className="px-2.5 py-1.5 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 text-stone-700 dark:text-stone-300 rounded-lg text-xs font-medium cursor-pointer"
                 >
                   Continue
                 </button>

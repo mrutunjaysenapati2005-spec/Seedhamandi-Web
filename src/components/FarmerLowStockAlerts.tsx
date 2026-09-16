@@ -180,7 +180,7 @@ export const FarmerLowStockBanner: React.FC<FarmerLowStockProps> = ({
                     {lowStockItems.length > 0 ? 'Immediate Action Needed' : 'Inventory Balanced'}
                   </span>
                 </div>
-                <p className="text-xs text-stone-600 mt-1 max-w-2xl leading-relaxed">
+                <p className="text-xs text-stone-600 dark:text-stone-300 mt-1 max-w-2xl leading-relaxed">
                   {lowStockItems.length > 0 
                     ? `SeedhaMandi detects when farmgate harvest quantities breach your safety threshold (Current Default: ${globalThreshold} units). Replenish or adjust safety buffer to prevent unfulfilled consumer and B2B bulk orders.`
                     : `Active monitoring running. When consumer purchases drain stock below your safety threshold (${globalThreshold} units), an instant alert will fire.`}
@@ -195,7 +195,7 @@ export const FarmerLowStockBanner: React.FC<FarmerLowStockProps> = ({
                 className={`px-3 py-2 rounded-xl text-xs font-bold border flex items-center gap-1.5 transition ${
                   soundEnabled
                     ? 'bg-amber-100 text-amber-900 border-amber-300 hover:bg-amber-200'
-                    : 'bg-stone-100 text-stone-500 border-stone-300 hover:bg-stone-200'
+                    : 'bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-400 border-stone-300 hover:bg-stone-200'
                 }`}
                 title={soundEnabled ? 'Alert chime active' : 'Alert chime muted'}
               >
@@ -205,9 +205,9 @@ export const FarmerLowStockBanner: React.FC<FarmerLowStockProps> = ({
 
               <button
                 onClick={() => setShowThresholdSettings(v => !v)}
-                className="px-3.5 py-2 rounded-xl bg-white hover:bg-stone-100 text-stone-800 text-xs font-bold border border-stone-300 flex items-center gap-1.5 transition shadow-xs cursor-pointer"
+                className="px-3.5 py-2 rounded-xl bg-white dark:bg-stone-900 hover:bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 text-xs font-bold border border-stone-300 flex items-center gap-1.5 transition shadow-xs cursor-pointer"
               >
-                <Sliders className="w-3.5 h-3.5 text-stone-600" />
+                <Sliders className="w-3.5 h-3.5 text-stone-600 dark:text-stone-300" />
                 <span>Configure Threshold ({globalThreshold})</span>
               </button>
 
@@ -232,7 +232,7 @@ export const FarmerLowStockBanner: React.FC<FarmerLowStockProps> = ({
           {showThresholdSettings && (
             <div className="mt-4 pt-4 border-t border-amber-200/80 grid grid-cols-1 md:grid-cols-3 gap-3 bg-white/70 p-4 rounded-xl">
               <div>
-                <label className="block text-[11px] font-bold text-stone-700 mb-1">
+                <label className="block text-[11px] font-bold text-stone-700 dark:text-stone-300 mb-1">
                   Global Safety Threshold (Default for all lots)
                 </label>
                 <div className="flex items-center gap-2">
@@ -242,9 +242,9 @@ export const FarmerLowStockBanner: React.FC<FarmerLowStockProps> = ({
                     max="1000"
                     value={tempGlobalThreshold}
                     onChange={(e) => setTempGlobalThreshold(e.target.value)}
-                    className="w-28 px-3 py-1.5 bg-white border border-stone-300 rounded-lg text-xs font-bold text-stone-900 focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                    className="w-28 px-3 py-1.5 bg-white dark:bg-stone-900 border border-stone-300 rounded-lg text-xs font-bold text-stone-900 dark:text-stone-100 focus:ring-2 focus:ring-amber-500 focus:outline-none"
                   />
-                  <span className="text-xs text-stone-500">units/kg</span>
+                  <span className="text-xs text-stone-500 dark:text-stone-400">units/kg</span>
                   <button
                     onClick={() => {
                       const v = Number(tempGlobalThreshold);
@@ -259,7 +259,7 @@ export const FarmerLowStockBanner: React.FC<FarmerLowStockProps> = ({
                   </button>
                 </div>
               </div>
-              <div className="md:col-span-2 text-xs text-stone-500 flex items-center">
+              <div className="md:col-span-2 text-xs text-stone-500 dark:text-stone-400 flex items-center">
                 <Info className="w-4 h-4 text-amber-600 mr-2 shrink-0" />
                 <span>
                   Tip: You can also configure crop-specific thresholds (e.g. 20 crates for strawberries, 150 kg for onions) directly in the inventory table below using the <strong>Threshold</strong> gear icon.
@@ -278,7 +278,7 @@ export const FarmerLowStockBanner: React.FC<FarmerLowStockProps> = ({
                 return (
                   <div
                     key={prod.id}
-                    className={`p-3.5 rounded-xl border bg-white shadow-xs transition space-y-3 ${
+                    className={`p-3.5 rounded-xl border bg-white dark:bg-stone-900 shadow-xs transition space-y-3 ${
                       item.isDepleted 
                         ? 'border-rose-400 ring-2 ring-rose-300/50' 
                         : item.isCritical 
@@ -290,11 +290,11 @@ export const FarmerLowStockBanner: React.FC<FarmerLowStockProps> = ({
                       <img
                         src={prod.image}
                         alt={prod.name}
-                        className="w-12 h-12 rounded-lg object-cover border border-stone-200 shrink-0"
+                        className="w-12 h-12 rounded-lg object-cover border border-stone-200 dark:border-stone-700 shrink-0"
                       />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between gap-1">
-                          <h4 className="font-extrabold text-xs text-stone-900 truncate" title={prod.name}>
+                          <h4 className="font-extrabold text-xs text-stone-900 dark:text-stone-100 truncate" title={prod.name}>
                             {prod.name}
                           </h4>
                           <span className={`px-1.5 py-0.5 rounded text-[9px] font-black uppercase shrink-0 ${
@@ -307,7 +307,7 @@ export const FarmerLowStockBanner: React.FC<FarmerLowStockProps> = ({
                             {item.isDepleted ? 'Stock Depleted' : item.isCritical ? 'Critical Low' : 'Low Stock'}
                           </span>
                         </div>
-                        <p className="text-[10px] text-stone-500 mt-0.5">
+                        <p className="text-[10px] text-stone-500 dark:text-stone-400 mt-0.5">
                           {prod.category} • {prod.qualityGrade.split(' ')[0]} • ₹{prod.price}/{prod.unit}
                         </p>
                       </div>
@@ -319,11 +319,11 @@ export const FarmerLowStockBanner: React.FC<FarmerLowStockProps> = ({
                         <span className={item.isDepleted ? 'text-rose-700' : 'text-amber-800'}>
                           {prod.quantity} {prod.unit} remaining
                         </span>
-                        <span className="text-stone-500 text-[10px]">
+                        <span className="text-stone-500 dark:text-stone-400 text-[10px]">
                           Threshold: {item.threshold} {prod.unit}
                         </span>
                       </div>
-                      <div className="w-full h-2 bg-stone-100 rounded-full overflow-hidden">
+                      <div className="w-full h-2 bg-stone-100 dark:bg-stone-800 rounded-full overflow-hidden">
                         <div
                           className={`h-full transition-all duration-500 rounded-full ${
                             item.isDepleted
@@ -335,7 +335,7 @@ export const FarmerLowStockBanner: React.FC<FarmerLowStockProps> = ({
                           style={{ width: `${Math.max(6, item.percentage)}%` }}
                         />
                       </div>
-                      <div className="flex items-center justify-between text-[10px] text-stone-500 pt-0.5">
+                      <div className="flex items-center justify-between text-[10px] text-stone-500 dark:text-stone-400 pt-0.5">
                         <span>Buffer: {item.percentage}%</span>
                         <span className="text-orange-700 font-semibold">
                           ~{Math.max(1, Math.round(item.currentStock / 12))} hours supply left
@@ -360,7 +360,7 @@ export const FarmerLowStockBanner: React.FC<FarmerLowStockProps> = ({
 
                       <button
                         onClick={() => handleOpenThresholdModal(prod)}
-                        className="p-1.5 rounded-lg border border-stone-200 text-stone-600 hover:text-stone-900 hover:bg-stone-50 transition cursor-pointer"
+                        className="p-1.5 rounded-lg border border-stone-200 dark:border-stone-700 text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:text-stone-100 hover:bg-stone-50 dark:bg-stone-950 transition cursor-pointer"
                         title="Configure custom threshold for this produce"
                       >
                         <Sliders className="w-3.5 h-3.5" />
@@ -377,31 +377,31 @@ export const FarmerLowStockBanner: React.FC<FarmerLowStockProps> = ({
       {/* Modal: Edit Produce Safety Threshold */}
       {selectedProductForThreshold && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-stone-200 space-y-4">
+          <div className="bg-white dark:bg-stone-900 transition-colors rounded-2xl max-w-md w-full p-6 shadow-2xl border border-stone-200 dark:border-stone-700 space-y-4">
             <div className="flex items-center justify-between border-b border-stone-100 pb-3">
               <div className="flex items-center gap-2">
                 <Sliders className="w-5 h-5 text-amber-600" />
-                <h3 className="font-black text-sm text-stone-900">Configure Safety Stock Threshold</h3>
+                <h3 className="font-black text-sm text-stone-900 dark:text-stone-100">Configure Safety Stock Threshold</h3>
               </div>
               <button
                 onClick={() => setSelectedProductForThreshold(null)}
-                className="p-1 text-stone-400 hover:text-stone-700 rounded-lg"
+                className="p-1 text-stone-400 hover:text-stone-700 dark:text-stone-300 rounded-lg"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="flex items-center gap-3 p-3 bg-stone-50 rounded-xl border border-stone-200">
+            <div className="flex items-center gap-3 p-3 bg-stone-50 dark:bg-stone-950 rounded-xl border border-stone-200 dark:border-stone-700">
               <img
                 src={selectedProductForThreshold.image}
                 alt={selectedProductForThreshold.name}
                 className="w-12 h-12 rounded-lg object-cover"
               />
               <div className="min-w-0 flex-1">
-                <h4 className="text-xs font-bold text-stone-900 truncate">
+                <h4 className="text-xs font-bold text-stone-900 dark:text-stone-100 truncate">
                   {selectedProductForThreshold.name}
                 </h4>
-                <p className="text-[11px] text-stone-500">
+                <p className="text-[11px] text-stone-500 dark:text-stone-400">
                   Current Stock: <strong>{selectedProductForThreshold.quantity} {selectedProductForThreshold.unit}</strong>
                 </p>
               </div>
@@ -409,7 +409,7 @@ export const FarmerLowStockBanner: React.FC<FarmerLowStockProps> = ({
 
             <form onSubmit={handleSaveProductThreshold} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-stone-700 mb-1">
+                <label className="block text-xs font-bold text-stone-700 dark:text-stone-300 mb-1">
                   Trigger Low Stock Alert When Quantity Reaches Below:
                 </label>
                 <div className="flex items-center gap-2">
@@ -420,14 +420,14 @@ export const FarmerLowStockBanner: React.FC<FarmerLowStockProps> = ({
                     required
                     value={newThresholdInput}
                     onChange={(e) => setNewThresholdInput(e.target.value)}
-                    className="flex-1 px-3.5 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-sm font-bold text-stone-900 focus:bg-white focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                    className="flex-1 px-3.5 py-2.5 bg-stone-50 dark:bg-stone-950 border border-stone-300 rounded-xl text-sm font-bold text-stone-900 dark:text-stone-100 focus:bg-white dark:bg-stone-900 focus:ring-2 focus:ring-amber-500 focus:outline-none"
                     placeholder="e.g. 50"
                   />
-                  <span className="text-xs font-bold text-stone-600 bg-stone-100 px-3 py-2.5 rounded-xl border border-stone-200">
+                  <span className="text-xs font-bold text-stone-600 dark:text-stone-300 bg-stone-100 dark:bg-stone-800 px-3 py-2.5 rounded-xl border border-stone-200 dark:border-stone-700">
                     {selectedProductForThreshold.unit}
                   </span>
                 </div>
-                <p className="text-[11px] text-stone-500 mt-1">
+                <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-1">
                   When consumer or B2B bulk orders reduce remaining volume below this number, SeedhaMandi will immediately fire an acoustic and push alert.
                 </p>
               </div>
@@ -446,7 +446,7 @@ export const FarmerLowStockBanner: React.FC<FarmerLowStockProps> = ({
                       className={`px-3 py-1 rounded-lg text-xs font-bold border transition ${
                         newThresholdInput === preset.toString()
                           ? 'bg-amber-100 text-amber-900 border-amber-400'
-                          : 'bg-white text-stone-600 border-stone-200 hover:bg-stone-50'
+                          : 'bg-white dark:bg-stone-900 text-stone-600 dark:text-stone-300 border-stone-200 dark:border-stone-700 hover:bg-stone-50'
                       }`}
                     >
                       {preset} {selectedProductForThreshold.unit}
@@ -459,7 +459,7 @@ export const FarmerLowStockBanner: React.FC<FarmerLowStockProps> = ({
                 <button
                   type="button"
                   onClick={() => setSelectedProductForThreshold(null)}
-                  className="px-4 py-2 rounded-xl text-xs font-bold text-stone-600 hover:bg-stone-100 transition"
+                  className="px-4 py-2 rounded-xl text-xs font-bold text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:bg-stone-800 transition"
                 >
                   Cancel
                 </button>

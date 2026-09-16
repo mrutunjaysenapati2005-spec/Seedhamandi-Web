@@ -35,7 +35,7 @@ export const CropsAnalytics: React.FC = () => {
     <div className="space-y-6 mt-8 mb-4">
       <div className="flex items-center gap-2">
         <Activity className="w-5 h-5 text-emerald-700" />
-        <h2 className="text-lg font-black text-stone-900">Live Crop Market Analytics</h2>
+        <h2 className="text-lg font-black text-stone-900 dark:text-stone-100">Live Crop Market Analytics</h2>
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -45,12 +45,12 @@ export const CropsAnalytics: React.FC = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="bg-white p-5 rounded-2xl border border-stone-200 shadow-xs"
+          className="bg-white dark:bg-stone-900 transition-colors p-5 rounded-2xl border border-stone-200 dark:border-stone-700 shadow-xs"
         >
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="font-bold text-sm text-stone-900">6-Month Price Trends (₹/kg)</h3>
-              <p className="text-[11px] text-stone-500">Average farmgate prices across top commodities</p>
+              <h3 className="font-bold text-sm text-stone-900 dark:text-stone-100">6-Month Price Trends (₹/kg)</h3>
+              <p className="text-[11px] text-stone-500 dark:text-stone-400">Average farmgate prices across top commodities</p>
             </div>
             <TrendingUp className="w-4 h-4 text-stone-400" />
           </div>
@@ -80,12 +80,12 @@ export const CropsAnalytics: React.FC = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="bg-white p-5 rounded-2xl border border-stone-200 shadow-xs"
+          className="bg-white dark:bg-stone-900 transition-colors p-5 rounded-2xl border border-stone-200 dark:border-stone-700 shadow-xs"
         >
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="font-bold text-sm text-stone-900">Regional Demand vs. Supply (kg)</h3>
-              <p className="text-[11px] text-stone-500">Real-time gap analysis for procurement planning</p>
+              <h3 className="font-bold text-sm text-stone-900 dark:text-stone-100">Regional Demand vs. Supply (kg)</h3>
+              <p className="text-[11px] text-stone-500 dark:text-stone-400">Real-time gap analysis for procurement planning</p>
             </div>
           </div>
           <div className="h-64 w-full text-xs">

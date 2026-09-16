@@ -301,7 +301,7 @@ export const AuthModal: React.FC = () => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-sm animate-in fade-in duration-200 overflow-y-auto">
-      <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-stone-200 overflow-hidden my-8">
+      <div className="bg-white dark:bg-stone-900 transition-colors w-full max-w-lg rounded-2xl shadow-2xl border border-stone-200 dark:border-stone-700 overflow-hidden my-8">
         {/* Modal Header */}
         <div className="bg-emerald-900 text-white p-5 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -326,7 +326,7 @@ export const AuthModal: React.FC = () => {
         </div>
 
         {/* Tab switchers */}
-        <div className="flex border-b border-stone-200 bg-stone-50">
+        <div className="flex border-b border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-950">
           <button
             onClick={() => {
               setTab('login');
@@ -337,8 +337,8 @@ export const AuthModal: React.FC = () => {
             }}
             className={`flex-1 py-3 text-xs font-bold uppercase tracking-wider transition ${
               tab === 'login'
-                ? 'bg-white text-emerald-800 border-b-2 border-emerald-700'
-                : 'text-stone-500 hover:text-stone-800'
+                ? 'bg-white dark:bg-stone-900 text-emerald-800 border-b-2 border-emerald-700'
+                : 'text-stone-500 dark:text-stone-400 hover:text-stone-800'
             }`}
           >
             Registered Login
@@ -352,8 +352,8 @@ export const AuthModal: React.FC = () => {
             }}
             className={`flex-1 py-3 text-xs font-bold uppercase tracking-wider transition ${
               tab === 'register'
-                ? 'bg-white text-emerald-800 border-b-2 border-emerald-700'
-                : 'text-stone-500 hover:text-stone-800'
+                ? 'bg-white dark:bg-stone-900 text-emerald-800 border-b-2 border-emerald-700'
+                : 'text-stone-500 dark:text-stone-400 hover:text-stone-800'
             }`}
           >
             New Registration & OTP
@@ -380,7 +380,7 @@ export const AuthModal: React.FC = () => {
           {tab === 'login' && (
             <div className="space-y-4">
               {/* Login Method Toggle: Password vs OTP */}
-              <div className="flex bg-stone-100 p-1 rounded-xl gap-1">
+              <div className="flex bg-stone-100 dark:bg-stone-800 p-1 rounded-xl gap-1">
                 <button
                   type="button"
                   onClick={() => {
@@ -390,8 +390,8 @@ export const AuthModal: React.FC = () => {
                   }}
                   className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition ${
                     loginMode === 'PASSWORD'
-                      ? 'bg-white text-emerald-900 shadow-xs'
-                      : 'text-stone-600 hover:text-stone-900'
+                      ? 'bg-white dark:bg-stone-900 text-emerald-900 shadow-xs'
+                      : 'text-stone-600 dark:text-stone-300 hover:text-stone-900'
                   }`}
                 >
                   Password Sign In
@@ -405,8 +405,8 @@ export const AuthModal: React.FC = () => {
                   }}
                   className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition ${
                     loginMode === 'OTP'
-                      ? 'bg-white text-emerald-900 shadow-xs'
-                      : 'text-stone-600 hover:text-stone-900'
+                      ? 'bg-white dark:bg-stone-900 text-emerald-900 shadow-xs'
+                      : 'text-stone-600 dark:text-stone-300 hover:text-stone-900'
                   }`}
                 >
                   OTP Sign In
@@ -416,7 +416,7 @@ export const AuthModal: React.FC = () => {
               {loginMode === 'PASSWORD' ? (
                 <form onSubmit={handleLoginSubmit} className="space-y-4">
                   <div>
-                    <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">
+                    <label className="block text-xs font-bold text-stone-700 dark:text-stone-300 uppercase tracking-wider mb-1.5">
                       Email or Mobile Number
                     </label>
                     <div className="relative">
@@ -427,13 +427,13 @@ export const AuthModal: React.FC = () => {
                         value={loginIdentifier}
                         onChange={e => setLoginIdentifier(e.target.value)}
                         placeholder="e.g. 9823411201 or ramesh.farmer@seedhamandi.in"
-                        className="w-full bg-stone-50 border border-stone-300 rounded-xl pl-10 pr-3.5 py-2.5 text-sm focus:outline-none focus:border-emerald-600 focus:bg-white"
+                        className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-300 rounded-xl pl-10 pr-3.5 py-2.5 text-sm focus:outline-none focus:border-emerald-600 focus:bg-white dark:bg-stone-900"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">
+                    <label className="block text-xs font-bold text-stone-700 dark:text-stone-300 uppercase tracking-wider mb-1.5">
                       Password
                     </label>
                     <div className="relative">
@@ -444,7 +444,7 @@ export const AuthModal: React.FC = () => {
                         value={loginPassword}
                         onChange={e => setLoginPassword(e.target.value)}
                         placeholder="••••••••"
-                        className="w-full bg-stone-50 border border-stone-300 rounded-xl pl-10 pr-3.5 py-2.5 text-sm focus:outline-none focus:border-emerald-600 focus:bg-white"
+                        className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-300 rounded-xl pl-10 pr-3.5 py-2.5 text-sm focus:outline-none focus:border-emerald-600 focus:bg-white dark:bg-stone-900"
                       />
                     </div>
                   </div>
@@ -461,7 +461,7 @@ export const AuthModal: React.FC = () => {
               ) : (
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">
+                    <label className="block text-xs font-bold text-stone-700 dark:text-stone-300 uppercase tracking-wider mb-1.5">
                       Email or Mobile Number
                     </label>
                     <div className="relative">
@@ -473,10 +473,10 @@ export const AuthModal: React.FC = () => {
                         onChange={e => setLoginIdentifier(e.target.value)}
                         placeholder="e.g. 9823411201 or ramesh.farmer@seedhamandi.in"
                         disabled={loginOtpSent}
-                        className="w-full bg-stone-50 border border-stone-300 rounded-xl pl-10 pr-3.5 py-2.5 text-sm focus:outline-none focus:border-emerald-600 focus:bg-white disabled:opacity-60"
+                        className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-300 rounded-xl pl-10 pr-3.5 py-2.5 text-sm focus:outline-none focus:border-emerald-600 focus:bg-white dark:bg-stone-900 disabled:opacity-60"
                       />
                     </div>
-                    <p className="text-[11px] text-stone-500 mt-1">
+                    <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-1">
                       OTP will go directly to whichever option (Email or Mobile) you provide.
                     </p>
                   </div>
@@ -507,7 +507,7 @@ export const AuthModal: React.FC = () => {
                         </div>
                       )}
                       <div>
-                        <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5 text-left">
+                        <label className="block text-xs font-bold text-stone-700 dark:text-stone-300 uppercase tracking-wider mb-1.5 text-left">
                           Enter 6-Digit Login OTP
                         </label>
                         <input
@@ -517,7 +517,7 @@ export const AuthModal: React.FC = () => {
                           value={loginOtp}
                           onChange={e => setLoginOtp(e.target.value)}
                           placeholder="Enter OTP"
-                          className="w-48 mx-auto text-center tracking-widest text-2xl font-mono font-bold bg-stone-50 border-2 border-emerald-600 rounded-xl py-2 focus:outline-none"
+                          className="w-48 mx-auto text-center tracking-widest text-2xl font-mono font-bold bg-stone-50 dark:bg-stone-950 border-2 border-emerald-600 rounded-xl py-2 focus:outline-none"
                         />
                       </div>
 
@@ -529,14 +529,14 @@ export const AuthModal: React.FC = () => {
                         <span>{loading ? 'Verifying...' : 'Verify OTP & Sign In'}</span>
                       </button>
 
-                      <div className="flex items-center justify-between text-xs text-stone-500 mt-2">
+                      <div className="flex items-center justify-between text-xs text-stone-500 dark:text-stone-400 mt-2">
                         <button
                           type="button"
                           onClick={() => {
                             setLoginOtpSent(false);
                             setLoginOtp('');
                           }}
-                          className="text-stone-600 hover:text-stone-900 underline"
+                          className="text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:text-stone-100 underline"
                         >
                           Change identifier
                         </button>
@@ -558,8 +558,8 @@ export const AuthModal: React.FC = () => {
               )}
 
               {/* Instant Demo Account Selector */}
-              <div className="pt-4 border-t border-stone-200">
-                <p className="text-xs font-bold text-stone-500 uppercase tracking-wider mb-2 text-center">
+              <div className="pt-4 border-t border-stone-200 dark:border-stone-700">
+                <p className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider mb-2 text-center">
                   Or Instant 1-Click Persona Sign-In:
                 </p>
                 <div className="grid grid-cols-2 gap-2">
@@ -626,7 +626,7 @@ export const AuthModal: React.FC = () => {
                 <form onSubmit={handleRegisterSubmit} className="space-y-4">
                   {/* Role Selector Cards */}
                   <div>
-                    <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-2">
+                    <label className="block text-xs font-bold text-stone-700 dark:text-stone-300 uppercase tracking-wider mb-2">
                       Select Your Role
                     </label>
                     <div className="grid grid-cols-2 gap-2">
@@ -635,14 +635,14 @@ export const AuthModal: React.FC = () => {
                         className={`p-3 rounded-xl border cursor-pointer transition ${
                           role === 'CONSUMER'
                             ? 'border-emerald-600 bg-emerald-50 shadow-xs'
-                            : 'border-stone-200 hover:bg-stone-50'
+                            : 'border-stone-200 dark:border-stone-700 hover:bg-stone-50'
                         }`}
                       >
-                        <div className="flex items-center gap-2 font-bold text-xs text-stone-800">
+                        <div className="flex items-center gap-2 font-bold text-xs text-stone-800 dark:text-stone-200">
                           <ShoppingBag className="w-4 h-4 text-emerald-600" />
                           <span>Consumer / Buyer</span>
                         </div>
-                        <p className="text-[11px] text-stone-500 mt-1">Buy direct fresh produce</p>
+                        <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-1">Buy direct fresh produce</p>
                       </div>
 
                       <div
@@ -650,14 +650,14 @@ export const AuthModal: React.FC = () => {
                         className={`p-3 rounded-xl border cursor-pointer transition ${
                           role === 'FARMER'
                             ? 'border-amber-600 bg-amber-50 shadow-xs'
-                            : 'border-stone-200 hover:bg-stone-50'
+                            : 'border-stone-200 dark:border-stone-700 hover:bg-stone-50'
                         }`}
                       >
-                        <div className="flex items-center gap-2 font-bold text-xs text-stone-800">
+                        <div className="flex items-center gap-2 font-bold text-xs text-stone-800 dark:text-stone-200">
                           <Sprout className="w-4 h-4 text-amber-600" />
                           <span>Farmer (Direct)</span>
                         </div>
-                        <p className="text-[11px] text-stone-500 mt-1">Sell own harvest at 0% cut</p>
+                        <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-1">Sell own harvest at 0% cut</p>
                       </div>
 
                       <div
@@ -665,14 +665,14 @@ export const AuthModal: React.FC = () => {
                         className={`p-3 rounded-xl border cursor-pointer transition ${
                           role === 'FPO_REP'
                             ? 'border-orange-600 bg-orange-50 shadow-xs'
-                            : 'border-stone-200 hover:bg-stone-50'
+                            : 'border-stone-200 dark:border-stone-700 hover:bg-stone-50'
                         }`}
                       >
-                        <div className="flex items-center gap-2 font-bold text-xs text-stone-800">
+                        <div className="flex items-center gap-2 font-bold text-xs text-stone-800 dark:text-stone-200">
                           <Users className="w-4 h-4 text-orange-600" />
                           <span>FPO Representative</span>
                         </div>
-                        <p className="text-[11px] text-stone-500 mt-1">List for village cluster</p>
+                        <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-1">List for village cluster</p>
                       </div>
 
                       <div
@@ -680,14 +680,14 @@ export const AuthModal: React.FC = () => {
                         className={`p-3 rounded-xl border cursor-pointer transition ${
                           role === 'LOGISTICS'
                             ? 'border-blue-600 bg-blue-50 shadow-xs'
-                            : 'border-stone-200 hover:bg-stone-50'
+                            : 'border-stone-200 dark:border-stone-700 hover:bg-stone-50'
                         }`}
                       >
-                        <div className="flex items-center gap-2 font-bold text-xs text-stone-800">
+                        <div className="flex items-center gap-2 font-bold text-xs text-stone-800 dark:text-stone-200">
                           <Truck className="w-4 h-4 text-blue-600" />
                           <span>Logistics Partner</span>
                         </div>
-                        <p className="text-[11px] text-stone-500 mt-1">Cold chain farm delivery</p>
+                        <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-1">Cold chain farm delivery</p>
                       </div>
                     </div>
                   </div>
@@ -695,48 +695,48 @@ export const AuthModal: React.FC = () => {
                   {/* Primary Fields */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-semibold text-stone-700 mb-1">Full Name</label>
+                      <label className="block text-xs font-semibold text-stone-700 dark:text-stone-300 mb-1">Full Name</label>
                       <input
                         type="text"
                         required
                         value={name}
                         onChange={e => setName(e.target.value)}
                         placeholder="e.g. Ramesh Patel"
-                        className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-emerald-600"
+                        className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-emerald-600"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-stone-700 mb-1">Mobile Number</label>
+                      <label className="block text-xs font-semibold text-stone-700 dark:text-stone-300 mb-1">Mobile Number</label>
                       <input
                         type="tel"
                         value={phone}
                         onChange={e => setPhone(e.target.value)}
                         placeholder="+91 98234 11201"
-                        className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-emerald-600"
+                        className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-emerald-600"
                       />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-semibold text-stone-700 mb-1">Email (optional)</label>
+                      <label className="block text-xs font-semibold text-stone-700 dark:text-stone-300 mb-1">Email (optional)</label>
                       <input
                         type="email"
                         value={email}
                         onChange={e => setEmail(e.target.value)}
                         placeholder="ramesh@seedhamandi.in"
-                        className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-emerald-600"
+                        className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-emerald-600"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-stone-700 mb-1">Password</label>
+                      <label className="block text-xs font-semibold text-stone-700 dark:text-stone-300 mb-1">Password</label>
                       <input
                         type="password"
                         required
                         value={password}
                         onChange={e => setPassword(e.target.value)}
                         placeholder="••••••••"
-                        className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-emerald-600"
+                        className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-emerald-600"
                       />
                     </div>
                   </div>
@@ -752,7 +752,7 @@ export const AuthModal: React.FC = () => {
                           value={fpoName}
                           onChange={e => setFpoName(e.target.value)}
                           placeholder="FPO Name (e.g. Sahyadri Kisan Samriddhi)"
-                          className="bg-white border border-orange-300 rounded-lg px-2.5 py-1.5 text-xs focus:outline-none"
+                          className="bg-white dark:bg-stone-900 transition-colors border border-orange-300 rounded-lg px-2.5 py-1.5 text-xs focus:outline-none"
                         />
                         <input
                           type="number"
@@ -760,7 +760,7 @@ export const AuthModal: React.FC = () => {
                           value={fpoFarmersCount}
                           onChange={e => setFpoFarmersCount(e.target.value)}
                           placeholder="Farmer Members (e.g. 54)"
-                          className="bg-white border border-orange-300 rounded-lg px-2.5 py-1.5 text-xs focus:outline-none"
+                          className="bg-white dark:bg-stone-900 transition-colors border border-orange-300 rounded-lg px-2.5 py-1.5 text-xs focus:outline-none"
                         />
                       </div>
                     </div>
@@ -776,7 +776,7 @@ export const AuthModal: React.FC = () => {
                           value={vehicleType}
                           onChange={e => setVehicleType(e.target.value)}
                           placeholder="Vehicle Type (e.g. Tata 407 3.5T)"
-                          className="bg-white border border-blue-300 rounded-lg px-2.5 py-1.5 text-xs focus:outline-none"
+                          className="bg-white dark:bg-stone-900 transition-colors border border-blue-300 rounded-lg px-2.5 py-1.5 text-xs focus:outline-none"
                         />
                         <input
                           type="text"
@@ -784,7 +784,7 @@ export const AuthModal: React.FC = () => {
                           value={vehicleNumber}
                           onChange={e => setVehicleNumber(e.target.value)}
                           placeholder="Reg. Number (e.g. MH 12 QX 4902)"
-                          className="bg-white border border-blue-300 rounded-lg px-2.5 py-1.5 text-xs focus:outline-none"
+                          className="bg-white dark:bg-stone-900 transition-colors border border-blue-300 rounded-lg px-2.5 py-1.5 text-xs focus:outline-none"
                         />
                       </div>
                     </div>
@@ -796,14 +796,14 @@ export const AuthModal: React.FC = () => {
                       value={district}
                       onChange={e => setDistrict(e.target.value)}
                       placeholder="District / City"
-                      className="bg-stone-50 border border-stone-300 rounded-xl px-3 py-2 text-xs"
+                      className="bg-stone-50 dark:bg-stone-950 border border-stone-300 rounded-xl px-3 py-2 text-xs"
                     />
                     <input
                       type="text"
                       value={state}
                       onChange={e => setState(e.target.value)}
                       placeholder="State (e.g. Maharashtra)"
-                      className="bg-stone-50 border border-stone-300 rounded-xl px-3 py-2 text-xs"
+                      className="bg-stone-50 dark:bg-stone-950 border border-stone-300 rounded-xl px-3 py-2 text-xs"
                     />
                   </div>
 
@@ -825,8 +825,8 @@ export const AuthModal: React.FC = () => {
                     <ShieldCheck className="w-6 h-6" />
                   </div>
                   <div>
-                    <h4 className="font-extrabold text-stone-900 text-base">Choose Verification Method</h4>
-                    <p className="text-xs text-stone-500 mt-1">
+                    <h4 className="font-extrabold text-stone-900 dark:text-stone-100 text-base">Choose Verification Method</h4>
+                    <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">
                       Where would you like to receive your 6-digit OTP?
                     </p>
                   </div>
@@ -835,20 +835,20 @@ export const AuthModal: React.FC = () => {
                     <button
                       onClick={handleChooseEmail}
                       disabled={loading}
-                      className="p-4 border-2 border-stone-200 rounded-xl hover:border-emerald-600 hover:bg-emerald-50 transition flex flex-col items-center gap-2"
+                      className="p-4 border-2 border-stone-200 dark:border-stone-700 rounded-xl hover:border-emerald-600 hover:bg-emerald-50 transition flex flex-col items-center gap-2"
                     >
                       <Mail className="w-6 h-6 text-emerald-700" />
-                      <span className="font-bold text-stone-800 text-sm">Send to Email</span>
-                      <span className="text-[11px] text-stone-500 truncate max-w-full">{email}</span>
+                      <span className="font-bold text-stone-800 dark:text-stone-200 text-sm">Send to Email</span>
+                      <span className="text-[11px] text-stone-500 dark:text-stone-400 truncate max-w-full">{email}</span>
                     </button>
                     <button
                       onClick={handleChooseSms}
                       disabled={loading}
-                      className="p-4 border-2 border-stone-200 rounded-xl hover:border-emerald-600 hover:bg-emerald-50 transition flex flex-col items-center gap-2"
+                      className="p-4 border-2 border-stone-200 dark:border-stone-700 rounded-xl hover:border-emerald-600 hover:bg-emerald-50 transition flex flex-col items-center gap-2"
                     >
                       <Phone className="w-6 h-6 text-emerald-700" />
-                      <span className="font-bold text-stone-800 text-sm">Send to Mobile</span>
-                      <span className="text-[11px] text-stone-500 truncate max-w-full">{phone}</span>
+                      <span className="font-bold text-stone-800 dark:text-stone-200 text-sm">Send to Mobile</span>
+                      <span className="text-[11px] text-stone-500 dark:text-stone-400 truncate max-w-full">{phone}</span>
                     </button>
                   </div>
                 </div>
@@ -874,9 +874,9 @@ export const AuthModal: React.FC = () => {
                     <Mail className="w-6 h-6" />
                   </div>
                   <div>
-                    <h4 className="font-extrabold text-stone-900 text-base">Verify Email</h4>
-                    <p className="text-xs text-stone-500 mt-1">
-                      Enter the 6-digit code sent to <span className="font-semibold text-stone-800">{email}</span>
+                    <h4 className="font-extrabold text-stone-900 dark:text-stone-100 text-base">Verify Email</h4>
+                    <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">
+                      Enter the 6-digit code sent to <span className="font-semibold text-stone-800 dark:text-stone-200">{email}</span>
                     </p>
                   </div>
 
@@ -887,7 +887,7 @@ export const AuthModal: React.FC = () => {
                     value={emailOtp}
                     onChange={e => setEmailOtp(e.target.value)}
                     placeholder="Enter 6-digit OTP"
-                    className="w-48 mx-auto text-center tracking-widest text-2xl font-mono font-bold bg-stone-50 border-2 border-emerald-600 rounded-xl py-2 focus:outline-none"
+                    className="w-48 mx-auto text-center tracking-widest text-2xl font-mono font-bold bg-stone-50 dark:bg-stone-950 border-2 border-emerald-600 rounded-xl py-2 focus:outline-none"
                   />
 
                   <button
@@ -897,7 +897,7 @@ export const AuthModal: React.FC = () => {
                   >
                     {loading ? 'Verifying...' : 'Verify & Complete Account Activation'}
                   </button>
-                  <div className="mt-4 text-xs font-semibold text-stone-500">
+                  <div className="mt-4 text-xs font-semibold text-stone-500 dark:text-stone-400">
                     {resendCountdown > 0 ? (
                       <span>Resend OTP in {resendCountdown}s</span>
                     ) : (
@@ -934,9 +934,9 @@ export const AuthModal: React.FC = () => {
                     <Phone className="w-6 h-6" />
                   </div>
                   <div>
-                    <h4 className="font-extrabold text-stone-900 text-base">Verify Mobile SMS</h4>
-                    <p className="text-xs text-stone-500 mt-1">
-                      Enter the 6-digit SMS code sent to <span className="font-semibold text-stone-800">{phone}</span>
+                    <h4 className="font-extrabold text-stone-900 dark:text-stone-100 text-base">Verify Mobile SMS</h4>
+                    <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">
+                      Enter the 6-digit SMS code sent to <span className="font-semibold text-stone-800 dark:text-stone-200">{phone}</span>
                     </p>
                   </div>
 
@@ -947,7 +947,7 @@ export const AuthModal: React.FC = () => {
                     value={smsOtp}
                     onChange={e => setSmsOtp(e.target.value)}
                     placeholder="Enter 6-digit OTP"
-                    className="w-48 mx-auto text-center tracking-widest text-2xl font-mono font-bold bg-stone-50 border-2 border-emerald-600 rounded-xl py-2 focus:outline-none"
+                    className="w-48 mx-auto text-center tracking-widest text-2xl font-mono font-bold bg-stone-50 dark:bg-stone-950 border-2 border-emerald-600 rounded-xl py-2 focus:outline-none"
                   />
 
                   <button
@@ -957,7 +957,7 @@ export const AuthModal: React.FC = () => {
                   >
                     {loading ? 'Verifying Mobile...' : 'Verify & Complete Account Activation'}
                   </button>
-                  <div className="mt-4 text-xs font-semibold text-stone-500">
+                  <div className="mt-4 text-xs font-semibold text-stone-500 dark:text-stone-400">
                     {resendCountdown > 0 ? (
                       <span>Resend OTP in {resendCountdown}s</span>
                     ) : (
@@ -979,8 +979,8 @@ export const AuthModal: React.FC = () => {
                   <div className="w-14 h-14 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto">
                     <CheckCircle2 className="w-8 h-8" />
                   </div>
-                  <h4 className="font-extrabold text-stone-900 text-lg">Account Activated!</h4>
-                  <p className="text-xs text-stone-600">
+                  <h4 className="font-extrabold text-stone-900 dark:text-stone-100 text-lg">Account Activated!</h4>
+                  <p className="text-xs text-stone-600 dark:text-stone-300">
                     Welcome to SeedhaMandi. Redirecting you to your workspace...
                   </p>
                 </div>

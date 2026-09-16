@@ -65,7 +65,7 @@ export const OrderTrackingModal: React.FC<OrderTrackingModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-sm animate-in fade-in duration-200 overflow-y-auto">
-      <div className="bg-white w-full max-w-xl rounded-2xl shadow-2xl border border-stone-200 overflow-hidden my-8">
+      <div className="bg-white dark:bg-stone-900 transition-colors w-full max-w-xl rounded-2xl shadow-2xl border border-stone-200 dark:border-stone-700 overflow-hidden my-8">
         {/* Header */}
         <div className="bg-emerald-900 text-white p-5 flex items-center justify-between">
           <div>
@@ -114,14 +114,14 @@ export const OrderTrackingModal: React.FC<OrderTrackingModalProps> = ({
                 <div className="text-[11px] text-amber-800">Share this code with the driver upon inspection:</div>
               </div>
             </div>
-            <span className="text-xl font-mono font-black text-amber-900 tracking-wider bg-white px-3 py-1 rounded-lg border border-amber-200 shadow-xs">
+            <span className="text-xl font-mono font-black text-amber-900 tracking-wider bg-white dark:bg-stone-900 px-3 py-1 rounded-lg border border-amber-200 shadow-xs">
               {order.deliveryOtp}
             </span>
           </div>
 
           {/* 6-Stage Visual Timeline */}
           <div className="space-y-4">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-stone-500">Live Delivery Milestones</h4>
+            <h4 className="text-xs font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">Live Delivery Milestones</h4>
             <div className="relative pl-6 space-y-5 before:content-[''] before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-stone-200">
               {stages.map((stage, idx) => {
                 const isCompleted = idx <= currentStageIndex;
@@ -142,7 +142,7 @@ export const OrderTrackingModal: React.FC<OrderTrackingModalProps> = ({
                       <div className={`text-xs font-bold ${isCompleted ? 'text-stone-900' : 'text-stone-400'}`}>
                         {stage.label}
                       </div>
-                      <div className="text-[11px] text-stone-500">{stage.desc}</div>
+                      <div className="text-[11px] text-stone-500 dark:text-stone-400">{stage.desc}</div>
                     </div>
                   </div>
                 );
@@ -151,20 +151,20 @@ export const OrderTrackingModal: React.FC<OrderTrackingModalProps> = ({
           </div>
 
           {/* Logistics & Transit Details */}
-          <div className="p-4 bg-stone-50 border border-stone-200 rounded-xl space-y-3 text-xs">
-            <div className="flex items-center justify-between border-b border-stone-200 pb-2">
-              <span className="font-bold text-stone-800 flex items-center gap-1.5">
+          <div className="p-4 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 rounded-xl space-y-3 text-xs">
+            <div className="flex items-center justify-between border-b border-stone-200 dark:border-stone-700 pb-2">
+              <span className="font-bold text-stone-800 dark:text-stone-200 flex items-center gap-1.5">
                 <Truck className="w-4 h-4 text-emerald-700" /> Carrier Partner:
               </span>
-              <span className="text-stone-600">{order.logisticsName || 'KisanVahan Cold Transit'}</span>
+              <span className="text-stone-600 dark:text-stone-300">{order.logisticsName || 'KisanVahan Cold Transit'}</span>
             </div>
-            <div className="flex items-center justify-between border-b border-stone-200 pb-2">
-              <span className="font-bold text-stone-800">Assigned Vehicle:</span>
-              <span className="font-mono text-stone-700">{order.vehicleNumber || 'MH 12 QX 4902 (Refrigerated)'}</span>
+            <div className="flex items-center justify-between border-b border-stone-200 dark:border-stone-700 pb-2">
+              <span className="font-bold text-stone-800 dark:text-stone-200">Assigned Vehicle:</span>
+              <span className="font-mono text-stone-700 dark:text-stone-300">{order.vehicleNumber || 'MH 12 QX 4902 (Refrigerated)'}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="font-bold text-stone-800">Destination:</span>
-              <span className="text-stone-600 truncate max-w-[220px]">
+              <span className="font-bold text-stone-800 dark:text-stone-200">Destination:</span>
+              <span className="text-stone-600 dark:text-stone-300 truncate max-w-[220px]">
                 {order.shippingAddress.city}, {order.shippingAddress.state} ({order.shippingAddress.pincode})
               </span>
             </div>
@@ -172,20 +172,20 @@ export const OrderTrackingModal: React.FC<OrderTrackingModalProps> = ({
 
           {/* Items in this Order */}
           <div className="space-y-2">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-stone-500">Produce in this Consignment</h4>
+            <h4 className="text-xs font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">Produce in this Consignment</h4>
             <div className="space-y-2">
               {order.items.map((it, idx) => (
-                <div key={idx} className="flex items-center justify-between p-2.5 bg-white border border-stone-200 rounded-xl text-xs">
+                <div key={idx} className="flex items-center justify-between p-2.5 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded-xl text-xs">
                   <div className="flex items-center gap-3">
                     <img src={it.image} alt={it.name} className="w-10 h-10 rounded-lg object-cover" />
                     <div>
-                      <div className="font-bold text-stone-900">{it.name}</div>
-                      <div className="text-[11px] text-stone-500">Farmer: {it.farmerName}</div>
+                      <div className="font-bold text-stone-900 dark:text-stone-100">{it.name}</div>
+                      <div className="text-[11px] text-stone-500 dark:text-stone-400">Farmer: {it.farmerName}</div>
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="font-bold text-stone-900">{it.quantity} {it.unit}</div>
-                    <div className="text-stone-600">₹{it.price * it.quantity}</div>
+                    <div className="font-bold text-stone-900 dark:text-stone-100">{it.quantity} {it.unit}</div>
+                    <div className="text-stone-600 dark:text-stone-300">₹{it.price * it.quantity}</div>
                   </div>
                 </div>
               ))}
@@ -194,8 +194,8 @@ export const OrderTrackingModal: React.FC<OrderTrackingModalProps> = ({
 
           {/* Delivery Hand-off Simulator (Driver / Buyer can test OTP confirmation) */}
           {order.status !== 'DELIVERED' && (
-            <form onSubmit={handleVerifyDeliveryOtp} className="pt-2 border-t border-stone-200 space-y-3">
-              <div className="text-xs font-bold text-stone-700">Simulate Doorstep Hand-off Verification:</div>
+            <form onSubmit={handleVerifyDeliveryOtp} className="pt-2 border-t border-stone-200 dark:border-stone-700 space-y-3">
+              <div className="text-xs font-bold text-stone-700 dark:text-stone-300">Simulate Doorstep Hand-off Verification:</div>
               <div className="flex gap-2">
                 <input
                   type="text"
@@ -203,7 +203,7 @@ export const OrderTrackingModal: React.FC<OrderTrackingModalProps> = ({
                   value={enteredOtp}
                   onChange={e => setEnteredOtp(e.target.value)}
                   placeholder={`Enter OTP (${order.deliveryOtp})`}
-                  className="flex-1 bg-stone-50 border border-stone-300 rounded-xl px-3 py-2 text-xs font-mono font-bold focus:outline-none focus:border-emerald-600"
+                  className="flex-1 bg-stone-50 dark:bg-stone-950 border border-stone-300 rounded-xl px-3 py-2 text-xs font-mono font-bold focus:outline-none focus:border-emerald-600"
                 />
                 <button
                   type="submit"

@@ -66,7 +66,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-stone-50 text-stone-900">
+    <div className="min-h-screen bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100">
       {/* ========================================================================= */}
       {/* 1. PRIMARY ROLE SELECTION HERO (ARE YOU A FARMER / CONSUMER / LOGISTICS)   */}
       {/* ========================================================================= */}
@@ -364,7 +364,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       {/* ========================================================================= */}
       {/* 2. THE DIRECT ADVANTAGE & COMPARATIVE ECONOMICS                            */}
       {/* ========================================================================= */}
-      <section className="py-14 bg-white border-b border-stone-200">
+      <section className="py-14 bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
             <div className="lg:col-span-7 space-y-4">
@@ -372,17 +372,17 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 <Scale className="w-3.5 h-3.5" />
                 <span>Transparent Mandi Margin Breakdown</span>
               </div>
-              <h2 className="text-3xl font-black text-stone-900 tracking-tight">
+              <h2 className="text-3xl font-black text-stone-900 dark:text-stone-100 tracking-tight">
                 Where does your produce money actually go?
               </h2>
-              <p className="text-stone-600 text-sm leading-relaxed">
+              <p className="text-stone-600 dark:text-stone-300 text-sm leading-relaxed">
                 In the conventional Indian APMC mandi model, up to 4 intermediaries take cuts for cartage, loading, commission, and retail markups. SeedhaMandi replaces this web with a direct escrow contract and verified cold transit.
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                 <div className="p-4 bg-rose-50/70 border border-rose-200 rounded-2xl space-y-1.5 text-xs">
                   <div className="font-extrabold text-rose-950 text-sm">Conventional APMC Mandi</div>
-                  <div className="text-stone-600">Farmer gets only <strong>₹2,100 per 100kg</strong></div>
+                  <div className="text-stone-600 dark:text-stone-300">Farmer gets only <strong>₹2,100 per 100kg</strong></div>
                   <p className="text-rose-800 text-[11px]">
                     4 middle tiers take ₹1,900 in handling fees and wholesale markups.
                   </p>
@@ -390,7 +390,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
                 <div className="p-4 bg-emerald-50/80 border border-emerald-300 rounded-2xl space-y-1.5 text-xs">
                   <div className="font-extrabold text-emerald-950 text-sm">SeedhaMandi Direct Escrow</div>
-                  <div className="text-stone-700">Farmer receives <strong>₹2,800 per 100kg</strong></div>
+                  <div className="text-stone-700 dark:text-stone-300">Farmer receives <strong>₹2,800 per 100kg</strong></div>
                   <p className="text-emerald-800 text-[11px] font-bold">
                     +31.4% net realization credited directly via Aadhaar Jan Dhan DBT.
                   </p>
@@ -425,17 +425,17 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       {/* ========================================================================= */}
       {/* 3. FEATURED HARVEST LOTS PREVIEW                                          */}
       {/* ========================================================================= */}
-      <section className="py-14 bg-stone-50">
+      <section className="py-14 bg-stone-50 dark:bg-stone-950">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <div>
               <span className="text-xs font-bold text-emerald-800 uppercase tracking-wider">
                 Direct Farmgate Availability
               </span>
-              <h2 className="text-2xl sm:text-3xl font-black text-stone-900 mt-1">
+              <h2 className="text-2xl sm:text-3xl font-black text-stone-900 dark:text-stone-100 mt-1">
                 Fresh Harvest Direct from Verified Growers
               </h2>
-              <p className="text-xs text-stone-500">
+              <p className="text-xs text-stone-500 dark:text-stone-400">
                 Harvested within 24 hours • Shipped via refrigerated fleet • Escrow protected
               </p>
             </div>
@@ -453,10 +453,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             {featuredProducts.slice(0, 4).map(product => (
               <div
                 key={product.id}
-                className="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-xs hover:shadow-md transition flex flex-col justify-between"
+                className="bg-white dark:bg-stone-900 transition-colors rounded-2xl border border-stone-200 dark:border-stone-700 overflow-hidden shadow-xs hover:shadow-md transition flex flex-col justify-between"
               >
                 <div>
-                  <div className="relative h-44 overflow-hidden bg-stone-100">
+                  <div className="relative h-44 overflow-hidden bg-stone-100 dark:bg-stone-800">
                     <img
                       src={product.image}
                       alt={product.name}
@@ -468,11 +468,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   </div>
 
                   <div className="p-4 space-y-2">
-                    <h3 className="font-extrabold text-stone-900 text-sm line-clamp-1">
+                    <h3 className="font-extrabold text-stone-900 dark:text-stone-100 text-sm line-clamp-1">
                       {product.name}
                     </h3>
 
-                    <div className="text-xs text-stone-500 flex items-center gap-1">
+                    <div className="text-xs text-stone-500 dark:text-stone-400 flex items-center gap-1">
                       <MapPin className="w-3.5 h-3.5 text-emerald-600" />
                       <span>{product.location}, {product.state}</span>
                     </div>
@@ -482,7 +482,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                         <span className="text-lg font-black text-emerald-900">
                           ₹{product.price}
                         </span>
-                        <span className="text-[11px] text-stone-500 font-medium">
+                        <span className="text-[11px] text-stone-500 dark:text-stone-400 font-medium">
                           /{product.unit}
                         </span>
                       </div>

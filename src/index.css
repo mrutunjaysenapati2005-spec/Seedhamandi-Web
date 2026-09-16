@@ -1,1 +1,15 @@
 @import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-primary: #10b981;
+}
+
+body {
+  @apply bg-stone-50 text-stone-900 transition-colors duration-200;
+}
+
+.dark body {
+  @apply bg-stone-950 text-stone-100;
+}

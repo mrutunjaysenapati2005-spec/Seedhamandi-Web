@@ -28,6 +28,7 @@ import { useAuth } from '../context/AuthContext';
 import { Product, Order, OrderStatus, AppNotification, BulkRfq } from '../types';
 import { api } from '../services/api';
 import { FarmerDemandInventoryD3Chart } from '../components/FarmerDemandInventoryD3Chart';
+import { FarmersEarningChart } from '../components/FarmersEarningChart';
 import { 
   FarmerLowStockBanner, 
   FarmerLowStockToast, 
@@ -310,7 +311,7 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-stone-50 py-8 text-stone-900">
+    <div className="min-h-screen bg-stone-50 dark:bg-stone-950 py-8 text-stone-900 dark:text-stone-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         {/* Workspace Banner */}
         <div className="bg-gradient-to-r from-emerald-900 via-emerald-800 to-teal-950 text-white rounded-2xl p-6 shadow-md border border-emerald-800 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -398,7 +399,7 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({
                 .map(notif => (
                   <div
                     key={notif.id}
-                    className={`p-3 bg-white rounded-xl border shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs ${
+                    className={`p-3 bg-white dark:bg-stone-900 rounded-xl border shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs ${
                       notif.type === 'LOW_STOCK'
                         ? 'border-amber-400 bg-gradient-to-r from-amber-50/50 to-white'
                         : 'border-amber-200'
@@ -412,9 +413,9 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({
                             Low Stock Alert
                           </span>
                         )}
-                        <span className="font-bold text-stone-900 block">{notif.title}</span>
+                        <span className="font-bold text-stone-900 dark:text-stone-100 block">{notif.title}</span>
                       </div>
-                      <p className="text-stone-600 text-[11px] mt-0.5">{notif.message}</p>
+                      <p className="text-stone-600 dark:text-stone-300 text-[11px] mt-0.5">{notif.message}</p>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
                       {notif.type === 'LOW_STOCK' ? (
@@ -463,25 +464,25 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({
 
         {/* Metric Cards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-white p-5 rounded-2xl border border-stone-200/90 shadow-xs">
-            <div className="flex items-center justify-between text-stone-500 mb-2">
+          <div className="bg-white dark:bg-stone-900 transition-colors p-5 rounded-2xl border border-stone-200/90 shadow-xs">
+            <div className="flex items-center justify-between text-stone-500 dark:text-stone-400 mb-2">
               <span className="text-xs font-bold uppercase tracking-wider">Total Disbursed</span>
               <DollarSign className="w-4 h-4 text-emerald-600" />
             </div>
-            <div className="text-2xl font-black text-stone-900">₹{totalDeliveredRevenue.toLocaleString()}</div>
+            <div className="text-2xl font-black text-stone-900 dark:text-stone-100">₹{totalDeliveredRevenue.toLocaleString()}</div>
             <p className="text-[11px] text-emerald-700 font-semibold mt-1 flex items-center gap-1">
               <ArrowUpRight className="w-3 h-3" /> +31.4% vs APMC Mandi rates
             </p>
           </div>
 
-          <div className="bg-white p-5 rounded-2xl border border-stone-200/90 shadow-xs">
-            <div className="flex items-center justify-between text-stone-500 mb-2">
+          <div className="bg-white dark:bg-stone-900 transition-colors p-5 rounded-2xl border border-stone-200/90 shadow-xs">
+            <div className="flex items-center justify-between text-stone-500 dark:text-stone-400 mb-2">
               <span className="text-xs font-bold uppercase tracking-wider">Escrow Balance</span>
               <ShieldCheck className="w-4 h-4 text-amber-500" />
             </div>
             <div className="text-2xl font-black text-amber-900">₹{pendingEscrow.toLocaleString()}</div>
             <div className="flex items-center justify-between mt-2">
-              <span className="text-[10px] text-stone-500">Auto-releases upon delivery OTP</span>
+              <span className="text-[10px] text-stone-500 dark:text-stone-400">Auto-releases upon delivery OTP</span>
               <button
                 onClick={handleInstantPayout}
                 disabled={withdrawing}
@@ -492,21 +493,21 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({
             </div>
           </div>
 
-          <div className="bg-white p-5 rounded-2xl border border-stone-200/90 shadow-xs">
-            <div className="flex items-center justify-between text-stone-500 mb-2">
+          <div className="bg-white dark:bg-stone-900 transition-colors p-5 rounded-2xl border border-stone-200/90 shadow-xs">
+            <div className="flex items-center justify-between text-stone-500 dark:text-stone-400 mb-2">
               <span className="text-xs font-bold uppercase tracking-wider">Active Harvest Lots</span>
               <Package className="w-4 h-4 text-emerald-600" />
             </div>
-            <div className="text-2xl font-black text-stone-900">{myProducts.length} Lots</div>
-            <p className="text-[11px] text-stone-500 mt-1">Ready for direct urban dispatch</p>
+            <div className="text-2xl font-black text-stone-900 dark:text-stone-100">{myProducts.length} Lots</div>
+            <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-1">Ready for direct urban dispatch</p>
           </div>
 
-          <div className="bg-white p-5 rounded-2xl border border-stone-200/90 shadow-xs">
-            <div className="flex items-center justify-between text-stone-500 mb-2">
+          <div className="bg-white dark:bg-stone-900 transition-colors p-5 rounded-2xl border border-stone-200/90 shadow-xs">
+            <div className="flex items-center justify-between text-stone-500 dark:text-stone-400 mb-2">
               <span className="text-xs font-bold uppercase tracking-wider">Open Orders</span>
               <Clock className="w-4 h-4 text-orange-500" />
             </div>
-            <div className="text-2xl font-black text-stone-900">{orders.length} Orders</div>
+            <div className="text-2xl font-black text-stone-900 dark:text-stone-100">{orders.length} Orders</div>
             <p className="text-[11px] text-orange-700 font-semibold mt-1">
               {orders.filter(o => o.status === 'PLACED').length} need packing today
             </p>
@@ -514,68 +515,68 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({
         </div>
 
         {/* Sub Navigation Tabs */}
-        <div className="flex border-b border-stone-200 overflow-x-auto">
+        <div className="flex border-b border-stone-200 dark:border-stone-700 dark:border-stone-800 overflow-x-auto transition-colors">
           <button
             onClick={() => setActiveTab('inventory')}
-            className={`py-3 px-5 text-xs font-bold uppercase tracking-wider transition border-b-2 whitespace-nowrap ${
+            className={`py-3 px-5 text-xs font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap ${
               activeTab === 'inventory'
-                ? 'border-emerald-700 text-emerald-900 bg-white'
-                : 'border-transparent text-stone-500 hover:text-stone-800'
+                ? 'border-emerald-700 text-emerald-900 dark:text-emerald-400 bg-white dark:bg-stone-900 dark:bg-stone-900/50'
+                : 'border-transparent text-stone-500 dark:text-stone-400 dark:text-stone-400 hover:text-stone-800 dark:text-stone-200 dark:hover:text-stone-200'
             }`}
           >
             My Produce Inventory ({myProducts.length})
           </button>
           <button
             onClick={() => setActiveTab('demand_forecast')}
-            className={`py-3 px-5 text-xs font-bold uppercase tracking-wider transition border-b-2 flex items-center gap-1.5 whitespace-nowrap ${
+            className={`py-3 px-5 text-xs font-bold uppercase tracking-wider transition-colors border-b-2 flex items-center gap-1.5 whitespace-nowrap ${
               activeTab === 'demand_forecast'
-                ? 'border-emerald-700 text-emerald-900 bg-white'
-                : 'border-transparent text-stone-500 hover:text-stone-800'
+                ? 'border-emerald-700 text-emerald-900 dark:text-emerald-400 bg-white dark:bg-stone-900 dark:bg-stone-900/50'
+                : 'border-transparent text-stone-500 dark:text-stone-400 dark:text-stone-400 hover:text-stone-800 dark:text-stone-200 dark:hover:text-stone-200'
             }`}
           >
-            <TrendingUp className="w-3.5 h-3.5 text-emerald-600" />
+            <TrendingUp className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-500" />
             <span>Demand Forecasting (D3.js)</span>
-            <span className="px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-black text-[9px]">
+            <span className="px-1.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-400 font-black text-[9px]">
               AI Plan
             </span>
           </button>
           <button
             onClick={() => setActiveTab('orders')}
-            className={`py-3 px-5 text-xs font-bold uppercase tracking-wider transition border-b-2 whitespace-nowrap ${
+            className={`py-3 px-5 text-xs font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap ${
               activeTab === 'orders'
-                ? 'border-emerald-700 text-emerald-900 bg-white'
-                : 'border-transparent text-stone-500 hover:text-stone-800'
+                ? 'border-emerald-700 text-emerald-900 dark:text-emerald-400 bg-white dark:bg-stone-900 dark:bg-stone-900/50'
+                : 'border-transparent text-stone-500 dark:text-stone-400 dark:text-stone-400 hover:text-stone-800 dark:text-stone-200 dark:hover:text-stone-200'
             }`}
           >
             Orders & Dispatches ({orders.length})
           </button>
           <button
             onClick={() => setActiveTab('sold_history')}
-            className={`py-3 px-5 text-xs font-bold uppercase tracking-wider transition border-b-2 flex items-center gap-1.5 whitespace-nowrap ${
+            className={`py-3 px-5 text-xs font-bold uppercase tracking-wider transition-colors border-b-2 flex items-center gap-1.5 whitespace-nowrap ${
               activeTab === 'sold_history'
-                ? 'border-emerald-700 text-emerald-900 bg-white'
-                : 'border-transparent text-stone-500 hover:text-stone-800'
+                ? 'border-emerald-700 text-emerald-900 dark:text-emerald-400 bg-white dark:bg-stone-900 dark:bg-stone-900/50'
+                : 'border-transparent text-stone-500 dark:text-stone-400 dark:text-stone-400 hover:text-stone-800 dark:text-stone-200 dark:hover:text-stone-200'
             }`}
           >
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-500" />
             <span>Sold Produce History</span>
           </button>
           <button
             onClick={() => setActiveTab('payouts')}
-            className={`py-3 px-5 text-xs font-bold uppercase tracking-wider transition border-b-2 whitespace-nowrap ${
+            className={`py-3 px-5 text-xs font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap ${
               activeTab === 'payouts'
-                ? 'border-emerald-700 text-emerald-900 bg-white'
-                : 'border-transparent text-stone-500 hover:text-stone-800'
+                ? 'border-emerald-700 text-emerald-900 dark:text-emerald-400 bg-white dark:bg-stone-900 dark:bg-stone-900/50'
+                : 'border-transparent text-stone-500 dark:text-stone-400 dark:text-stone-400 hover:text-stone-800 dark:text-stone-200 dark:hover:text-stone-200'
             }`}
           >
             Escrow & DBT Settlements
           </button>
           <button
             onClick={() => setActiveTab('rfqs')}
-            className={`py-3 px-5 text-xs font-bold uppercase tracking-wider transition border-b-2 flex items-center gap-1.5 whitespace-nowrap ${
+            className={`py-3 px-5 text-xs font-bold uppercase tracking-wider transition-colors border-b-2 flex items-center gap-1.5 whitespace-nowrap ${
               activeTab === 'rfqs'
-                ? 'border-emerald-700 text-emerald-900 bg-white'
-                : 'border-transparent text-stone-500 hover:text-stone-800'
+                ? 'border-emerald-700 text-emerald-900 dark:text-emerald-400 bg-white dark:bg-stone-900 dark:bg-stone-900/50'
+                : 'border-transparent text-stone-500 dark:text-stone-400 dark:text-stone-400 hover:text-stone-800 dark:text-stone-200 dark:hover:text-stone-200'
             }`}
           >
             <span>Bulk RFQs & B2B Tenders</span>
@@ -606,13 +607,13 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({
               }}
             />
 
-            <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-xs">
-              <div className="p-4 border-b border-stone-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-stone-50">
+            <div className="bg-white dark:bg-stone-900 transition-colors rounded-2xl border border-stone-200 dark:border-stone-700 overflow-hidden shadow-xs">
+              <div className="p-4 border-b border-stone-200 dark:border-stone-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-stone-50 dark:bg-stone-950">
                 <div>
-                  <h3 className="font-bold text-xs uppercase tracking-wider text-stone-700">
+                  <h3 className="font-bold text-xs uppercase tracking-wider text-stone-700 dark:text-stone-300">
                     Live Farmgate Produce Inventory
                   </h3>
-                  <p className="text-[11px] text-stone-500 mt-0.5">
+                  <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5">
                     Continuous real-time safety threshold monitoring active across all listed harvest consignments.
                   </p>
                 </div>
@@ -628,8 +629,8 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({
               </div>
 
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs text-stone-700">
-                  <thead className="bg-stone-100/75 text-stone-500 uppercase text-[10px] font-bold border-b border-stone-200">
+                <table className="w-full text-left text-xs text-stone-700 dark:text-stone-300">
+                  <thead className="bg-stone-100/75 text-stone-500 dark:text-stone-400 uppercase text-[10px] font-bold border-b border-stone-200 dark:border-stone-700">
                     <tr>
                       <th className="p-3.5">Produce & Variety</th>
                       <th className="p-3.5">Attributed Grower</th>
@@ -662,12 +663,12 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({
                           <td className="p-3.5 flex items-center gap-3">
                             <img src={product.image} alt={product.name} className="w-10 h-10 rounded-lg object-cover shadow-2xs shrink-0" />
                             <div>
-                              <div className="font-bold text-stone-900">{product.name}</div>
-                              <div className="text-[10px] text-stone-500">{product.location}</div>
+                              <div className="font-bold text-stone-900 dark:text-stone-100">{product.name}</div>
+                              <div className="text-[10px] text-stone-500 dark:text-stone-400">{product.location}</div>
                             </div>
                           </td>
                           <td className="p-3.5">
-                            <span className="font-semibold text-stone-800">
+                            <span className="font-semibold text-stone-800 dark:text-stone-200">
                               {product.actualFarmerName || product.farmerName}
                             </span>
                             {product.isFpoListed && (
@@ -676,7 +677,7 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({
                           </td>
                           <td className="p-3.5 font-medium">{product.category}</td>
                           <td className="p-3.5 font-bold text-emerald-800">₹{product.price}/{product.unit}</td>
-                          <td className="p-3.5 text-stone-500">
+                          <td className="p-3.5 text-stone-500 dark:text-stone-400">
                             {product.mandiBenchmarkPrice ? `₹${product.mandiBenchmarkPrice}/${product.unit}` : '—'}
                           </td>
 
@@ -766,21 +767,21 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({
         {activeTab === 'orders' && (
           <div className="space-y-4">
             {orders.length === 0 ? (
-              <div className="bg-white rounded-2xl border border-stone-200 p-12 text-center text-stone-500 space-y-2">
+              <div className="bg-white dark:bg-stone-900 transition-colors rounded-2xl border border-stone-200 dark:border-stone-700 p-12 text-center text-stone-500 dark:text-stone-400 space-y-2">
                 <Package className="w-12 h-12 mx-auto text-stone-300" />
-                <p className="font-bold text-sm text-stone-800">No customer orders placed yet</p>
-                <p className="text-xs text-stone-500">Orders placed by consumers will appear here in real time.</p>
+                <p className="font-bold text-sm text-stone-800 dark:text-stone-200">No customer orders placed yet</p>
+                <p className="text-xs text-stone-500 dark:text-stone-400">Orders placed by consumers will appear here in real time.</p>
               </div>
             ) : (
               orders.map(order => (
                 <div
                   key={order.id}
-                  className="bg-white rounded-2xl border border-stone-200 p-5 shadow-xs space-y-4"
+                  className="bg-white dark:bg-stone-900 transition-colors rounded-2xl border border-stone-200 dark:border-stone-700 p-5 shadow-xs space-y-4"
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-stone-100 pb-3">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-xs font-mono font-bold text-stone-800">#{order.id}</span>
-                      <span className="text-xs text-stone-500">• {new Date(order.createdAt).toLocaleDateString()}</span>
+                      <span className="text-xs font-mono font-bold text-stone-800 dark:text-stone-200">#{order.id}</span>
+                      <span className="text-xs text-stone-500 dark:text-stone-400">• {new Date(order.createdAt).toLocaleDateString()}</span>
                       <span className="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 text-[10px] font-bold">
                         {order.status}
                       </span>
@@ -791,17 +792,17 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({
                       )}
                     </div>
 
-                    <div className="text-xs text-stone-600">
-                      Destination: <span className="font-semibold text-stone-900">{order.shippingAddress.street}, {order.shippingAddress.city}</span>
+                    <div className="text-xs text-stone-600 dark:text-stone-300">
+                      Destination: <span className="font-semibold text-stone-900 dark:text-stone-100">{order.shippingAddress.street}, {order.shippingAddress.city}</span>
                     </div>
                   </div>
 
                   {/* Logistics Carrier Assignment Status Banner */}
-                  <div className="p-2.5 rounded-xl text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-stone-50 border border-stone-200/80">
+                  <div className="p-2.5 rounded-xl text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-stone-50 dark:bg-stone-950 border border-stone-200/80">
                     <div className="flex items-center gap-2">
                       <Truck className="w-4 h-4 text-blue-600 shrink-0" />
                       <div>
-                        <span className="text-[11px] text-stone-500 font-bold uppercase">Logistics Dispatch: </span>
+                        <span className="text-[11px] text-stone-500 dark:text-stone-400 font-bold uppercase">Logistics Dispatch: </span>
                         {order.logisticsId ? (
                           <span className="font-bold text-blue-900">
                             Assigned to KisanVahan Logistics ({order.vehicleNumber || 'OD 02 AX 8840'})
@@ -813,7 +814,7 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({
                         )}
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 text-[11px] text-stone-600">
+                    <div className="flex items-center gap-2 text-[11px] text-stone-600 dark:text-stone-300">
                       <span>Assigned Vehicle:</span>
                       <span className="font-bold px-2 py-0.5 rounded bg-blue-100 text-blue-900">
                         {order.vehicleTypeRequired === 'TRACTOR' ? '🚜 Tractor / Agro Trolley' :
@@ -827,11 +828,11 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Items */}
                     <div className="space-y-2">
-                      <div className="text-[11px] font-bold uppercase tracking-wider text-stone-500">Ordered Produce</div>
+                      <div className="text-[11px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">Ordered Produce</div>
                       {order.items.map((it, i) => (
-                        <div key={i} className="flex items-center justify-between text-xs p-2 bg-stone-50 rounded-lg">
+                        <div key={i} className="flex items-center justify-between text-xs p-2 bg-stone-50 dark:bg-stone-950 rounded-lg">
                           <span>{it.name} ({it.quantity} {it.unit})</span>
-                          <span className="font-bold text-stone-900">₹{it.price * it.quantity}</span>
+                          <span className="font-bold text-stone-900 dark:text-stone-100">₹{it.price * it.quantity}</span>
                         </div>
                       ))}
                     </div>
@@ -889,7 +890,7 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({
         {activeTab === 'sold_history' && (
           <div className="space-y-6">
             {/* Header & Impact Highlights */}
-            <div className="bg-white rounded-2xl border border-stone-200 p-6 shadow-xs">
+            <div className="bg-white dark:bg-stone-900 transition-colors rounded-2xl border border-stone-200 dark:border-stone-700 p-6 shadow-xs">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-stone-100 pb-5">
                 <div>
                   <div className="flex items-center gap-2">
@@ -897,12 +898,12 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({
                       <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                       <span>Fulfilled Direct Sales Ledger</span>
                     </span>
-                    <span className="text-xs text-stone-500 font-mono">100% Aadhaar DBT Settled</span>
+                    <span className="text-xs text-stone-500 dark:text-stone-400 font-mono">100% Aadhaar DBT Settled</span>
                   </div>
-                  <h3 className="text-lg font-black text-stone-900 mt-1">
+                  <h3 className="text-lg font-black text-stone-900 dark:text-stone-100 mt-1">
                     Sold Harvest Consignments & Disbursed Earnings
                   </h3>
-                  <p className="text-xs text-stone-500 mt-0.5">
+                  <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5">
                     Complete immutable history of all crop lots sold directly to consumers and bulk institutions without APMC middlemen commissions.
                   </p>
                 </div>
@@ -917,44 +918,44 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({
 
               {/* Realized Metric Summary */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-5">
-                <div className="p-3.5 bg-stone-50 rounded-xl border border-stone-200">
-                  <span className="text-[10px] text-stone-500 font-bold uppercase block">Total Volume Sold</span>
-                  <span className="text-xl font-black text-stone-900 mt-0.5 block">3,450 kg</span>
+                <div className="p-3.5 bg-stone-50 dark:bg-stone-950 rounded-xl border border-stone-200 dark:border-stone-700">
+                  <span className="text-[10px] text-stone-500 dark:text-stone-400 font-bold uppercase block">Total Volume Sold</span>
+                  <span className="text-xl font-black text-stone-900 dark:text-stone-100 mt-0.5 block">3,450 kg</span>
                   <span className="text-[10px] text-emerald-700 font-medium">Across 14 direct dispatches</span>
                 </div>
 
-                <div className="p-3.5 bg-stone-50 rounded-xl border border-stone-200">
-                  <span className="text-[10px] text-stone-500 font-bold uppercase block">Net Direct Revenue</span>
+                <div className="p-3.5 bg-stone-50 dark:bg-stone-950 rounded-xl border border-stone-200 dark:border-stone-700">
+                  <span className="text-[10px] text-stone-500 dark:text-stone-400 font-bold uppercase block">Net Direct Revenue</span>
                   <span className="text-xl font-black text-emerald-800 mt-0.5 block">₹51,840</span>
                   <span className="text-[10px] text-emerald-700 font-medium">Credited to SBI A/C ••4102</span>
                 </div>
 
-                <div className="p-3.5 bg-stone-50 rounded-xl border border-stone-200">
-                  <span className="text-[10px] text-stone-500 font-bold uppercase block">Extra Profit vs Mandi</span>
+                <div className="p-3.5 bg-stone-50 dark:bg-stone-950 rounded-xl border border-stone-200 dark:border-stone-700">
+                  <span className="text-[10px] text-stone-500 dark:text-stone-400 font-bold uppercase block">Extra Profit vs Mandi</span>
                   <span className="text-xl font-black text-amber-900 mt-0.5 block">+₹13,290</span>
                   <span className="text-[10px] text-amber-700 font-bold">+34.5% higher farmgate realization</span>
                 </div>
 
-                <div className="p-3.5 bg-stone-50 rounded-xl border border-stone-200">
-                  <span className="text-[10px] text-stone-500 font-bold uppercase block">Payout Settlement Status</span>
-                  <span className="text-xl font-black text-stone-900 mt-0.5 block">100% Cleared</span>
-                  <span className="text-[10px] text-stone-500">Escrow released via IMPS</span>
+                <div className="p-3.5 bg-stone-50 dark:bg-stone-950 rounded-xl border border-stone-200 dark:border-stone-700">
+                  <span className="text-[10px] text-stone-500 dark:text-stone-400 font-bold uppercase block">Payout Settlement Status</span>
+                  <span className="text-xl font-black text-stone-900 dark:text-stone-100 mt-0.5 block">100% Cleared</span>
+                  <span className="text-[10px] text-stone-500 dark:text-stone-400">Escrow released via IMPS</span>
                 </div>
               </div>
             </div>
 
             {/* Sold Items Table */}
-            <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-xs">
-              <div className="p-4 border-b border-stone-200 bg-stone-50 flex items-center justify-between">
-                <h4 className="font-bold text-xs uppercase tracking-wider text-stone-700">
+            <div className="bg-white dark:bg-stone-900 transition-colors rounded-2xl border border-stone-200 dark:border-stone-700 overflow-hidden shadow-xs">
+              <div className="p-4 border-b border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-950 flex items-center justify-between">
+                <h4 className="font-bold text-xs uppercase tracking-wider text-stone-700 dark:text-stone-300">
                   Delivered Lots & Direct Payment Receipts
                 </h4>
-                <span className="text-xs text-stone-500 font-medium">Auto-synced with Consumer OTP confirmations</span>
+                <span className="text-xs text-stone-500 dark:text-stone-400 font-medium">Auto-synced with Consumer OTP confirmations</span>
               </div>
 
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs text-stone-700">
-                  <thead className="bg-stone-100/75 text-stone-500 uppercase text-[10px] font-bold border-b border-stone-200">
+                <table className="w-full text-left text-xs text-stone-700 dark:text-stone-300">
+                  <thead className="bg-stone-100/75 text-stone-500 dark:text-stone-400 uppercase text-[10px] font-bold border-b border-stone-200 dark:border-stone-700">
                     <tr>
                       <th className="p-3.5">Consignment ID & Date</th>
                       <th className="p-3.5">Produce & Lot Size</th>
@@ -1075,20 +1076,20 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({
                     ].map(row => (
                       <tr key={row.lotId} className="hover:bg-stone-50/80 transition">
                         <td className="p-3.5">
-                          <div className="font-mono font-bold text-stone-900">{row.lotId}</div>
-                          <div className="text-[10px] text-stone-500">{row.date}</div>
+                          <div className="font-mono font-bold text-stone-900 dark:text-stone-100">{row.lotId}</div>
+                          <div className="text-[10px] text-stone-500 dark:text-stone-400">{row.date}</div>
                           <span className="text-[9px] text-stone-400 font-mono">Ref #{row.orderId}</span>
                         </td>
                         <td className="p-3.5">
-                          <div className="font-bold text-stone-900">{row.name}</div>
-                          <div className="text-[11px] text-stone-500 font-medium">Batch: {row.qty}</div>
+                          <div className="font-bold text-stone-900 dark:text-stone-100">{row.name}</div>
+                          <div className="text-[11px] text-stone-500 dark:text-stone-400 font-medium">Batch: {row.qty}</div>
                         </td>
                         <td className="p-3.5">
-                          <div className="font-semibold text-stone-800">{row.buyer}</div>
-                          <div className="text-[10px] text-stone-500">{row.buyerType}</div>
+                          <div className="font-semibold text-stone-800 dark:text-stone-200">{row.buyer}</div>
+                          <div className="text-[10px] text-stone-500 dark:text-stone-400">{row.buyerType}</div>
                         </td>
                         <td className="p-3.5">
-                          <span className="font-bold text-stone-900">{row.soldRate}</span>
+                          <span className="font-bold text-stone-900 dark:text-stone-100">{row.soldRate}</span>
                           <span className="block text-[10px] text-stone-400 line-through">
                             Mandi: {row.mandiRate}
                           </span>
@@ -1103,7 +1104,7 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({
                           </span>
                         </td>
                         <td className="p-3.5">
-                          <div className="font-mono text-[11px] font-bold text-stone-700">{row.ref}</div>
+                          <div className="font-mono text-[11px] font-bold text-stone-700 dark:text-stone-300">{row.ref}</div>
                           <div className="flex items-center gap-1 text-[10px] text-emerald-700 font-medium">
                             <CheckCircle2 className="w-3 h-3 text-emerald-600" />
                             <span>{row.status}</span>
@@ -1120,43 +1121,71 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({
 
         {/* TAB 3: PAYOUT SETTLEMENTS */}
         {activeTab === 'payouts' && (
-          <div className="bg-white rounded-2xl border border-stone-200 p-6 space-y-6">
-            <div className="flex items-center justify-between border-b border-stone-200 pb-4">
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="bg-white dark:bg-stone-900 transition-colors dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-700 dark:border-stone-800 p-6 shadow-sm flex flex-col justify-center transition-colors">
+                <div className="text-stone-500 dark:text-stone-400 dark:text-stone-400 font-bold mb-2 flex items-center gap-2">
+                  <DollarSign className="w-5 h-5 text-emerald-600 dark:text-emerald-500" />
+                  <span>Total Revenue</span>
+                </div>
+                <div className="text-3xl font-black text-stone-900 dark:text-stone-100 dark:text-white">₹{totalDeliveredRevenue.toLocaleString()}</div>
+              </div>
+              <div className="bg-white dark:bg-stone-900 transition-colors dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-700 dark:border-stone-800 p-6 shadow-sm flex flex-col justify-center transition-colors">
+                <div className="text-stone-500 dark:text-stone-400 dark:text-stone-400 font-bold mb-2 flex items-center gap-2">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-500" />
+                  <span>Orders Delivered</span>
+                </div>
+                <div className="text-3xl font-black text-stone-900 dark:text-stone-100 dark:text-white">{orders.filter(o => o.status === 'DELIVERED').length}</div>
+              </div>
+              <div className="bg-white dark:bg-stone-900 transition-colors dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-700 dark:border-stone-800 p-6 shadow-sm flex flex-col justify-center transition-colors">
+                <div className="text-stone-500 dark:text-stone-400 dark:text-stone-400 font-bold mb-2 flex items-center gap-2">
+                  <Truck className="w-5 h-5 text-amber-500" />
+                  <span>Pending Shipments</span>
+                </div>
+                <div className="text-3xl font-black text-stone-900 dark:text-stone-100 dark:text-white">{orders.filter(o => o.status !== 'DELIVERED' && o.status !== 'CANCELLED').length}</div>
+              </div>
+            </div>
+
+            <FarmersEarningChart orders={orders} farmerId={user?.id || 'usr_farmer_1'} />
+            
+            <div className="bg-white dark:bg-stone-900 transition-colors dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-700 dark:border-stone-800 p-6 space-y-6 transition-colors">
+              <div className="flex items-center justify-between border-b border-stone-200 dark:border-stone-700 dark:border-stone-800 pb-4">
               <div>
-                <h3 className="text-sm font-bold text-stone-900">Bank Account & Direct Benefit Transfer (DBT)</h3>
-                <p className="text-xs text-stone-500 mt-0.5">
+                <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100 dark:text-stone-100">Bank Account & Direct Benefit Transfer (DBT)</h3>
+                <p className="text-xs text-stone-500 dark:text-stone-400 dark:text-stone-400 mt-0.5">
                   Verified Aadhaar-seeded Account for 100% Broker-Free Settlement
                 </p>
               </div>
-              <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold flex items-center gap-1.5">
+              <span className="px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-400 text-xs font-bold flex items-center gap-1.5">
                 <CheckCircle2 className="w-3.5 h-3.5" /> KYC Verified
               </span>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-              <div className="p-3.5 bg-stone-50 rounded-xl border border-stone-200">
-                <div className="text-stone-500 font-bold mb-1">Bank Name:</div>
-                <div className="font-semibold text-stone-900">State Bank of India (SBI)</div>
+              <div className="p-3.5 bg-stone-50 dark:bg-stone-950 dark:bg-stone-800 rounded-xl border border-stone-200 dark:border-stone-700 dark:border-stone-700 transition-colors">
+                <div className="text-stone-500 dark:text-stone-400 dark:text-stone-400 font-bold mb-1">Bank Name:</div>
+                <div className="font-semibold text-stone-900 dark:text-stone-100 dark:text-stone-200">State Bank of India (SBI)</div>
               </div>
-              <div className="p-3.5 bg-stone-50 rounded-xl border border-stone-200">
-                <div className="text-stone-500 font-bold mb-1">Account Number:</div>
-                <div className="font-mono font-semibold text-stone-900">•••• •••• 4102</div>
+              <div className="p-3.5 bg-stone-50 dark:bg-stone-950 dark:bg-stone-800 rounded-xl border border-stone-200 dark:border-stone-700 dark:border-stone-700 transition-colors">
+                <div className="text-stone-500 dark:text-stone-400 dark:text-stone-400 font-bold mb-1">Account Number:</div>
+                <div className="font-mono font-semibold text-stone-900 dark:text-stone-100 dark:text-stone-200">•••• •••• 4102</div>
               </div>
-              <div className="p-3.5 bg-stone-50 rounded-xl border border-stone-200">
-                <div className="text-stone-500 font-bold mb-1">IFSC Code / Branch:</div>
-                <div className="font-mono font-semibold text-stone-900">SBIN0001248 (Baramati Agro Hub)</div>
+              <div className="p-3.5 bg-stone-50 dark:bg-stone-950 dark:bg-stone-800 rounded-xl border border-stone-200 dark:border-stone-700 dark:border-stone-700 transition-colors">
+                <div className="text-stone-500 dark:text-stone-400 dark:text-stone-400 font-bold mb-1">IFSC Code / Branch:</div>
+                <div className="font-mono font-semibold text-stone-900 dark:text-stone-100 dark:text-stone-200">SBIN0001248 (Baramati Agro Hub)</div>
               </div>
             </div>
 
-            <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-xs space-y-1.5 text-stone-700">
-              <div className="font-bold text-emerald-950 flex items-center gap-1.5">
-                <ShieldCheck className="w-4 h-4 text-emerald-700" />
+            <div className="p-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800/50 rounded-xl text-xs space-y-1.5 text-stone-700 dark:text-stone-300 dark:text-stone-300 transition-colors">
+              <div className="font-bold text-emerald-950 dark:text-emerald-400 flex items-center gap-1.5">
+                <ShieldCheck className="w-4 h-4 text-emerald-700 dark:text-emerald-500" />
                 <span>SeedhaMandi Escrow Safeguard</span>
               </div>
               <p className="leading-relaxed">
                 Every rupee is securely escrowed by our RBI-compliant nodal banking partner. Once the urban consumer confirms delivery inspection via their 6-digit OTP, your payout is automatically credited via IMPS within 15 minutes.
               </p>
             </div>
+          </div>
           </div>
         )}
 
@@ -1179,7 +1208,7 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({
               {rfqs.map(rfq => (
                 <div
                   key={rfq.id}
-                  className="bg-white rounded-3xl border border-stone-200 p-5 shadow-xs flex flex-col justify-between space-y-4"
+                  className="bg-white dark:bg-stone-900 transition-colors rounded-3xl border border-stone-200 dark:border-stone-700 p-5 shadow-xs flex flex-col justify-between space-y-4"
                 >
                   <div className="space-y-3">
                     <div className="flex items-start justify-between gap-2">
@@ -1187,7 +1216,7 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({
                         <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400">
                           {rfq.organization}
                         </span>
-                        <h4 className="font-extrabold text-stone-900 text-base">{rfq.cropName}</h4>
+                        <h4 className="font-extrabold text-stone-900 dark:text-stone-100 text-base">{rfq.cropName}</h4>
                       </div>
                       <span className={`px-2.5 py-1 rounded-full text-[10px] font-black tracking-wider uppercase ${
                         rfq.status === 'MATCHED'
@@ -1198,22 +1227,22 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({
                       </span>
                     </div>
 
-                    <div className="p-3.5 rounded-2xl bg-stone-50 border border-stone-100 space-y-2 text-xs">
-                      <div className="flex justify-between text-stone-600">
+                    <div className="p-3.5 rounded-2xl bg-stone-50 dark:bg-stone-950 border border-stone-100 space-y-2 text-xs">
+                      <div className="flex justify-between text-stone-600 dark:text-stone-300">
                         <span>Required Volume:</span>
-                        <span className="font-black text-stone-900">{rfq.quantityRequired.toLocaleString()} {rfq.unit}</span>
+                        <span className="font-black text-stone-900 dark:text-stone-100">{rfq.quantityRequired.toLocaleString()} {rfq.unit}</span>
                       </div>
-                      <div className="flex justify-between text-stone-600">
+                      <div className="flex justify-between text-stone-600 dark:text-stone-300">
                         <span>Offered Buying Price:</span>
                         <span className="font-black text-emerald-800">₹{rfq.targetPricePerUnit}/{rfq.unit}</span>
                       </div>
-                      <div className="flex justify-between text-stone-600">
+                      <div className="flex justify-between text-stone-600 dark:text-stone-300">
                         <span>Gross Contract Value:</span>
                         <span className="font-black text-amber-900">
                           ₹{(rfq.quantityRequired * rfq.targetPricePerUnit).toLocaleString('en-IN')}
                         </span>
                       </div>
-                      <div className="flex justify-between text-stone-600">
+                      <div className="flex justify-between text-stone-600 dark:text-stone-300">
                         <span>Logistics Fleet:</span>
                         <span className="font-bold text-blue-800">
                           {rfq.vehicleTypeRequired === 'TRACTOR' ? '🚜 Tractor Trolley' : '🚚 Mini Truck'}
@@ -1221,7 +1250,7 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({
                       </div>
                     </div>
 
-                    <div className="text-[11px] text-stone-500">
+                    <div className="text-[11px] text-stone-500 dark:text-stone-400">
                       Destination: <strong>{rfq.deliveryLocation}</strong>
                       {rfq.matchedFarmerOrFpo && (
                         <div className="text-emerald-700 font-bold mt-1">
@@ -1268,7 +1297,7 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({
       {/* Add Harvest Lot Modal */}
       {isAddModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-sm animate-in fade-in overflow-y-auto">
-          <div className="bg-white w-full max-w-xl rounded-2xl shadow-2xl border border-stone-200 overflow-hidden my-8">
+          <div className="bg-white dark:bg-stone-900 transition-colors w-full max-w-xl rounded-2xl shadow-2xl border border-stone-200 dark:border-stone-700 overflow-hidden my-8">
             <div className="bg-emerald-900 text-white p-5 flex items-center justify-between">
               <div className="flex items-center gap-2.5">
                 <Sprout className="w-5 h-5 text-amber-400" />
@@ -1294,7 +1323,7 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({
                     value={actualFarmerName}
                     onChange={e => setActualFarmerName(e.target.value)}
                     placeholder="Enter rural farmer's full name (e.g. Dnyaneshwar Shinde)"
-                    className="w-full bg-white border border-orange-300 rounded-lg px-3 py-2 text-xs focus:outline-none"
+                    className="w-full bg-white dark:bg-stone-900 border border-orange-300 rounded-lg px-3 py-2 text-xs focus:outline-none"
                   />
                   <p className="text-[11px] text-orange-800">
                     This lot will be listed under the FPO with transparent attribution to this village smallholder.
@@ -1304,22 +1333,22 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-stone-700 mb-1">Produce Name & Variety</label>
+                  <label className="block text-xs font-bold text-stone-700 dark:text-stone-300 mb-1">Produce Name & Variety</label>
                   <input
                     type="text"
                     required
                     value={name}
                     onChange={e => setName(e.target.value)}
                     placeholder="e.g. Red Nashik Onions"
-                    className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-emerald-600"
+                    className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-300 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-emerald-600"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-stone-700 mb-1">Category</label>
+                  <label className="block text-xs font-bold text-stone-700 dark:text-stone-300 mb-1">Category</label>
                   <select
                     value={category}
                     onChange={e => setCategory(e.target.value)}
-                    className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-emerald-600"
+                    className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-300 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-emerald-600"
                   >
                     <option value="Vegetables">Vegetables</option>
                     <option value="Fruits">Fruits</option>
@@ -1333,30 +1362,30 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({
 
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-stone-700 mb-1">Your Price (₹)</label>
+                  <label className="block text-xs font-bold text-stone-700 dark:text-stone-300 mb-1">Your Price (₹)</label>
                   <input
                     type="number"
                     required
                     value={price}
                     onChange={e => setPrice(e.target.value)}
-                    className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3 py-2 text-xs font-bold text-emerald-800"
+                    className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-300 rounded-xl px-3 py-2 text-xs font-bold text-emerald-800"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-stone-700 mb-1">Mandi Benchmark (₹)</label>
+                  <label className="block text-xs font-bold text-stone-700 dark:text-stone-300 mb-1">Mandi Benchmark (₹)</label>
                   <input
                     type="number"
                     value={mandiPrice}
                     onChange={e => setMandiPrice(e.target.value)}
-                    className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3 py-2 text-xs text-stone-500"
+                    className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-300 rounded-xl px-3 py-2 text-xs text-stone-500 dark:text-stone-400"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-stone-700 mb-1">Unit</label>
+                  <label className="block text-xs font-bold text-stone-700 dark:text-stone-300 mb-1">Unit</label>
                   <select
                     value={unit}
                     onChange={e => setUnit(e.target.value)}
-                    className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3 py-2 text-xs"
+                    className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-300 rounded-xl px-3 py-2 text-xs"
                   >
                     <option value="kg">per kg</option>
                     <option value="crate">per crate (20kg)</option>
@@ -1369,23 +1398,23 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({
 
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-stone-700 mb-1">Total Quantity</label>
+                  <label className="block text-xs font-bold text-stone-700 dark:text-stone-300 mb-1">Total Quantity</label>
                   <input
                     type="number"
                     required
                     value={quantity}
                     onChange={e => setQuantity(e.target.value)}
-                    className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3 py-2 text-xs"
+                    className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-300 rounded-xl px-3 py-2 text-xs"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-stone-700 mb-1">Min. Order Qty</label>
+                  <label className="block text-xs font-bold text-stone-700 dark:text-stone-300 mb-1">Min. Order Qty</label>
                   <input
                     type="number"
                     required
                     value={minOrderQty}
                     onChange={e => setMinOrderQty(e.target.value)}
-                    className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3 py-2 text-xs"
+                    className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-300 rounded-xl px-3 py-2 text-xs"
                   />
                 </div>
                 <div>
@@ -1402,11 +1431,11 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-stone-700 mb-1">Quality Grade</label>
+                <label className="block text-xs font-bold text-stone-700 dark:text-stone-300 mb-1">Quality Grade</label>
                 <select
                   value={qualityGrade}
                   onChange={e => setQualityGrade(e.target.value)}
-                  className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3 py-2 text-xs"
+                  className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-300 rounded-xl px-3 py-2 text-xs"
                 >
                   <option value="Grade A (Export Quality)">Grade A (Export Quality)</option>
                   <option value="Grade A (Super Table Grade)">Grade A (Super Table Grade)</option>
@@ -1415,13 +1444,13 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-stone-700 mb-1">Harvest Notes / Details</label>
+                <label className="block text-xs font-bold text-stone-700 dark:text-stone-300 mb-1">Harvest Notes / Details</label>
                 <textarea
                   rows={2}
                   value={description}
                   onChange={e => setDescription(e.target.value)}
                   placeholder="e.g. Harvested yesterday morning, sorted and packed in ventilated crates, zero chemical spraying in last 25 days."
-                  className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-emerald-600"
+                  className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-300 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-emerald-600"
                 />
               </div>
 
@@ -1433,16 +1462,16 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({
                   onChange={e => setOrganicCertified(e.target.checked)}
                   className="rounded text-emerald-700"
                 />
-                <label htmlFor="organicCheck" className="text-xs text-stone-700 font-semibold cursor-pointer">
+                <label htmlFor="organicCheck" className="text-xs text-stone-700 dark:text-stone-300 font-semibold cursor-pointer">
                   Chemical-Free / Certified Organic Produce
                 </label>
               </div>
 
-              <div className="pt-3 border-t border-stone-200 flex items-center justify-end gap-3">
+              <div className="pt-3 border-t border-stone-200 dark:border-stone-700 flex items-center justify-end gap-3">
                 <button
                   type="button"
                   onClick={() => setIsAddModalOpen(false)}
-                  className="px-4 py-2 text-xs font-bold text-stone-600 hover:text-stone-900"
+                  className="px-4 py-2 text-xs font-bold text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:text-stone-100"
                 >
                   Cancel
                 </button>

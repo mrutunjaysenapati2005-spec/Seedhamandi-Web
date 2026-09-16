@@ -182,21 +182,21 @@ export const PayViaQrCheckout: React.FC<PayViaQrCheckoutProps> = ({
             <CheckCircle2 className="w-8 h-8" />
           </div>
           <div>
-            <h4 className="font-black text-stone-900 text-base">UPI Payment & Settlement Verified!</h4>
-            <p className="text-xs text-stone-600 mt-0.5">
+            <h4 className="font-black text-stone-900 dark:text-stone-100 text-base">UPI Payment & Settlement Verified!</h4>
+            <p className="text-xs text-stone-600 dark:text-stone-300 mt-0.5">
               Ref: <span className="font-mono font-bold text-emerald-800">{txnId}</span>
             </p>
           </div>
 
-          <div className="p-3 bg-white rounded-xl border border-emerald-200 text-xs space-y-1 text-left">
-            <div className="flex items-center justify-between text-stone-700">
+          <div className="p-3 bg-white dark:bg-stone-900 rounded-xl border border-emerald-200 text-xs space-y-1 text-left">
+            <div className="flex items-center justify-between text-stone-700 dark:text-stone-300">
               <span className="flex items-center gap-1">
                 <Check className="w-3.5 h-3.5 text-emerald-600 font-black" />
                 <span>Instant Farmer Credit ({primaryFarmer}):</span>
               </span>
               <strong className="text-emerald-800 font-mono">₹{itemsTotal}</strong>
             </div>
-            <div className="flex items-center justify-between text-stone-700">
+            <div className="flex items-center justify-between text-stone-700 dark:text-stone-300">
               <span className="flex items-center gap-1">
                 <Check className="w-3.5 h-3.5 text-blue-600 font-black" />
                 <span>Instant Logistics Credit ({vehicleName.split(' ')[0]}):</span>
@@ -218,7 +218,7 @@ export const PayViaQrCheckout: React.FC<PayViaQrCheckoutProps> = ({
         <div className="space-y-4">
           {/* Method Tabs */}
           <div>
-            <label className="block text-[11px] font-extrabold text-stone-500 uppercase tracking-wider mb-2">
+            <label className="block text-[11px] font-extrabold text-stone-500 dark:text-stone-400 uppercase tracking-wider mb-2">
               Select Payment Mode
             </label>
             <div className="grid grid-cols-2 gap-2">
@@ -228,7 +228,7 @@ export const PayViaQrCheckout: React.FC<PayViaQrCheckoutProps> = ({
                 className={`p-3 rounded-xl border-2 text-left transition relative cursor-pointer ${
                   selectedMethod === 'UPI'
                     ? 'border-emerald-600 bg-emerald-50/80 shadow-xs'
-                    : 'border-stone-200 hover:border-stone-300 bg-white'
+                    : 'border-stone-200 dark:border-stone-700 hover:border-stone-300 bg-white'
                 }`}
               >
                 <div className="flex items-center justify-between">
@@ -240,7 +240,7 @@ export const PayViaQrCheckout: React.FC<PayViaQrCheckoutProps> = ({
                     Instant
                   </span>
                 </div>
-                <p className="text-[10px] text-stone-500 mt-1">
+                <p className="text-[10px] text-stone-500 dark:text-stone-400 mt-1">
                   GPay, PhonePe, Paytm, BHIM with zero middleman fee
                 </p>
               </button>
@@ -251,17 +251,17 @@ export const PayViaQrCheckout: React.FC<PayViaQrCheckoutProps> = ({
                 className={`p-3 rounded-xl border-2 text-left transition relative cursor-pointer ${
                   selectedMethod === 'ESCROW_COD'
                     ? 'border-emerald-600 bg-emerald-50/80 shadow-xs'
-                    : 'border-stone-200 hover:border-stone-300 bg-white'
+                    : 'border-stone-200 dark:border-stone-700 hover:border-stone-300 bg-white'
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-xs text-stone-900 flex items-center gap-1.5">
+                  <span className="font-bold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
                     <ShieldCheck className="w-4 h-4 text-emerald-700" />
                     <span>Doorstep Escrow</span>
                   </span>
                   <span className="text-[10px] text-stone-400 font-medium">COD</span>
                 </div>
-                <p className="text-[10px] text-stone-500 mt-1">
+                <p className="text-[10px] text-stone-500 dark:text-stone-400 mt-1">
                   Inspect produce at doorstep, then scan & pay
                 </p>
               </button>
@@ -272,16 +272,16 @@ export const PayViaQrCheckout: React.FC<PayViaQrCheckoutProps> = ({
                 className={`p-3 rounded-xl border-2 text-left transition relative cursor-pointer ${
                   selectedMethod === 'CARD'
                     ? 'border-emerald-600 bg-emerald-50/80 shadow-xs'
-                    : 'border-stone-200 hover:border-stone-300 bg-white'
+                    : 'border-stone-200 dark:border-stone-700 hover:border-stone-300 bg-white'
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-xs text-stone-900 flex items-center gap-1.5">
-                    <CreditCard className="w-4 h-4 text-stone-700" />
+                  <span className="font-bold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
+                    <CreditCard className="w-4 h-4 text-stone-700 dark:text-stone-300" />
                     <span>Card / NetBanking</span>
                   </span>
                 </div>
-                <p className="text-[10px] text-stone-500 mt-1">
+                <p className="text-[10px] text-stone-500 dark:text-stone-400 mt-1">
                   RuPay, Visa, Master, SBI, HDFC
                 </p>
               </button>
@@ -292,7 +292,7 @@ export const PayViaQrCheckout: React.FC<PayViaQrCheckoutProps> = ({
                 className={`p-3 rounded-xl border-2 text-left transition relative cursor-pointer ${
                   selectedMethod === 'KISAN_CREDIT'
                     ? 'border-emerald-600 bg-emerald-50/80 shadow-xs'
-                    : 'border-stone-200 hover:border-stone-300 bg-white'
+                    : 'border-stone-200 dark:border-stone-700 hover:border-stone-300 bg-white'
                 }`}
               >
                 <div className="flex items-center justify-between">
@@ -301,7 +301,7 @@ export const PayViaQrCheckout: React.FC<PayViaQrCheckoutProps> = ({
                     <span>Kisan Credit / DBT</span>
                   </span>
                 </div>
-                <p className="text-[10px] text-stone-500 mt-1">
+                <p className="text-[10px] text-stone-500 dark:text-stone-400 mt-1">
                   NABARD subsidized mandi line
                 </p>
               </button>
@@ -356,7 +356,7 @@ export const PayViaQrCheckout: React.FC<PayViaQrCheckoutProps> = ({
 
               {/* UPI VPA Custom Entry (Optional) */}
               <div className="space-y-1.5">
-                <label className="block text-xs font-bold text-stone-700">
+                <label className="block text-xs font-bold text-stone-700 dark:text-stone-300">
                   Or Pay via UPI VPA Handle
                 </label>
                 <div className="flex gap-2">
@@ -365,7 +365,7 @@ export const PayViaQrCheckout: React.FC<PayViaQrCheckoutProps> = ({
                     value={upiVpa}
                     onChange={e => setUpiVpa(e.target.value)}
                     placeholder="e.g. mobile@upi or name@okhdfc"
-                    className="flex-1 bg-white border border-stone-300 rounded-xl px-3 py-2 text-xs font-mono focus:outline-none focus:border-emerald-600 shadow-2xs"
+                    className="flex-1 bg-white dark:bg-stone-900 border border-stone-300 rounded-xl px-3 py-2 text-xs font-mono focus:outline-none focus:border-emerald-600 shadow-2xs"
                   />
                 </div>
               </div>
@@ -381,7 +381,7 @@ export const PayViaQrCheckout: React.FC<PayViaQrCheckoutProps> = ({
                 <ArrowRight className="w-4 h-4" />
               </button>
 
-              <div className="text-[11px] text-center text-stone-500 flex items-center justify-center gap-2">
+              <div className="text-[11px] text-center text-stone-500 dark:text-stone-400 flex items-center justify-center gap-2">
                 <span>🛡️ NPCI Switch</span>
                 <span>•</span>
                 <span>Instant Bank IMPS</span>
@@ -400,13 +400,13 @@ export const PayViaQrCheckout: React.FC<PayViaQrCheckoutProps> = ({
                 <ShieldCheck className="w-5 h-5 text-emerald-700 shrink-0" />
                 <div>
                   <h5 className="font-extrabold text-sm">How SeedhaMandi Doorstep Escrow Operates:</h5>
-                  <p className="text-[11px] text-stone-600 font-normal mt-0.5">
+                  <p className="text-[11px] text-stone-600 dark:text-stone-300 font-normal mt-0.5">
                     You only authorize release of funds after physical quality inspection.
                   </p>
                 </div>
               </div>
 
-              <ol className="list-decimal pl-5 space-y-1.5 text-stone-700 text-[11px]">
+              <ol className="list-decimal pl-5 space-y-1.5 text-stone-700 dark:text-stone-300 text-[11px]">
                 <li>Farmer prepares and packs crates with SeedhaMandi digital seals.</li>
                 <li>Driver arrives at your doorstep in Bhubaneswar corridor.</li>
                 <li>You inspect the produce freshness and share your 6-digit Delivery OTP.</li>
@@ -428,24 +428,24 @@ export const PayViaQrCheckout: React.FC<PayViaQrCheckoutProps> = ({
           {/* CARD / NETBANKING VIEW                                         */}
           {/* ============================================================== */}
           {(selectedMethod === 'CARD' || selectedMethod === 'NET_BANKING') && (
-            <div className="space-y-3 p-4 bg-stone-50 border border-stone-200 rounded-2xl text-xs">
+            <div className="space-y-3 p-4 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 rounded-2xl text-xs">
               <div className="space-y-2">
-                <label className="block font-bold text-stone-700">Card Number</label>
+                <label className="block font-bold text-stone-700 dark:text-stone-300">Card Number</label>
                 <input
                   type="text"
                   placeholder="4242 •••• •••• 4242"
-                  className="w-full bg-white border border-stone-300 rounded-xl px-3 py-2 text-xs font-mono"
+                  className="w-full bg-white dark:bg-stone-900 border border-stone-300 rounded-xl px-3 py-2 text-xs font-mono"
                 />
                 <div className="grid grid-cols-2 gap-2">
                   <input
                     type="text"
                     placeholder="MM / YY"
-                    className="bg-white border border-stone-300 rounded-xl px-3 py-2 text-xs"
+                    className="bg-white dark:bg-stone-900 transition-colors border border-stone-300 rounded-xl px-3 py-2 text-xs"
                   />
                   <input
                     type="password"
                     placeholder="CVV"
-                    className="bg-white border border-stone-300 rounded-xl px-3 py-2 text-xs"
+                    className="bg-white dark:bg-stone-900 transition-colors border border-stone-300 rounded-xl px-3 py-2 text-xs"
                   />
                 </div>
               </div>

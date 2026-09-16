@@ -108,7 +108,7 @@ export function getVehicleBadge(type?: VehicleType) {
     case 'BIKE_SCOOTY':
       return { label: '🛵 Express 2-Wheeler', color: 'bg-emerald-100 text-emerald-900 border-emerald-300' };
     default:
-      return { label: '🚚 Agri Logistic Fleet', color: 'bg-stone-100 text-stone-800 border-stone-300' };
+      return { label: '🚚 Agri Logistic Fleet', color: 'bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 border-stone-300' };
   }
 }
 
@@ -205,7 +205,7 @@ export const FarmToForkStatusBar: React.FC<FarmToForkStatusBarProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-3xl border border-emerald-200/90 shadow-sm overflow-hidden space-y-0 animate-in fade-in duration-300">
+    <div className="bg-white dark:bg-stone-900 transition-colors rounded-3xl border border-emerald-200/90 shadow-sm overflow-hidden space-y-0 animate-in fade-in duration-300">
       {/* Top Banner with Real-Time Pulse & Order Selector */}
       <div className="bg-gradient-to-r from-emerald-900 via-stone-900 to-emerald-950 text-white p-5 sm:p-6">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
@@ -308,8 +308,8 @@ export const FarmToForkStatusBar: React.FC<FarmToForkStatusBarProps> = ({
             <span className="text-[10px] font-black uppercase tracking-widest text-emerald-800">
               Progression Pipeline
             </span>
-            <div className="text-xs font-bold text-stone-600">
-              Stage {currentStageIdx + 1} of 5: <span className="text-stone-900 font-extrabold">{JOURNEY_MILESTONES[currentStageIdx].title}</span>
+            <div className="text-xs font-bold text-stone-600 dark:text-stone-300">
+              Stage {currentStageIdx + 1} of 5: <span className="text-stone-900 dark:text-stone-100 font-extrabold">{JOURNEY_MILESTONES[currentStageIdx].title}</span>
             </div>
           </div>
 
@@ -344,10 +344,10 @@ export const FarmToForkStatusBar: React.FC<FarmToForkStatusBarProps> = ({
                   key={milestone.id}
                   className={`flex md:flex-col items-start md:items-center text-left md:text-center gap-3 md:gap-2 p-3 md:p-2 rounded-2xl transition-all duration-300 ${
                     isCurrent 
-                      ? 'bg-white shadow-md border-2 border-emerald-500 md:scale-105' 
+                      ? 'bg-white dark:bg-stone-900 shadow-md border-2 border-emerald-500 md:scale-105' 
                       : isCompleted 
                       ? 'bg-emerald-50/70 border border-emerald-200/80 md:bg-transparent md:border-transparent' 
-                      : 'opacity-70 border border-stone-200 md:border-transparent'
+                      : 'opacity-70 border border-stone-200 dark:border-stone-700 md:border-transparent'
                   }`}
                 >
                   {/* Node Circle */}
@@ -380,7 +380,7 @@ export const FarmToForkStatusBar: React.FC<FarmToForkStatusBarProps> = ({
                       )}
                     </div>
 
-                    <p className="text-[11px] text-stone-500 leading-snug line-clamp-2 md:line-clamp-3">
+                    <p className="text-[11px] text-stone-500 dark:text-stone-400 leading-snug line-clamp-2 md:line-clamp-3">
                       {milestone.subtitle}
                     </p>
 
@@ -407,40 +407,40 @@ export const FarmToForkStatusBar: React.FC<FarmToForkStatusBarProps> = ({
         {/* ========================================================================= */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 pt-2">
           {/* Card 1: Real-time Transit Telemetry */}
-          <div className="bg-white rounded-2xl border border-stone-200 p-4 shadow-xs space-y-3">
+          <div className="bg-white dark:bg-stone-900 transition-colors rounded-2xl border border-stone-200 dark:border-stone-700 p-4 shadow-xs space-y-3">
             <div className="flex items-center justify-between border-b border-stone-100 pb-2.5">
-              <span className="text-xs font-bold text-stone-900 flex items-center gap-1.5">
+              <span className="text-xs font-bold text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
                 <Radio className="w-4 h-4 text-emerald-600 animate-pulse" />
                 <span>Live Route Telemetry</span>
               </span>
-              <span className="text-[10px] font-mono text-stone-500">
+              <span className="text-[10px] font-mono text-stone-500 dark:text-stone-400">
                 Ping: {telemetryPingTime}
               </span>
             </div>
 
             <div className="space-y-2 text-xs">
-              <div className="flex justify-between items-center text-stone-600">
+              <div className="flex justify-between items-center text-stone-600 dark:text-stone-300">
                 <span className="text-[11px]">Current Waypoint:</span>
-                <span className="font-bold text-stone-900 truncate max-w-[170px] text-right">
+                <span className="font-bold text-stone-900 dark:text-stone-100 truncate max-w-[170px] text-right">
                   {order.status === 'DELIVERED' ? 'Arrived at Destination' : currentWaypoint.location}
                 </span>
               </div>
 
-              <div className="flex justify-between items-center text-stone-600">
+              <div className="flex justify-between items-center text-stone-600 dark:text-stone-300">
                 <span className="text-[11px]">Distance Remaining:</span>
                 <span className="font-bold text-emerald-700">
                   {order.status === 'DELIVERED' ? '0.0 km' : currentWaypoint.kmRemaining}
                 </span>
               </div>
 
-              <div className="flex justify-between items-center text-stone-600">
+              <div className="flex justify-between items-center text-stone-600 dark:text-stone-300">
                 <span className="text-[11px]">Transit Speed:</span>
-                <span className="font-bold text-stone-800">
+                <span className="font-bold text-stone-800 dark:text-stone-200">
                   {order.status === 'DELIVERED' ? '0 km/h (Parked)' : currentWaypoint.speed}
                 </span>
               </div>
 
-              <div className="flex justify-between items-center text-stone-600">
+              <div className="flex justify-between items-center text-stone-600 dark:text-stone-300">
                 <span className="text-[11px] flex items-center gap-1">
                   <ThermometerSnowflake className="w-3 h-3 text-cyan-600" />
                   <span>Cargo Chamber:</span>
@@ -451,7 +451,7 @@ export const FarmToForkStatusBar: React.FC<FarmToForkStatusBarProps> = ({
               </div>
             </div>
 
-            <div className="p-2.5 bg-stone-50 rounded-xl text-[11px] text-stone-600 flex items-start gap-2">
+            <div className="p-2.5 bg-stone-50 dark:bg-stone-950 rounded-xl text-[11px] text-stone-600 dark:text-stone-300 flex items-start gap-2">
               <Navigation className="w-3.5 h-3.5 text-blue-600 shrink-0 mt-0.5" />
               <span>
                 {order.status === 'DELIVERED'
@@ -462,9 +462,9 @@ export const FarmToForkStatusBar: React.FC<FarmToForkStatusBarProps> = ({
           </div>
 
           {/* Card 2: Farmgate Origin & Assigned Carrier Fleet */}
-          <div className="bg-white rounded-2xl border border-stone-200 p-4 shadow-xs space-y-3">
+          <div className="bg-white dark:bg-stone-900 transition-colors rounded-2xl border border-stone-200 dark:border-stone-700 p-4 shadow-xs space-y-3">
             <div className="flex items-center justify-between border-b border-stone-100 pb-2.5">
-              <span className="text-xs font-bold text-stone-900 flex items-center gap-1.5">
+              <span className="text-xs font-bold text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
                 <Truck className="w-4 h-4 text-blue-600" />
                 <span>Carrier & Farm Dispatch</span>
               </span>
@@ -474,30 +474,30 @@ export const FarmToForkStatusBar: React.FC<FarmToForkStatusBarProps> = ({
             </div>
 
             <div className="space-y-2 text-xs">
-              <div className="flex justify-between items-center text-stone-600">
+              <div className="flex justify-between items-center text-stone-600 dark:text-stone-300">
                 <span className="text-[11px]">Origin Grower:</span>
-                <span className="font-bold text-stone-900">
+                <span className="font-bold text-stone-900 dark:text-stone-100">
                   {order.items[0]?.farmerName || 'Ramesh Patel (FPO Cluster)'}
                 </span>
               </div>
 
-              <div className="flex justify-between items-center text-stone-600">
+              <div className="flex justify-between items-center text-stone-600 dark:text-stone-300">
                 <span className="text-[11px]">Carrier Partner:</span>
-                <span className="font-bold text-stone-800">
+                <span className="font-bold text-stone-800 dark:text-stone-200">
                   {order.logisticsName || 'KisanVahan Agro Logistics'}
                 </span>
               </div>
 
-              <div className="flex justify-between items-center text-stone-600">
+              <div className="flex justify-between items-center text-stone-600 dark:text-stone-300">
                 <span className="text-[11px]">Assigned Vehicle:</span>
-                <span className="font-mono font-bold text-stone-900">
+                <span className="font-mono font-bold text-stone-900 dark:text-stone-100">
                   {order.vehicleNumber || 'MH 12 QX 4902'}
                 </span>
               </div>
 
-              <div className="flex justify-between items-center text-stone-600">
+              <div className="flex justify-between items-center text-stone-600 dark:text-stone-300">
                 <span className="text-[11px]">Destination:</span>
-                <span className="font-bold text-stone-800 truncate max-w-[170px] text-right">
+                <span className="font-bold text-stone-800 dark:text-stone-200 truncate max-w-[170px] text-right">
                   {order.shippingAddress.city}, {order.shippingAddress.state}
                 </span>
               </div>
@@ -506,10 +506,10 @@ export const FarmToForkStatusBar: React.FC<FarmToForkStatusBarProps> = ({
             {/* Produce Summary */}
             <div className="pt-2 border-t border-stone-100 flex items-center gap-2 overflow-x-auto">
               {order.items.map((it, idx) => (
-                <div key={idx} className="flex items-center gap-1.5 px-2 py-1 bg-stone-50 rounded-lg text-[11px] shrink-0 border border-stone-100">
+                <div key={idx} className="flex items-center gap-1.5 px-2 py-1 bg-stone-50 dark:bg-stone-950 rounded-lg text-[11px] shrink-0 border border-stone-100">
                   <img src={it.image} alt={it.name} className="w-5 h-5 rounded object-cover" />
-                  <span className="font-bold text-stone-800">{it.name}</span>
-                  <span className="text-stone-500 font-mono">({it.quantity} {it.unit})</span>
+                  <span className="font-bold text-stone-800 dark:text-stone-200">{it.name}</span>
+                  <span className="text-stone-500 dark:text-stone-400 font-mono">({it.quantity} {it.unit})</span>
                 </div>
               ))}
             </div>
@@ -527,16 +527,16 @@ export const FarmToForkStatusBar: React.FC<FarmToForkStatusBarProps> = ({
               </span>
             </div>
 
-            <div className="p-3 bg-white rounded-xl border border-amber-300 shadow-2xs flex items-center justify-between">
+            <div className="p-3 bg-white dark:bg-stone-900 rounded-xl border border-amber-300 shadow-2xs flex items-center justify-between">
               <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500 block">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400 block">
                   Delivery Security Code
                 </span>
                 <div className="text-2xl font-mono font-black text-amber-950 tracking-widest">
                   {order.deliveryOtp}
                 </div>
               </div>
-              <span className="text-[10px] text-stone-500 max-w-[130px] text-right leading-tight">
+              <span className="text-[10px] text-stone-500 dark:text-stone-400 max-w-[130px] text-right leading-tight">
                 Inspect crate quality before sharing with driver.
               </span>
             </div>
@@ -556,7 +556,7 @@ export const FarmToForkStatusBar: React.FC<FarmToForkStatusBarProps> = ({
 
                     <button
                       onClick={handleAdvanceStage}
-                      className="py-2 px-2.5 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl text-[11px] font-bold transition border border-stone-200"
+                      className="py-2 px-2.5 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 text-stone-700 dark:text-stone-300 rounded-xl text-[11px] font-bold transition border border-stone-200 dark:border-stone-700"
                       title="Progress stage for demo preview"
                     >
                       <Zap className="w-3.5 h-3.5 text-amber-600" />
@@ -572,7 +572,7 @@ export const FarmToForkStatusBar: React.FC<FarmToForkStatusBarProps> = ({
                         value={enteredOtp}
                         onChange={(e) => setEnteredOtp(e.target.value)}
                         maxLength={6}
-                        className="flex-1 px-3 py-1.5 text-xs font-mono font-bold bg-white border border-stone-300 rounded-xl focus:outline-emerald-600"
+                        className="flex-1 px-3 py-1.5 text-xs font-mono font-bold bg-white dark:bg-stone-900 border border-stone-300 rounded-xl focus:outline-emerald-600"
                       />
                       <button
                         type="submit"
@@ -584,7 +584,7 @@ export const FarmToForkStatusBar: React.FC<FarmToForkStatusBarProps> = ({
                       <button
                         type="button"
                         onClick={() => setShowOtpInput(false)}
-                        className="px-2 py-1.5 text-stone-500 hover:text-stone-800 text-xs"
+                        className="px-2 py-1.5 text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:text-stone-200 text-xs"
                       >
                         Cancel
                       </button>
@@ -619,7 +619,7 @@ export const FarmToForkMiniBar: React.FC<{ order: Order }> = ({ order }) => {
           <Truck className="w-3 h-3 text-emerald-700" />
           <span>Farm-to-Fork Journey Status</span>
         </span>
-        <span className="font-bold text-[11px] text-stone-700">
+        <span className="font-bold text-[11px] text-stone-700 dark:text-stone-300">
           Stage {currentIdx + 1}/5: <strong className="text-emerald-900">{JOURNEY_MILESTONES[currentIdx].title}</strong>
         </span>
       </div>
@@ -659,7 +659,7 @@ export const FarmToForkMiniBar: React.FC<{ order: Order }> = ({ order }) => {
 
       {/* Latest note from statusHistory */}
       {order.statusHistory && order.statusHistory.length > 0 && (
-        <div className="text-[10px] text-stone-500 flex items-center justify-between pt-1 border-t border-stone-200/60">
+        <div className="text-[10px] text-stone-500 dark:text-stone-400 flex items-center justify-between pt-1 border-t border-stone-200/60">
           <span className="truncate max-w-[280px] sm:max-w-md">
             Latest: {order.statusHistory[order.statusHistory.length - 1].note}
           </span>

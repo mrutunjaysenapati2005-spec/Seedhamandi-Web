@@ -616,7 +616,7 @@ export const LogisticsDashboard: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-stone-50 py-8 text-stone-900">
+    <div className="min-h-screen bg-stone-50 dark:bg-stone-950 py-8 text-stone-900 dark:text-stone-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         {/* Fleet Header */}
         <div className="bg-gradient-to-r from-blue-950 via-slate-900 to-indigo-950 text-white rounded-3xl p-6 sm:p-8 shadow-xl border border-blue-800/80 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
@@ -642,7 +642,7 @@ export const LogisticsDashboard: React.FC = () => {
 
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             {/* Quick Vehicle Switcher */}
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-2 border border-blue-700/60 flex items-center gap-1 text-xs">
+            <div className="bg-white dark:bg-stone-900 transition-colors/10 backdrop-blur-md rounded-2xl p-2 border border-blue-700/60 flex items-center gap-1 text-xs">
               <span className="text-[11px] text-blue-200 font-bold px-2">Vehicle:</span>
               <button
                 onClick={() => setActiveDriverVehicle({
@@ -766,11 +766,11 @@ export const LogisticsDashboard: React.FC = () => {
                 .map(notif => (
                   <div
                     key={notif.id}
-                    className="p-3 bg-white rounded-xl border border-amber-200 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
+                    className="p-3 bg-white dark:bg-stone-900 rounded-xl border border-amber-200 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
                   >
                     <div>
-                      <span className="font-bold text-stone-900 block">{notif.title}</span>
-                      <p className="text-stone-600 text-[11px] mt-0.5">{notif.message}</p>
+                      <span className="font-bold text-stone-900 dark:text-stone-100 block">{notif.title}</span>
+                      <p className="text-stone-600 dark:text-stone-300 text-[11px] mt-0.5">{notif.message}</p>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
                       <button
@@ -792,9 +792,9 @@ export const LogisticsDashboard: React.FC = () => {
         {/* Top Earnings & Sensor Telemetry Metrics */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {/* Total Earnings Card */}
-          <div className="bg-white rounded-2xl border border-stone-200 p-5 shadow-xs flex flex-col justify-between space-y-3">
+          <div className="bg-white dark:bg-stone-900 transition-colors rounded-2xl border border-stone-200 dark:border-stone-700 p-5 shadow-xs flex flex-col justify-between space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-stone-500">
+              <span className="text-xs font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
                 Total Freight Earnings
               </span>
               <div className="w-8 h-8 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center">
@@ -802,7 +802,7 @@ export const LogisticsDashboard: React.FC = () => {
               </div>
             </div>
             <div>
-              <div className="text-3xl font-black text-stone-900">
+              <div className="text-3xl font-black text-stone-900 dark:text-stone-100">
                 ₹{totalLogisticsEarnings.toLocaleString('en-IN')}
               </div>
               <div className="text-xs text-emerald-700 font-semibold flex items-center gap-1 mt-1">
@@ -819,9 +819,9 @@ export const LogisticsDashboard: React.FC = () => {
           </div>
 
           {/* Trips Completed */}
-          <div className="bg-white rounded-2xl border border-stone-200 p-5 shadow-xs flex flex-col justify-between space-y-3">
+          <div className="bg-white dark:bg-stone-900 transition-colors rounded-2xl border border-stone-200 dark:border-stone-700 p-5 shadow-xs flex flex-col justify-between space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-stone-500">
+              <span className="text-xs font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
                 Bhubaneswar Trips Completed
               </span>
               <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
@@ -829,9 +829,9 @@ export const LogisticsDashboard: React.FC = () => {
               </div>
             </div>
             <div>
-              <div className="text-3xl font-black text-stone-900">{completedTrips}</div>
-              <div className="text-xs text-stone-500 mt-1">
-                Avg. Delivery Time: <strong className="text-stone-800">24 mins per drop</strong>
+              <div className="text-3xl font-black text-stone-900 dark:text-stone-100">{completedTrips}</div>
+              <div className="text-xs text-stone-500 dark:text-stone-400 mt-1">
+                Avg. Delivery Time: <strong className="text-stone-800 dark:text-stone-200">24 mins per drop</strong>
               </div>
             </div>
             <div className="text-[11px] text-blue-700 font-semibold">
@@ -840,9 +840,9 @@ export const LogisticsDashboard: React.FC = () => {
           </div>
 
           {/* In-Transit Freight Escrow */}
-          <div className="bg-white rounded-2xl border border-stone-200 p-5 shadow-xs flex flex-col justify-between space-y-3">
+          <div className="bg-white dark:bg-stone-900 transition-colors rounded-2xl border border-stone-200 dark:border-stone-700 p-5 shadow-xs flex flex-col justify-between space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-stone-500">
+              <span className="text-xs font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
                 In-Transit Freight Escrow
               </span>
               <div className="w-8 h-8 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center">
@@ -853,7 +853,7 @@ export const LogisticsDashboard: React.FC = () => {
               <div className="text-3xl font-black text-amber-900">
                 ₹{pendingTripEarnings.toLocaleString('en-IN')}
               </div>
-              <div className="text-xs text-stone-500 mt-1">
+              <div className="text-xs text-stone-500 dark:text-stone-400 mt-1">
                 Auto-releases upon customer OTP verification
               </div>
             </div>
@@ -863,9 +863,9 @@ export const LogisticsDashboard: React.FC = () => {
           </div>
 
           {/* Cold Chain Sensor Status */}
-          <div className="bg-white rounded-2xl border border-stone-200 p-5 shadow-xs flex flex-col justify-between space-y-3">
+          <div className="bg-white dark:bg-stone-900 transition-colors rounded-2xl border border-stone-200 dark:border-stone-700 p-5 shadow-xs flex flex-col justify-between space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-stone-500">
+              <span className="text-xs font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
                 Reefer Temperature
               </span>
               <div className="w-8 h-8 rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center">
@@ -876,7 +876,7 @@ export const LogisticsDashboard: React.FC = () => {
               <div className="text-3xl font-black text-teal-700 flex items-baseline gap-1">
                 4.2°C <span className="text-xs font-bold text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded-full">Optimal</span>
               </div>
-              <div className="text-xs text-stone-500 mt-1">
+              <div className="text-xs text-stone-500 dark:text-stone-400 mt-1">
                 Active Reefer IoT Sensor (OD 02 AX 8840)
               </div>
             </div>
@@ -887,13 +887,13 @@ export const LogisticsDashboard: React.FC = () => {
         </div>
 
         {/* Sub Navigation Tabs */}
-        <div className="flex border-b border-stone-200 overflow-x-auto">
+        <div className="flex border-b border-stone-200 dark:border-stone-700 overflow-x-auto">
           <button
             onClick={() => setLogisticsTab('map_dispatches')}
             className={`py-3 px-5 text-xs font-bold uppercase tracking-wider transition border-b-2 flex items-center gap-2 whitespace-nowrap cursor-pointer ${
               logisticsTab === 'map_dispatches'
                 ? 'border-blue-600 text-blue-900 bg-white'
-                : 'border-transparent text-stone-500 hover:text-stone-800'
+                : 'border-transparent text-stone-500 dark:text-stone-400 hover:text-stone-800'
             }`}
           >
             <MapPin className="w-4 h-4 text-blue-600" />
@@ -905,7 +905,7 @@ export const LogisticsDashboard: React.FC = () => {
             className={`py-3 px-5 text-xs font-bold uppercase tracking-wider transition border-b-2 flex items-center gap-2 whitespace-nowrap cursor-pointer ${
               logisticsTab === 'travelled_history'
                 ? 'border-blue-600 text-blue-900 bg-white'
-                : 'border-transparent text-stone-500 hover:text-stone-800'
+                : 'border-transparent text-stone-500 dark:text-stone-400 hover:text-stone-800'
             }`}
           >
             <History className="w-4 h-4 text-blue-600" />
@@ -921,11 +921,11 @@ export const LogisticsDashboard: React.FC = () => {
         <div id="bhubaneswar-gps-map" className="space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
             <div>
-              <h2 className="text-xl font-extrabold text-stone-900 flex items-center gap-2">
+              <h2 className="text-xl font-extrabold text-stone-900 dark:text-stone-100 flex items-center gap-2">
                 <MapPin className="w-5 h-5 text-blue-600" />
                 <span>Live Bhubaneswar Transit Map & Depots</span>
               </h2>
-              <p className="text-xs text-stone-500">
+              <p className="text-xs text-stone-500 dark:text-stone-400">
                 Interactive Odisha GPS Grid: Mancheswar Agro Depot, Patia Infocity, Saheed Nagar, Khandagiri, and Khordha Farm Supply Belt.
               </p>
             </div>
@@ -950,17 +950,17 @@ export const LogisticsDashboard: React.FC = () => {
           />
 
           {/* AI Multi-Stop Route & Fuel Optimizer */}
-          <div className="bg-white rounded-3xl border border-blue-200 p-5 shadow-xs space-y-4">
+          <div className="bg-white dark:bg-stone-900 transition-colors rounded-3xl border border-blue-200 p-5 shadow-xs space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-2xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-md">
                   <Sparkles className="w-5 h-5 text-amber-300" />
                 </div>
                 <div>
-                  <h3 className="font-black text-stone-900 text-base">
+                  <h3 className="font-black text-stone-900 dark:text-stone-100 text-base">
                     Gemini AI Multi-Stop Route & Fuel Optimizer
                   </h3>
-                  <p className="text-xs text-stone-500">
+                  <p className="text-xs text-stone-500 dark:text-stone-400">
                     Calculates lowest-perishability stop sequence, NH-16 bypasses, road conditions, and fuel savings for {activeDriverVehicle.label}.
                   </p>
                 </div>
@@ -979,37 +979,37 @@ export const LogisticsDashboard: React.FC = () => {
             {aiRoutePlan && (
               <div className="p-4 rounded-2xl bg-blue-50/70 border border-blue-200 space-y-4 animate-in fade-in">
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
-                  <div className="p-3 bg-white rounded-xl border border-blue-100 shadow-2xs">
-                    <span className="text-[10px] text-stone-500 font-bold uppercase">Distance Saved</span>
+                  <div className="p-3 bg-white dark:bg-stone-900 rounded-xl border border-blue-100 shadow-2xs">
+                    <span className="text-[10px] text-stone-500 dark:text-stone-400 font-bold uppercase">Distance Saved</span>
                     <div className="text-lg font-black text-emerald-700">{aiRoutePlan.distanceSavedKm} km (-{aiRoutePlan.distanceReductionPct}%)</div>
                   </div>
-                  <div className="p-3 bg-white rounded-xl border border-blue-100 shadow-2xs">
-                    <span className="text-[10px] text-stone-500 font-bold uppercase">Transit Time Saved</span>
+                  <div className="p-3 bg-white dark:bg-stone-900 rounded-xl border border-blue-100 shadow-2xs">
+                    <span className="text-[10px] text-stone-500 dark:text-stone-400 font-bold uppercase">Transit Time Saved</span>
                     <div className="text-lg font-black text-blue-700">{aiRoutePlan.timeSavedMins} mins</div>
                   </div>
-                  <div className="p-3 bg-white rounded-xl border border-blue-100 shadow-2xs">
-                    <span className="text-[10px] text-stone-500 font-bold uppercase">Fuel Cost Saved</span>
+                  <div className="p-3 bg-white dark:bg-stone-900 rounded-xl border border-blue-100 shadow-2xs">
+                    <span className="text-[10px] text-stone-500 dark:text-stone-400 font-bold uppercase">Fuel Cost Saved</span>
                     <div className="text-lg font-black text-amber-800">₹{aiRoutePlan.fuelCostSavedInr} ({aiRoutePlan.fuelSavedLiters} L)</div>
                   </div>
-                  <div className="p-3 bg-white rounded-xl border border-blue-100 shadow-2xs">
-                    <span className="text-[10px] text-stone-500 font-bold uppercase">Produce Freshness</span>
+                  <div className="p-3 bg-white dark:bg-stone-900 rounded-xl border border-blue-100 shadow-2xs">
+                    <span className="text-[10px] text-stone-500 dark:text-stone-400 font-bold uppercase">Produce Freshness</span>
                     <div className="text-lg font-black text-emerald-800">{aiRoutePlan.freshnessScore}% Retained</div>
                   </div>
                 </div>
 
                 {/* Sequenced Waypoints */}
                 <div className="space-y-2">
-                  <span className="text-xs font-bold text-stone-800 block">AI Recommended Stop Sequence:</span>
+                  <span className="text-xs font-bold text-stone-800 dark:text-stone-200 block">AI Recommended Stop Sequence:</span>
                   <div className="space-y-2">
                     {aiRoutePlan.orderedWaypoints.map(w => (
-                      <div key={w.seq} className="p-2.5 bg-white rounded-xl border border-blue-100 flex items-center justify-between gap-3 text-xs shadow-2xs">
+                      <div key={w.seq} className="p-2.5 bg-white dark:bg-stone-900 rounded-xl border border-blue-100 flex items-center justify-between gap-3 text-xs shadow-2xs">
                         <div className="flex items-center gap-2.5">
                           <span className="w-6 h-6 rounded-full bg-blue-700 text-white font-black text-[11px] flex items-center justify-center shrink-0">
                             {w.seq}
                           </span>
                           <div>
-                            <span className="font-bold text-stone-900">{w.stopName}</span>
-                            <span className="text-[11px] text-stone-500 ml-2">({w.action} - {w.produce}, {w.weightKg} kg)</span>
+                            <span className="font-bold text-stone-900 dark:text-stone-100">{w.stopName}</span>
+                            <span className="text-[11px] text-stone-500 dark:text-stone-400 ml-2">({w.action} - {w.produce}, {w.weightKg} kg)</span>
                           </div>
                         </div>
                         <div className="text-right shrink-0">
@@ -1031,14 +1031,14 @@ export const LogisticsDashboard: React.FC = () => {
         <div className="space-y-4">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <h2 className="text-xl font-extrabold text-stone-900 flex items-center gap-2">
+              <h2 className="text-xl font-extrabold text-stone-900 dark:text-stone-100 flex items-center gap-2">
                 <Truck className="w-5 h-5 text-amber-600" />
                 <span>Nearby Delivery Requests (Accept or Reject)</span>
                 <span className="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 text-xs font-bold">
                   {filteredOffers.length} Available
                 </span>
               </h2>
-              <p className="text-xs text-stone-500">
+              <p className="text-xs text-stone-500 dark:text-stone-400">
                 When consumers order produce, dispatch offers appear below for your vehicle fleet (Tractor, Mini Truck, Bike, or Reefer).
               </p>
             </div>
@@ -1048,7 +1048,7 @@ export const LogisticsDashboard: React.FC = () => {
               <button
                 onClick={() => setSelectedVehicleFilter('ALL')}
                 className={`px-3 py-1.5 rounded-xl font-bold transition ${
-                  selectedVehicleFilter === 'ALL' ? 'bg-white text-stone-900 shadow-xs' : 'text-stone-600 hover:text-stone-900'
+                  selectedVehicleFilter === 'ALL' ? 'bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 shadow-xs' : 'text-stone-600 dark:text-stone-300 hover:text-stone-900'
                 }`}
               >
                 All Fleets ({allAvailableOffers.length})
@@ -1057,7 +1057,7 @@ export const LogisticsDashboard: React.FC = () => {
               <button
                 onClick={() => setSelectedVehicleFilter('TRACTOR')}
                 className={`px-3 py-1.5 rounded-xl font-bold transition flex items-center gap-1 ${
-                  selectedVehicleFilter === 'TRACTOR' ? 'bg-amber-500 text-stone-950 shadow-xs' : 'text-stone-600 hover:text-stone-900'
+                  selectedVehicleFilter === 'TRACTOR' ? 'bg-amber-500 text-stone-950 shadow-xs' : 'text-stone-600 dark:text-stone-300 hover:text-stone-900'
                 }`}
               >
                 <span>🚜</span>
@@ -1067,7 +1067,7 @@ export const LogisticsDashboard: React.FC = () => {
               <button
                 onClick={() => setSelectedVehicleFilter('MINI_TRUCK')}
                 className={`px-3 py-1.5 rounded-xl font-bold transition flex items-center gap-1 ${
-                  selectedVehicleFilter === 'MINI_TRUCK' ? 'bg-blue-600 text-white shadow-xs' : 'text-stone-600 hover:text-stone-900'
+                  selectedVehicleFilter === 'MINI_TRUCK' ? 'bg-blue-600 text-white shadow-xs' : 'text-stone-600 dark:text-stone-300 hover:text-stone-900'
                 }`}
               >
                 <span>🚚</span>
@@ -1077,7 +1077,7 @@ export const LogisticsDashboard: React.FC = () => {
               <button
                 onClick={() => setSelectedVehicleFilter('BIKE_SCOOTY')}
                 className={`px-3 py-1.5 rounded-xl font-bold transition flex items-center gap-1 ${
-                  selectedVehicleFilter === 'BIKE_SCOOTY' ? 'bg-emerald-600 text-white shadow-xs' : 'text-stone-600 hover:text-stone-900'
+                  selectedVehicleFilter === 'BIKE_SCOOTY' ? 'bg-emerald-600 text-white shadow-xs' : 'text-stone-600 dark:text-stone-300 hover:text-stone-900'
                 }`}
               >
                 <span>🛵</span>
@@ -1087,7 +1087,7 @@ export const LogisticsDashboard: React.FC = () => {
               <button
                 onClick={() => setSelectedVehicleFilter('REEFER_VAN')}
                 className={`px-3 py-1.5 rounded-xl font-bold transition flex items-center gap-1 ${
-                  selectedVehicleFilter === 'REEFER_VAN' ? 'bg-teal-600 text-white shadow-xs' : 'text-stone-600 hover:text-stone-900'
+                  selectedVehicleFilter === 'REEFER_VAN' ? 'bg-teal-600 text-white shadow-xs' : 'text-stone-600 dark:text-stone-300 hover:text-stone-900'
                 }`}
               >
                 <span>❄️</span>
@@ -1097,10 +1097,10 @@ export const LogisticsDashboard: React.FC = () => {
           </div>
 
           {filteredOffers.length === 0 ? (
-            <div className="bg-white rounded-2xl border border-stone-200 p-8 text-center space-y-3">
+            <div className="bg-white dark:bg-stone-900 transition-colors rounded-2xl border border-stone-200 dark:border-stone-700 p-8 text-center space-y-3">
               <CheckCircle2 className="w-10 h-10 text-emerald-600 mx-auto" />
-              <h3 className="font-extrabold text-base text-stone-900">All Requests in this Fleet Category Assigned!</h3>
-              <p className="text-xs text-stone-500 max-w-md mx-auto">
+              <h3 className="font-extrabold text-base text-stone-900 dark:text-stone-100">All Requests in this Fleet Category Assigned!</h3>
+              <p className="text-xs text-stone-500 dark:text-stone-400 max-w-md mx-auto">
                 No pending dispatches right now for {selectedVehicleFilter === 'ALL' ? 'any vehicle' : selectedVehicleFilter}. When consumers checkout or farmers pack crates, new requests appear instantly.
               </p>
             </div>
@@ -1111,7 +1111,7 @@ export const LogisticsDashboard: React.FC = () => {
                 return (
                   <div
                     key={req.id}
-                    className="bg-white rounded-2xl border border-stone-200 p-5 shadow-xs hover:shadow-md transition flex flex-col justify-between space-y-4"
+                    className="bg-white dark:bg-stone-900 transition-colors rounded-2xl border border-stone-200 dark:border-stone-700 p-5 shadow-xs hover:shadow-md transition flex flex-col justify-between space-y-4"
                   >
                     <div className="space-y-3">
                       {/* Header with Vehicle Type Badge */}
@@ -1131,11 +1131,11 @@ export const LogisticsDashboard: React.FC = () => {
                             </span>
                           </div>
 
-                          <h4 className="font-extrabold text-base text-stone-900 mt-1.5">
+                          <h4 className="font-extrabold text-base text-stone-900 dark:text-stone-100 mt-1.5">
                             {req.produceName}
                           </h4>
-                          <div className="text-xs text-stone-500 font-medium">
-                            Weight / Cargo: <strong className="text-stone-800">{req.quantity}</strong>
+                          <div className="text-xs text-stone-500 dark:text-stone-400 font-medium">
+                            Weight / Cargo: <strong className="text-stone-800 dark:text-stone-200">{req.quantity}</strong>
                           </div>
                         </div>
 
@@ -1150,17 +1150,17 @@ export const LogisticsDashboard: React.FC = () => {
                       </div>
 
                       {/* Route Info Box */}
-                      <div className="p-3 bg-stone-50 border border-stone-200 rounded-xl space-y-2 text-xs">
+                      <div className="p-3 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 rounded-xl space-y-2 text-xs">
                         <div className="flex items-start gap-2">
                           <div className="w-2.5 h-2.5 rounded-full bg-emerald-600 mt-1 shrink-0" />
                           <div>
                             <div className="text-[10px] text-stone-400 font-bold uppercase">Pickup Point:</div>
-                            <div className="font-semibold text-stone-800">{req.pickupPoint}</div>
-                            <div className="text-[11px] text-stone-500">Grower: {req.farmerName} ({req.farmerPhone})</div>
+                            <div className="font-semibold text-stone-800 dark:text-stone-200">{req.pickupPoint}</div>
+                            <div className="text-[11px] text-stone-500 dark:text-stone-400">Grower: {req.farmerName} ({req.farmerPhone})</div>
                           </div>
                         </div>
 
-                        <div className="border-l-2 border-dashed border-stone-300 ml-1 pl-3 py-1 my-0.5 text-[11px] text-stone-500">
+                        <div className="border-l-2 border-dashed border-stone-300 ml-1 pl-3 py-1 my-0.5 text-[11px] text-stone-500 dark:text-stone-400">
                           {req.distanceKm} km • ~{req.estMinutes} mins transit • Recommended: {conf.label}
                         </div>
 
@@ -1168,18 +1168,18 @@ export const LogisticsDashboard: React.FC = () => {
                           <div className="w-2.5 h-2.5 rounded-full bg-blue-600 mt-1 shrink-0" />
                           <div>
                             <div className="text-[10px] text-stone-400 font-bold uppercase">Destination Drop:</div>
-                            <div className="font-semibold text-stone-800">{req.dropPoint}</div>
+                            <div className="font-semibold text-stone-800 dark:text-stone-200">{req.dropPoint}</div>
                           </div>
                         </div>
                       </div>
 
                       {/* Climate / Cargo Spec */}
-                      <div className="flex items-center justify-between text-xs text-stone-600 px-1">
+                      <div className="flex items-center justify-between text-xs text-stone-600 dark:text-stone-300 px-1">
                         <span className="flex items-center gap-1 text-teal-800 font-semibold">
                           <Thermometer className="w-3.5 h-3.5 text-teal-600" />
                           <span>{req.tempRequired}</span>
                         </span>
-                        <span className="text-[11px] text-stone-500 font-mono">
+                        <span className="text-[11px] text-stone-500 dark:text-stone-400 font-mono">
                           Customer OTP Verification
                         </span>
                       </div>
@@ -1189,7 +1189,7 @@ export const LogisticsDashboard: React.FC = () => {
                     <div className="grid grid-cols-2 gap-3 pt-2 border-t border-stone-100">
                       <button
                         onClick={() => handleRejectOffer(req)}
-                        className="py-2.5 rounded-xl border border-stone-300 hover:bg-rose-50 hover:border-rose-300 text-stone-700 hover:text-rose-700 text-xs font-bold transition flex items-center justify-center gap-1.5"
+                        className="py-2.5 rounded-xl border border-stone-300 hover:bg-rose-50 hover:border-rose-300 text-stone-700 dark:text-stone-300 hover:text-rose-700 text-xs font-bold transition flex items-center justify-center gap-1.5"
                       >
                         <XCircle className="w-4 h-4" />
                         <span>Reject / Pass</span>
@@ -1216,11 +1216,11 @@ export const LogisticsDashboard: React.FC = () => {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-xl font-extrabold text-stone-900 flex items-center gap-2">
+              <h2 className="text-xl font-extrabold text-stone-900 dark:text-stone-100 flex items-center gap-2">
                 <Navigation className="w-5 h-5 text-blue-600" />
                 <span>Active Assigned Consignments (En Route)</span>
               </h2>
-              <p className="text-xs text-stone-500">
+              <p className="text-xs text-stone-500 dark:text-stone-400">
                 Update status as you pick up from farm, enter transit, and input customer delivery OTP upon handover to claim freight payout.
               </p>
             </div>
@@ -1230,7 +1230,7 @@ export const LogisticsDashboard: React.FC = () => {
             {assignedOrders.map(order => (
               <div
                 key={order.id}
-                className="bg-white rounded-2xl border border-stone-200 p-5 shadow-xs space-y-4"
+                className="bg-white dark:bg-stone-900 transition-colors rounded-2xl border border-stone-200 dark:border-stone-700 p-5 shadow-xs space-y-4"
               >
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-100 pb-3">
                   <div className="flex items-center gap-3">
@@ -1239,7 +1239,7 @@ export const LogisticsDashboard: React.FC = () => {
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-extrabold text-stone-900 text-sm">
+                        <span className="font-extrabold text-stone-900 dark:text-stone-100 text-sm">
                           Order #{order.id}
                         </span>
                         {order.isBulkOrder && (
@@ -1251,7 +1251,7 @@ export const LogisticsDashboard: React.FC = () => {
                           {order.status}
                         </span>
                       </div>
-                      <p className="text-xs text-stone-500">
+                      <p className="text-xs text-stone-500 dark:text-stone-400">
                         Placed by: {order.consumerName} ({order.consumerPhone})
                       </p>
                     </div>
@@ -1272,7 +1272,7 @@ export const LogisticsDashboard: React.FC = () => {
                   {order.items.map((it, idx) => (
                     <div
                       key={idx}
-                      className="p-2.5 bg-stone-50 rounded-xl border border-stone-100 flex items-center gap-2.5 text-xs"
+                      className="p-2.5 bg-stone-50 dark:bg-stone-950 rounded-xl border border-stone-100 flex items-center gap-2.5 text-xs"
                     >
                       <img
                         src={it.image}
@@ -1280,8 +1280,8 @@ export const LogisticsDashboard: React.FC = () => {
                         className="w-10 h-10 rounded-lg object-cover"
                       />
                       <div className="min-w-0">
-                        <div className="font-bold text-stone-900 truncate">{it.name}</div>
-                        <div className="text-[11px] text-stone-500">
+                        <div className="font-bold text-stone-900 dark:text-stone-100 truncate">{it.name}</div>
+                        <div className="text-[11px] text-stone-500 dark:text-stone-400">
                           {it.quantity} {it.unit} • Grower: {it.farmerName}
                         </div>
                       </div>
@@ -1292,7 +1292,7 @@ export const LogisticsDashboard: React.FC = () => {
                 {/* Status Advancement Controls */}
                 <div className="flex flex-wrap items-center justify-between gap-4 pt-2 border-t border-stone-100">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-stone-500 font-medium">Trip Progress:</span>
+                    <span className="text-xs text-stone-500 dark:text-stone-400 font-medium">Trip Progress:</span>
                     {order.status === 'CONFIRMED' && (
                       <button
                         onClick={() => handleUpdateStatus(order.id, 'PREPARING')}
@@ -1321,7 +1321,7 @@ export const LogisticsDashboard: React.FC = () => {
 
                   {/* Customer OTP Verification Section */}
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-stone-600 font-bold">Delivery OTP:</span>
+                    <span className="text-xs text-stone-600 dark:text-stone-300 font-bold">Delivery OTP:</span>
                     <input
                       type="text"
                       maxLength={6}
@@ -1333,7 +1333,7 @@ export const LogisticsDashboard: React.FC = () => {
                           [order.id]: e.target.value,
                         }))
                       }
-                      className="w-28 px-2 py-1 bg-stone-50 border border-stone-300 rounded-lg text-xs font-mono text-center tracking-widest font-bold focus:outline-none focus:border-emerald-600"
+                      className="w-28 px-2 py-1 bg-stone-50 dark:bg-stone-950 border border-stone-300 rounded-lg text-xs font-mono text-center tracking-widest font-bold focus:outline-none focus:border-emerald-600"
                     />
                     <button
                       onClick={() => handleVerifyDelivery(order)}
@@ -1354,7 +1354,7 @@ export const LogisticsDashboard: React.FC = () => {
     {logisticsTab === 'travelled_history' && (
       <div className="space-y-6 animate-in fade-in">
         {/* Metric Summary Cards */}
-        <div className="bg-white rounded-2xl border border-stone-200 p-6 shadow-xs">
+        <div className="bg-white dark:bg-stone-900 transition-colors rounded-2xl border border-stone-200 dark:border-stone-700 p-6 shadow-xs">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-stone-100 pb-5">
             <div>
               <div className="flex items-center gap-2">
@@ -1362,12 +1362,12 @@ export const LogisticsDashboard: React.FC = () => {
                   <CheckCircle2 className="w-3.5 h-3.5 text-blue-600" />
                   <span>Verified Carrier Waybills & Payouts</span>
                 </span>
-                <span className="text-xs text-stone-500 font-mono">100% Direct Driver Settlement</span>
+                <span className="text-xs text-stone-500 dark:text-stone-400 font-mono">100% Direct Driver Settlement</span>
               </div>
-              <h3 className="text-lg font-black text-stone-900 mt-1">
+              <h3 className="text-lg font-black text-stone-900 dark:text-stone-100 mt-1">
                 Travelled Delivery History & Freight Earnings
               </h3>
-              <p className="text-xs text-stone-500 mt-0.5">
+              <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5">
                 Complete trip logs with GPS odometer readings, verified transit times, buyer OTP signatures, and direct bank earnings.
               </p>
             </div>
@@ -1394,9 +1394,9 @@ export const LogisticsDashboard: React.FC = () => {
               <span className="text-[10px] text-emerald-700 font-medium">Credited to Registered Bank Account</span>
             </div>
 
-            <div className="p-3.5 bg-stone-50 rounded-xl border border-stone-200">
-              <span className="text-[10px] text-stone-500 font-bold uppercase block">Avg. Freight Realized</span>
-              <span className="text-2xl font-black text-stone-900 mt-0.5 block">₹26.1 / km</span>
+            <div className="p-3.5 bg-stone-50 dark:bg-stone-950 rounded-xl border border-stone-200 dark:border-stone-700">
+              <span className="text-[10px] text-stone-500 dark:text-stone-400 font-bold uppercase block">Avg. Freight Realized</span>
+              <span className="text-2xl font-black text-stone-900 dark:text-stone-100 mt-0.5 block">₹26.1 / km</span>
               <span className="text-[10px] text-emerald-700 font-bold">+45% higher vs aggregator brokers</span>
             </div>
 
@@ -1409,18 +1409,18 @@ export const LogisticsDashboard: React.FC = () => {
         </div>
 
         {/* Travelled Trips Table */}
-        <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-xs">
-          <div className="p-4 border-b border-stone-200 bg-stone-50 flex items-center justify-between">
-            <h4 className="font-bold text-xs uppercase tracking-wider text-stone-700 flex items-center gap-2">
-              <History className="w-4 h-4 text-stone-500" />
+        <div className="bg-white dark:bg-stone-900 transition-colors rounded-2xl border border-stone-200 dark:border-stone-700 overflow-hidden shadow-xs">
+          <div className="p-4 border-b border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-950 flex items-center justify-between">
+            <h4 className="font-bold text-xs uppercase tracking-wider text-stone-700 dark:text-stone-300 flex items-center gap-2">
+              <History className="w-4 h-4 text-stone-500 dark:text-stone-400" />
               <span>Completed Travel Trips & Instant Disbursed Earnings</span>
             </h4>
-            <span className="text-xs text-stone-500 font-medium">Auto-released via Consumer OTP Verification</span>
+            <span className="text-xs text-stone-500 dark:text-stone-400 font-medium">Auto-released via Consumer OTP Verification</span>
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-stone-700">
-              <thead className="bg-stone-100/75 text-stone-500 uppercase text-[10px] font-bold border-b border-stone-200">
+            <table className="w-full text-left text-xs text-stone-700 dark:text-stone-300">
+              <thead className="bg-stone-100/75 text-stone-500 dark:text-stone-400 uppercase text-[10px] font-bold border-b border-stone-200 dark:border-stone-700">
                 <tr>
                   <th className="p-3.5">Trip ID & Completed</th>
                   <th className="p-3.5">Origin & Destination</th>
@@ -1538,28 +1538,28 @@ export const LogisticsDashboard: React.FC = () => {
                 ].map(trip => (
                   <tr key={trip.tripId} className="hover:bg-stone-50/80 transition">
                     <td className="p-3.5">
-                      <div className="font-mono font-bold text-stone-900">{trip.tripId}</div>
-                      <div className="text-[10px] text-stone-500">{trip.date}</div>
+                      <div className="font-mono font-bold text-stone-900 dark:text-stone-100">{trip.tripId}</div>
+                      <div className="text-[10px] text-stone-500 dark:text-stone-400">{trip.date}</div>
                       <span className="text-[9px] text-stone-400 font-mono">Ref {trip.orderRef}</span>
                     </td>
                     <td className="p-3.5">
-                      <div className="font-semibold text-stone-900 text-xs">{trip.destination}</div>
-                      <div className="text-[10px] text-stone-500 flex items-center gap-1 mt-0.5">
+                      <div className="font-semibold text-stone-900 dark:text-stone-100 text-xs">{trip.destination}</div>
+                      <div className="text-[10px] text-stone-500 dark:text-stone-400 flex items-center gap-1 mt-0.5">
                         <MapPin className="w-3 h-3 text-stone-400 shrink-0" />
                         <span>From: {trip.origin}</span>
                       </div>
                     </td>
                     <td className="p-3.5">
                       <div className="font-bold text-blue-900 text-xs">{trip.distance}</div>
-                      <div className="text-[10px] text-stone-500">{trip.duration}</div>
+                      <div className="text-[10px] text-stone-500 dark:text-stone-400">{trip.duration}</div>
                     </td>
                     <td className="p-3.5">
-                      <div className="font-medium text-stone-800 text-[11px]">{trip.vehicle}</div>
+                      <div className="font-medium text-stone-800 dark:text-stone-200 text-[11px]">{trip.vehicle}</div>
                       <span className="text-[10px] text-emerald-700 font-semibold">Cold Chain Validated</span>
                     </td>
                     <td className="p-3.5">
-                      <div className="font-bold text-stone-900 text-xs">{trip.produce}</div>
-                      <div className="text-[10px] text-stone-500">Buyer: {trip.buyer}</div>
+                      <div className="font-bold text-stone-900 dark:text-stone-100 text-xs">{trip.produce}</div>
+                      <div className="text-[10px] text-stone-500 dark:text-stone-400">Buyer: {trip.buyer}</div>
                       <span className="text-[9px] text-emerald-700 font-mono font-semibold block mt-0.5">
                         {trip.otp}
                       </span>
@@ -1570,7 +1570,7 @@ export const LogisticsDashboard: React.FC = () => {
                       <span className="text-[9px] text-stone-400 block">{trip.rateKm}</span>
                     </td>
                     <td className="p-3.5">
-                      <div className="font-mono text-[10px] font-bold text-stone-700">{trip.ref}</div>
+                      <div className="font-mono text-[10px] font-bold text-stone-700 dark:text-stone-300">{trip.ref}</div>
                       <div className="flex items-center gap-1 text-[10px] text-emerald-700 font-semibold">
                         <CheckCircle2 className="w-3 h-3 text-emerald-600" />
                         <span>{trip.status}</span>

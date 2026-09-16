@@ -339,7 +339,7 @@ export const FarmerDemandInventoryD3Chart: React.FC<FarmerDemandInventoryD3Chart
   }, [chartData]);
 
   return (
-    <div className="bg-white rounded-3xl border border-stone-200 p-5 sm:p-6 shadow-xs space-y-6">
+    <div className="bg-white dark:bg-stone-900 transition-colors rounded-3xl border border-stone-200 dark:border-stone-700 p-5 sm:p-6 shadow-xs space-y-6">
       {/* Header & Controls */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 border-b border-stone-100 pb-5">
         <div className="space-y-1">
@@ -348,21 +348,21 @@ export const FarmerDemandInventoryD3Chart: React.FC<FarmerDemandInventoryD3Chart
               <TrendingUp className="w-3.5 h-3.5" />
               <span>D3.js Predictive Engine</span>
             </span>
-            <span className="text-xs text-stone-500 font-medium">Smart India Hackathon AI Planning</span>
+            <span className="text-xs text-stone-500 dark:text-stone-400 font-medium">Smart India Hackathon AI Planning</span>
           </div>
 
-          <h3 className="text-lg sm:text-xl font-black text-stone-900 flex items-center gap-2">
+          <h3 className="text-lg sm:text-xl font-black text-stone-900 dark:text-stone-100 flex items-center gap-2">
             <span>Crop Demand Forecasting vs. Current Farm Inventory</span>
           </h3>
 
-          <p className="text-xs text-stone-500 max-w-2xl leading-relaxed">
+          <p className="text-xs text-stone-500 dark:text-stone-400 max-w-2xl leading-relaxed">
             Interactive D3 visualization comparing current harvested warehouse stock with projected consumer & bulk buyer orders. Plan your next sowing cycle to maximize margins and avoid distress selling.
           </p>
         </div>
 
         {/* Time Horizon Selector */}
-        <div className="flex items-center gap-2 bg-stone-100 p-1.5 rounded-2xl border border-stone-200 self-start lg:self-auto text-xs">
-          <span className="text-stone-500 font-bold px-2 flex items-center gap-1 text-[11px]">
+        <div className="flex items-center gap-2 bg-stone-100 dark:bg-stone-800 p-1.5 rounded-2xl border border-stone-200 dark:border-stone-700 self-start lg:self-auto text-xs">
+          <span className="text-stone-500 dark:text-stone-400 font-bold px-2 flex items-center gap-1 text-[11px]">
             <Calendar className="w-3.5 h-3.5" />
             <span>Horizon:</span>
           </span>
@@ -370,8 +370,8 @@ export const FarmerDemandInventoryD3Chart: React.FC<FarmerDemandInventoryD3Chart
             onClick={() => setTimeHorizon('30_DAYS')}
             className={`px-3 py-1.5 rounded-xl font-bold transition cursor-pointer ${
               timeHorizon === '30_DAYS'
-                ? 'bg-white text-emerald-800 shadow-xs border border-stone-200'
-                : 'text-stone-600 hover:text-stone-900'
+                ? 'bg-white dark:bg-stone-900 text-emerald-800 shadow-xs border border-stone-200'
+                : 'text-stone-600 dark:text-stone-300 hover:text-stone-900'
             }`}
           >
             30 Days
@@ -380,8 +380,8 @@ export const FarmerDemandInventoryD3Chart: React.FC<FarmerDemandInventoryD3Chart
             onClick={() => setTimeHorizon('60_DAYS')}
             className={`px-3 py-1.5 rounded-xl font-bold transition cursor-pointer ${
               timeHorizon === '60_DAYS'
-                ? 'bg-white text-emerald-800 shadow-xs border border-stone-200'
-                : 'text-stone-600 hover:text-stone-900'
+                ? 'bg-white dark:bg-stone-900 text-emerald-800 shadow-xs border border-stone-200'
+                : 'text-stone-600 dark:text-stone-300 hover:text-stone-900'
             }`}
           >
             60 Days
@@ -390,8 +390,8 @@ export const FarmerDemandInventoryD3Chart: React.FC<FarmerDemandInventoryD3Chart
             onClick={() => setTimeHorizon('90_DAYS')}
             className={`px-3 py-1.5 rounded-xl font-bold transition cursor-pointer ${
               timeHorizon === '90_DAYS'
-                ? 'bg-white text-emerald-800 shadow-xs border border-stone-200'
-                : 'text-stone-600 hover:text-stone-900'
+                ? 'bg-white dark:bg-stone-900 text-emerald-800 shadow-xs border border-stone-200'
+                : 'text-stone-600 dark:text-stone-300 hover:text-stone-900'
             }`}
           >
             90 Days (Sowing)
@@ -406,11 +406,11 @@ export const FarmerDemandInventoryD3Chart: React.FC<FarmerDemandInventoryD3Chart
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               <span className="w-3.5 h-3.5 rounded-md bg-gradient-to-b from-emerald-500 to-emerald-700 shadow-xs" />
-              <span className="font-bold text-stone-700">Current Harvested Inventory</span>
+              <span className="font-bold text-stone-700 dark:text-stone-300">Current Harvested Inventory</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="w-3.5 h-3.5 rounded-md bg-gradient-to-b from-blue-500 to-blue-700 shadow-xs" />
-              <span className="font-bold text-stone-700">Projected Market Demand</span>
+              <span className="font-bold text-stone-700 dark:text-stone-300">Projected Market Demand</span>
             </div>
           </div>
 

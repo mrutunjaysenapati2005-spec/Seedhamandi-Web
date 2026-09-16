@@ -171,7 +171,7 @@ export const DemandIntelligencePage: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen bg-stone-50 py-8 text-stone-900">
+    <div className="min-h-screen bg-stone-50 dark:bg-stone-950 py-8 text-stone-900 dark:text-stone-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         
         {/* Main Header Banner */}
@@ -205,14 +205,14 @@ export const DemandIntelligencePage: React.FC = () => {
         </div>
 
         {/* Navigation Tabs between Forecasting, Route Optimizer, and Transparency Model */}
-        <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-2 rounded-2xl border border-stone-200 shadow-xs">
+        <div className="flex flex-wrap items-center justify-between gap-3 bg-white dark:bg-stone-900 p-2 rounded-2xl border border-stone-200 dark:border-stone-700 shadow-xs">
           <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => setActiveSubTab('forecasting')}
               className={`px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 transition ${
                 activeSubTab === 'forecasting'
                   ? 'bg-emerald-800 text-white shadow-xs'
-                  : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100'
+                  : 'text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:text-stone-100 hover:bg-stone-100'
               }`}
             >
               <TrendingUp className="w-4 h-4" />
@@ -224,7 +224,7 @@ export const DemandIntelligencePage: React.FC = () => {
               className={`px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 transition ${
                 activeSubTab === 'routing'
                   ? 'bg-emerald-800 text-white shadow-xs'
-                  : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100'
+                  : 'text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:text-stone-100 hover:bg-stone-100'
               }`}
             >
               <Truck className="w-4 h-4" />
@@ -239,7 +239,7 @@ export const DemandIntelligencePage: React.FC = () => {
               className={`px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 transition ${
                 activeSubTab === 'transparency'
                   ? 'bg-emerald-800 text-white shadow-xs'
-                  : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100'
+                  : 'text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:text-stone-100 hover:bg-stone-100'
               }`}
             >
               <Scale className="w-4 h-4" />
@@ -247,7 +247,7 @@ export const DemandIntelligencePage: React.FC = () => {
             </button>
           </div>
 
-          <span className="text-xs text-stone-500 hidden lg:inline px-3 font-medium">
+          <span className="text-xs text-stone-500 dark:text-stone-400 hidden lg:inline px-3 font-medium">
             Smart India Hackathon Focus: High Farmer Realization & Waste Reduction
           </span>
         </div>
@@ -258,16 +258,16 @@ export const DemandIntelligencePage: React.FC = () => {
         {activeSubTab === 'forecasting' && (
           <div className="space-y-8">
             {/* Interactive Custom Crop Simulator Control Box */}
-            <div className="bg-white rounded-3xl p-6 border border-stone-200 shadow-xs space-y-6">
+            <div className="bg-white dark:bg-stone-900 transition-colors rounded-3xl p-6 border border-stone-200 dark:border-stone-700 shadow-xs space-y-6">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-stone-100 pb-4">
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
-                    <h2 className="text-lg font-black text-stone-900">
+                    <h2 className="text-lg font-black text-stone-900 dark:text-stone-100">
                       Live AI Agricultural Demand Simulator
                     </h2>
                   </div>
-                  <p className="text-xs text-stone-500 mt-0.5">
+                  <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5">
                     Select crop and regional consumption corridor to generate forward predictions using Gemini AI.
                   </p>
                 </div>
@@ -279,7 +279,7 @@ export const DemandIntelligencePage: React.FC = () => {
                       setSelectedCrop(e.target.value);
                       handleGenerateForecast(e.target.value, selectedRegion);
                     }}
-                    className="bg-stone-50 border border-stone-200 rounded-xl px-3 py-2 text-xs font-bold text-stone-800 focus:outline-none focus:border-emerald-600"
+                    className="bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 rounded-xl px-3 py-2 text-xs font-bold text-stone-800 dark:text-stone-200 focus:outline-none focus:border-emerald-600"
                   >
                     <option value="Nashik Red Onions">Nashik Red Onions</option>
                     <option value="Vine Ripe Plum Tomatoes">Vine Ripe Plum Tomatoes</option>
@@ -297,7 +297,7 @@ export const DemandIntelligencePage: React.FC = () => {
                       setSelectedRegion(e.target.value);
                       handleGenerateForecast(selectedCrop, e.target.value);
                     }}
-                    className="bg-stone-50 border border-stone-200 rounded-xl px-3 py-2 text-xs font-bold text-stone-800 focus:outline-none focus:border-emerald-600"
+                    className="bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 rounded-xl px-3 py-2 text-xs font-bold text-stone-800 dark:text-stone-200 focus:outline-none focus:border-emerald-600"
                   >
                     <option value="Bhubaneswar / Odisha Hub">Bhubaneswar / Odisha Hub</option>
                     <option value="Cuttack & Twin City Belt">Cuttack & Twin City Belt</option>
@@ -321,19 +321,19 @@ export const DemandIntelligencePage: React.FC = () => {
                 <div className="space-y-6">
                   {/* Top Key Indicator Metrics Grid */}
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200 space-y-1">
-                      <span className="text-[11px] font-bold text-stone-500 uppercase">Demand Strength</span>
+                    <div className="p-4 rounded-2xl bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 space-y-1">
+                      <span className="text-[11px] font-bold text-stone-500 dark:text-stone-400 uppercase">Demand Strength</span>
                       <div className="flex items-center gap-2">
-                        <span className="text-2xl font-black text-stone-900">{cropForecast.demandIndex}/100</span>
+                        <span className="text-2xl font-black text-stone-900 dark:text-stone-100">{cropForecast.demandIndex}/100</span>
                         <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-100 text-rose-800">
                           {cropForecast.trend}
                         </span>
                       </div>
-                      <p className="text-[10px] text-stone-500">Peak buyer pull across retail & wholesale</p>
+                      <p className="text-[10px] text-stone-500 dark:text-stone-400">Peak buyer pull across retail & wholesale</p>
                     </div>
 
-                    <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200 space-y-1">
-                      <span className="text-[11px] font-bold text-stone-500 uppercase">Fair Farmgate Rate</span>
+                    <div className="p-4 rounded-2xl bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 space-y-1">
+                      <span className="text-[11px] font-bold text-stone-500 dark:text-stone-400 uppercase">Fair Farmgate Rate</span>
                       <div className="flex items-center gap-1.5">
                         <span className="text-2xl font-black text-emerald-800">₹{cropForecast.seedhaMandiPrice}</span>
                         <span className="text-xs text-stone-400 line-through">₹{cropForecast.currentMandiPrice}</span>
@@ -341,14 +341,14 @@ export const DemandIntelligencePage: React.FC = () => {
                       <p className="text-[10px] text-emerald-700 font-bold">+{cropForecast.farmerMarginGainPct}% higher than APMC</p>
                     </div>
 
-                    <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200 space-y-1">
-                      <span className="text-[11px] font-bold text-stone-500 uppercase">Projected Demand</span>
-                      <span className="text-2xl font-black text-stone-900 block">{cropForecast.projectedDemandQuintals} Qtl</span>
-                      <p className="text-[10px] text-stone-500">Estimated 14-day absorption</p>
+                    <div className="p-4 rounded-2xl bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 space-y-1">
+                      <span className="text-[11px] font-bold text-stone-500 dark:text-stone-400 uppercase">Projected Demand</span>
+                      <span className="text-2xl font-black text-stone-900 dark:text-stone-100 block">{cropForecast.projectedDemandQuintals} Qtl</span>
+                      <p className="text-[10px] text-stone-500 dark:text-stone-400">Estimated 14-day absorption</p>
                     </div>
 
-                    <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200 space-y-1">
-                      <span className="text-[11px] font-bold text-stone-500 uppercase">Perishability Risk</span>
+                    <div className="p-4 rounded-2xl bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 space-y-1">
+                      <span className="text-[11px] font-bold text-stone-500 dark:text-stone-400 uppercase">Perishability Risk</span>
                       <div className="flex items-center gap-1.5">
                         <span className={`text-sm font-black px-2.5 py-1 rounded-lg ${
                           cropForecast.spoilageRisk === 'High (Perishable)' 
@@ -358,22 +358,22 @@ export const DemandIntelligencePage: React.FC = () => {
                           {cropForecast.spoilageRisk}
                         </span>
                       </div>
-                      <p className="text-[10px] text-stone-500">Harvest: {cropForecast.harvestWindow}</p>
+                      <p className="text-[10px] text-stone-500 dark:text-stone-400">Harvest: {cropForecast.harvestWindow}</p>
                     </div>
                   </div>
 
                   {/* 7-Day Predictive Trend Table */}
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-black uppercase tracking-wider text-stone-600">
+                      <span className="text-xs font-black uppercase tracking-wider text-stone-600 dark:text-stone-300">
                         7-Day Forward Price Discovery Curve (Mandi vs SeedhaMandi)
                       </span>
-                      <span className="text-[11px] text-stone-500">AI Confidence: 92% Average</span>
+                      <span className="text-[11px] text-stone-500 dark:text-stone-400">AI Confidence: 92% Average</span>
                     </div>
 
-                    <div className="overflow-x-auto rounded-2xl border border-stone-200">
+                    <div className="overflow-x-auto rounded-2xl border border-stone-200 dark:border-stone-700">
                       <table className="w-full text-left text-xs">
-                        <thead className="bg-stone-100/70 border-b border-stone-200 text-stone-600 font-bold">
+                        <thead className="bg-stone-100/70 border-b border-stone-200 dark:border-stone-700 text-stone-600 dark:text-stone-300 font-bold">
                           <tr>
                             <th className="py-2.5 px-4">Day</th>
                             <th className="py-2.5 px-4">Projected Mandi Arrival (Tons)</th>
@@ -383,11 +383,11 @@ export const DemandIntelligencePage: React.FC = () => {
                             <th className="py-2.5 px-4">Model Confidence</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-stone-100 bg-white">
+                        <tbody className="divide-y divide-stone-100 bg-white dark:bg-stone-900">
                           {cropForecast.sevenDayForecast.map((dayItem, idx) => (
                             <tr key={idx} className="hover:bg-emerald-50/40 transition">
-                              <td className="py-2.5 px-4 font-bold text-stone-900">{dayItem.day}</td>
-                              <td className="py-2.5 px-4 text-stone-600">{dayItem.projectedArrivalsTons} Tons</td>
+                              <td className="py-2.5 px-4 font-bold text-stone-900 dark:text-stone-100">{dayItem.day}</td>
+                              <td className="py-2.5 px-4 text-stone-600 dark:text-stone-300">{dayItem.projectedArrivalsTons} Tons</td>
                               <td className="py-2.5 px-4 font-mono line-through text-stone-400">₹{dayItem.expectedMandiPrice}/kg</td>
                               <td className="py-2.5 px-4 font-mono font-black text-emerald-800 text-sm">
                                 ₹{dayItem.directFairPrice}/kg
@@ -414,7 +414,7 @@ export const DemandIntelligencePage: React.FC = () => {
                         <Sprout className="w-4 h-4 text-emerald-700" />
                         <span>AI Harvest & Sowing Action Advisory</span>
                       </div>
-                      <p className="text-xs text-stone-700 leading-relaxed font-medium">
+                      <p className="text-xs text-stone-700 dark:text-stone-300 leading-relaxed font-medium">
                         {cropForecast.recommendedAction}
                       </p>
                     </div>
@@ -424,7 +424,7 @@ export const DemandIntelligencePage: React.FC = () => {
                         <Zap className="w-4 h-4 text-amber-700" />
                         <span>Key Market Catalysts & Price Drivers</span>
                       </div>
-                      <ul className="text-xs text-stone-700 space-y-1 list-disc list-inside">
+                      <ul className="text-xs text-stone-700 dark:text-stone-300 space-y-1 list-disc list-inside">
                         {cropForecast.keyDrivers.map((driver, idx) => (
                           <li key={idx} className="leading-snug">{driver}</li>
                         ))}
@@ -437,14 +437,14 @@ export const DemandIntelligencePage: React.FC = () => {
 
             {/* General Macro Disparity Callout */}
             {data?.priceDisparityAnalysis && (
-              <div className="p-5 bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-3xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs text-stone-700">
+              <div className="p-5 bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-3xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs text-stone-700 dark:text-stone-300">
                 <div className="flex items-start gap-3">
                   <Zap className="w-6 h-6 text-amber-600 shrink-0 mt-0.5" />
                   <div>
                     <div className="font-extrabold text-emerald-950 text-sm sm:text-base">
                       {data.priceDisparityAnalysis.headline}
                     </div>
-                    <div className="text-stone-600 mt-1 max-w-3xl leading-relaxed">
+                    <div className="text-stone-600 dark:text-stone-300 mt-1 max-w-3xl leading-relaxed">
                       {data.priceDisparityAnalysis.summary}
                     </div>
                   </div>
@@ -459,10 +459,10 @@ export const DemandIntelligencePage: React.FC = () => {
             <div className="space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
-                  <h3 className="text-lg font-black text-stone-900">
+                  <h3 className="text-lg font-black text-stone-900 dark:text-stone-100">
                     High Demand Mandi Crop Directory
                   </h3>
-                  <p className="text-xs text-stone-500">
+                  <p className="text-xs text-stone-500 dark:text-stone-400">
                     Real-time market discovery index across vegetable, fruit, grain, and spice crops.
                   </p>
                 </div>
@@ -474,7 +474,7 @@ export const DemandIntelligencePage: React.FC = () => {
                     value={search}
                     onChange={e => setSearch(e.target.value)}
                     placeholder="Search crops or category..."
-                    className="w-full bg-white border border-stone-200 rounded-xl pl-10 pr-4 py-2 text-xs focus:outline-none focus:border-emerald-600"
+                    className="w-full bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded-xl pl-10 pr-4 py-2 text-xs focus:outline-none focus:border-emerald-600"
                   />
                 </div>
               </div>
@@ -483,11 +483,11 @@ export const DemandIntelligencePage: React.FC = () => {
                 {filtered.map((item, idx) => (
                   <div
                     key={idx}
-                    className="bg-white rounded-3xl border border-stone-200 p-5 shadow-xs hover:shadow-md transition flex flex-col justify-between space-y-4"
+                    className="bg-white dark:bg-stone-900 transition-colors rounded-3xl border border-stone-200 dark:border-stone-700 p-5 shadow-xs hover:shadow-md transition flex flex-col justify-between space-y-4"
                   >
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
-                        <span className="font-extrabold text-base text-stone-900">{item.crop}</span>
+                        <span className="font-extrabold text-base text-stone-900 dark:text-stone-100">{item.crop}</span>
                         <span
                           className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
                             item.demandIndex > 90
@@ -499,22 +499,22 @@ export const DemandIntelligencePage: React.FC = () => {
                         </span>
                       </div>
 
-                      <div className="text-xs text-stone-500 flex items-center justify-between">
-                        <span>Category: <strong className="text-stone-800">{item.category}</strong></span>
+                      <div className="text-xs text-stone-500 dark:text-stone-400 flex items-center justify-between">
+                        <span>Category: <strong className="text-stone-800 dark:text-stone-200">{item.category}</strong></span>
                         <span className="font-bold text-emerald-700">{item.trend}</span>
                       </div>
 
                       {/* Price Comparison Box */}
-                      <div className="p-3 bg-stone-50 border border-stone-200 rounded-xl space-y-1.5 text-xs">
-                        <div className="flex justify-between text-stone-600">
+                      <div className="p-3 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 rounded-xl space-y-1.5 text-xs">
+                        <div className="flex justify-between text-stone-600 dark:text-stone-300">
                           <span>APMC Mandi Avg:</span>
-                          <span className="font-semibold text-stone-800 line-through">₹{item.avgMandiPrice}/kg</span>
+                          <span className="font-semibold text-stone-800 dark:text-stone-200 line-through">₹{item.avgMandiPrice}/kg</span>
                         </div>
                         <div className="flex justify-between text-emerald-800 font-bold">
                           <span>Direct Farmgate:</span>
                           <span className="text-sm text-emerald-900 font-extrabold">₹{item.recommendedDirectPrice}/kg</span>
                         </div>
-                        <div className="pt-1 border-t border-stone-200 flex justify-between items-center text-[11px] text-amber-800 font-bold">
+                        <div className="pt-1 border-t border-stone-200 dark:border-stone-700 flex justify-between items-center text-[11px] text-amber-800 font-bold">
                           <span>Direct Farmer Realization:</span>
                           <span className="flex items-center gap-0.5 text-emerald-700 font-black">
                             <ArrowUpRight className="w-3.5 h-3.5" /> +{item.farmerBenefitPct}%
@@ -523,12 +523,12 @@ export const DemandIntelligencePage: React.FC = () => {
                       </div>
 
                       {/* Requirement & Advice */}
-                      <div className="space-y-1.5 text-xs text-stone-600">
-                        <div className="flex items-center gap-1.5 text-[11px] font-semibold text-stone-700">
+                      <div className="space-y-1.5 text-xs text-stone-600 dark:text-stone-300">
+                        <div className="flex items-center gap-1.5 text-[11px] font-semibold text-stone-700 dark:text-stone-300">
                           <TrendingUp className="w-3.5 h-3.5 text-emerald-600" />
                           <span>Projected Need: {item.projectedRequirement}</span>
                         </div>
-                        <p className="text-[11px] text-stone-600 bg-emerald-50/50 p-2.5 rounded-xl border border-emerald-100 leading-relaxed">
+                        <p className="text-[11px] text-stone-600 dark:text-stone-300 bg-emerald-50/50 p-2.5 rounded-xl border border-emerald-100 leading-relaxed">
                           <strong>Advisory:</strong> {item.harvestAdvice}
                         </p>
                       </div>
@@ -540,7 +540,7 @@ export const DemandIntelligencePage: React.FC = () => {
                         handleGenerateForecast(item.crop, selectedRegion);
                         window.scrollTo({ top: 150, behavior: 'smooth' });
                       }}
-                      className="w-full py-2.5 bg-stone-100 hover:bg-emerald-100 hover:text-emerald-900 text-stone-700 text-xs font-bold rounded-xl transition flex items-center justify-center gap-1.5"
+                      className="w-full py-2.5 bg-stone-100 dark:bg-stone-800 hover:bg-emerald-100 hover:text-emerald-900 text-stone-700 dark:text-stone-300 text-xs font-bold rounded-xl transition flex items-center justify-center gap-1.5"
                     >
                       <Sparkles className="w-3.5 h-3.5 text-amber-500" />
                       <span>Simulate AI Forecast</span>
@@ -557,16 +557,16 @@ export const DemandIntelligencePage: React.FC = () => {
         {/* ========================================================================= */}
         {activeSubTab === 'routing' && (
           <div className="space-y-8">
-            <div className="bg-white rounded-3xl p-6 sm:p-7 border border-stone-200 shadow-xs space-y-6">
+            <div className="bg-white dark:bg-stone-900 transition-colors rounded-3xl p-6 sm:p-7 border border-stone-200 dark:border-stone-700 shadow-xs space-y-6">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-stone-100 pb-4">
                 <div>
                   <div className="flex items-center gap-2">
                     <Truck className="w-5 h-5 text-blue-600" />
-                    <h2 className="text-lg font-black text-stone-900">
+                    <h2 className="text-lg font-black text-stone-900 dark:text-stone-100">
                       AI Multi-Stop Rural Logistics Route Optimizer
                     </h2>
                   </div>
-                  <p className="text-xs text-stone-500 mt-0.5">
+                  <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5">
                     Sequences rural farmgate pickups and urban drops using perishability-first algorithms, eliminating deadhead miles and preserving cold-chain life.
                   </p>
                 </div>
@@ -574,7 +574,7 @@ export const DemandIntelligencePage: React.FC = () => {
                 {/* Vehicle Selection & Trigger */}
                 <div className="flex flex-wrap items-center gap-3">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-stone-600">Assigned Fleet:</span>
+                    <span className="text-xs font-bold text-stone-600 dark:text-stone-300">Assigned Fleet:</span>
                     <select
                       value={vehicleType}
                       onChange={e => {
@@ -582,7 +582,7 @@ export const DemandIntelligencePage: React.FC = () => {
                         setVehicleType(v);
                         handleOptimizeRoute(v);
                       }}
-                      className="bg-stone-50 border border-stone-200 rounded-xl px-3 py-2 text-xs font-bold text-stone-800 focus:outline-none focus:border-emerald-600"
+                      className="bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 rounded-xl px-3 py-2 text-xs font-bold text-stone-800 dark:text-stone-200 focus:outline-none focus:border-emerald-600"
                     >
                       <option value="MINI_TRUCK">🚚 Mini Truck (Tata Ace Chota Hathi)</option>
                       <option value="TRACTOR">🚜 Tractor & Agro Trolley (Bulk Mandi)</option>
@@ -608,7 +608,7 @@ export const DemandIntelligencePage: React.FC = () => {
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                     <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 space-y-1">
                       <div className="flex items-center justify-between">
-                        <span className="text-[11px] font-bold text-stone-500 uppercase">Distance Reduced</span>
+                        <span className="text-[11px] font-bold text-stone-500 dark:text-stone-400 uppercase">Distance Reduced</span>
                         <span className="p-1 rounded bg-emerald-200 text-emerald-950 text-[10px] font-black">
                           -{routeResult.distanceReductionPct}%
                         </span>
@@ -622,7 +622,7 @@ export const DemandIntelligencePage: React.FC = () => {
 
                     <div className="p-4 rounded-2xl bg-blue-50 border border-blue-200 space-y-1">
                       <div className="flex items-center justify-between">
-                        <span className="text-[11px] font-bold text-stone-500 uppercase">Time Saved</span>
+                        <span className="text-[11px] font-bold text-stone-500 dark:text-stone-400 uppercase">Time Saved</span>
                         <Clock className="w-3.5 h-3.5 text-blue-600" />
                       </div>
                       <div className="flex items-baseline gap-1.5">
@@ -634,7 +634,7 @@ export const DemandIntelligencePage: React.FC = () => {
 
                     <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 space-y-1">
                       <div className="flex items-center justify-between">
-                        <span className="text-[11px] font-bold text-stone-500 uppercase">Fuel & Cost Saved</span>
+                        <span className="text-[11px] font-bold text-stone-500 dark:text-stone-400 uppercase">Fuel & Cost Saved</span>
                         <Fuel className="w-3.5 h-3.5 text-amber-600" />
                       </div>
                       <div className="flex items-baseline gap-1.5">
@@ -646,7 +646,7 @@ export const DemandIntelligencePage: React.FC = () => {
 
                     <div className="p-4 rounded-2xl bg-purple-50 border border-purple-200 space-y-1">
                       <div className="flex items-center justify-between">
-                        <span className="text-[11px] font-bold text-stone-500 uppercase">Freshness Guard</span>
+                        <span className="text-[11px] font-bold text-stone-500 dark:text-stone-400 uppercase">Freshness Guard</span>
                         <ShieldCheck className="w-3.5 h-3.5 text-purple-600" />
                       </div>
                       <div className="flex items-baseline gap-1.5">
@@ -662,10 +662,10 @@ export const DemandIntelligencePage: React.FC = () => {
                   {/* Sequenced Waypoint Roadmap */}
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <h3 className="text-xs font-black uppercase tracking-wider text-stone-600">
+                      <h3 className="text-xs font-black uppercase tracking-wider text-stone-600 dark:text-stone-300">
                         AI-Sequenced Delivery Itinerary & Live GPS Stops
                       </h3>
-                      <span className="text-xs text-stone-500">
+                      <span className="text-xs text-stone-500 dark:text-stone-400">
                         Total Cargo: {routeResult.totalPayloadKg} kg • {routeResult.stopsCount} Waypoints
                       </span>
                     </div>
@@ -674,7 +674,7 @@ export const DemandIntelligencePage: React.FC = () => {
                       {routeResult.orderedWaypoints.map(wp => (
                         <div
                           key={wp.seq}
-                          className="p-4 rounded-2xl border border-stone-200 bg-white hover:border-blue-300 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs"
+                          className="p-4 rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 hover:border-blue-300 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs"
                         >
                           <div className="flex items-start gap-3">
                             <div className="w-8 h-8 rounded-xl bg-blue-100 text-blue-900 font-black text-sm flex items-center justify-center shrink-0 mt-0.5">
@@ -682,19 +682,19 @@ export const DemandIntelligencePage: React.FC = () => {
                             </div>
                             <div>
                               <div className="flex items-center gap-2">
-                                <span className="font-extrabold text-stone-900 text-sm">{wp.stopName}</span>
-                                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-stone-100 text-stone-700">
+                                <span className="font-extrabold text-stone-900 dark:text-stone-100 text-sm">{wp.stopName}</span>
+                                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300">
                                   {wp.action}
                                 </span>
                               </div>
-                              <p className="text-xs text-stone-500 mt-0.5">{wp.notes}</p>
+                              <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5">{wp.notes}</p>
                             </div>
                           </div>
 
                           <div className="flex items-center gap-4 text-xs shrink-0 self-end sm:self-auto">
                             <div className="text-right">
                               <span className="text-[11px] text-stone-400 block">Payload</span>
-                              <span className="font-bold text-stone-800">{wp.weightKg} kg ({wp.produce})</span>
+                              <span className="font-bold text-stone-800 dark:text-stone-200">{wp.weightKg} kg ({wp.produce})</span>
                             </div>
                             <div className="text-right">
                               <span className="text-[11px] text-stone-400 block">ETA</span>
@@ -716,20 +716,20 @@ export const DemandIntelligencePage: React.FC = () => {
         {/* ========================================================================= */}
         {activeSubTab === 'transparency' && (
           <div className="space-y-8">
-            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-stone-200 shadow-xs space-y-6">
+            <div className="bg-white dark:bg-stone-900 transition-colors rounded-3xl p-6 sm:p-8 border border-stone-200 dark:border-stone-700 shadow-xs space-y-6">
               <div className="border-b border-stone-100 pb-4">
-                <h2 className="text-xl font-black text-stone-900">
+                <h2 className="text-xl font-black text-stone-900 dark:text-stone-100">
                   Value Chain Transparency Calculator
                 </h2>
-                <p className="text-xs text-stone-500 mt-1 max-w-2xl">
+                <p className="text-xs text-stone-500 dark:text-stone-400 mt-1 max-w-2xl">
                   Simulate direct farmgate procurement to mathematically demonstrate how SeedhaMandi solves the problem statement: better prices for farmers, lower prices for consumers, and reduced supply chain waste.
                 </p>
               </div>
 
               {/* Slider Inputs */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-stone-50 p-5 rounded-2xl border border-stone-200">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-stone-50 dark:bg-stone-950 p-5 rounded-2xl border border-stone-200 dark:border-stone-700">
                 <div className="space-y-2">
-                  <div className="flex justify-between text-xs font-bold text-stone-700">
+                  <div className="flex justify-between text-xs font-bold text-stone-700 dark:text-stone-300">
                     <span>Produce Order Weight (Lot Size)</span>
                     <span className="text-emerald-800 font-extrabold">{calcQuantityKg} kg</span>
                   </div>
@@ -750,7 +750,7 @@ export const DemandIntelligencePage: React.FC = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <div className="flex justify-between text-xs font-bold text-stone-700">
+                  <div className="flex justify-between text-xs font-bold text-stone-700 dark:text-stone-300">
                     <span>Farmgate Fair Base Price</span>
                     <span className="text-emerald-800 font-extrabold">₹{calcBasePrice}/kg</span>
                   </div>
@@ -800,7 +800,7 @@ export const DemandIntelligencePage: React.FC = () => {
                       <div className="flex items-center justify-between border-b border-rose-200 pb-3">
                         <div>
                           <span className="text-[11px] font-black uppercase text-rose-800 tracking-wider">Traditional APMC Model</span>
-                          <h3 className="text-base font-extrabold text-stone-900">4-Tier Intermediary Chain</h3>
+                          <h3 className="text-base font-extrabold text-stone-900 dark:text-stone-100">4-Tier Intermediary Chain</h3>
                         </div>
                         <span className="px-2.5 py-1 rounded-full bg-rose-200 text-rose-950 font-bold text-xs">
                           High Inefficiency
@@ -808,34 +808,34 @@ export const DemandIntelligencePage: React.FC = () => {
                       </div>
 
                       <div className="space-y-2 text-xs">
-                        <div className="flex justify-between py-1 text-stone-700">
+                        <div className="flex justify-between py-1 text-stone-700 dark:text-stone-300">
                           <span>Farmer Realization (Suppressed):</span>
-                          <span className="font-bold text-stone-900">₹{traditionalFarmerTotal.toLocaleString()} (₹{traditionalFarmerRate}/kg)</span>
+                          <span className="font-bold text-stone-900 dark:text-stone-100">₹{traditionalFarmerTotal.toLocaleString()} (₹{traditionalFarmerRate}/kg)</span>
                         </div>
-                        <div className="flex justify-between py-1 text-stone-600">
+                        <div className="flex justify-between py-1 text-stone-600 dark:text-stone-300">
                           <span>Village Aggregator Loading Cut:</span>
                           <span className="font-semibold text-rose-800">+₹{villageAggregatorCut.toLocaleString()}</span>
                         </div>
-                        <div className="flex justify-between py-1 text-stone-600">
+                        <div className="flex justify-between py-1 text-stone-600 dark:text-stone-300">
                           <span>APMC Arhatiya Commission (2-3 tiers):</span>
                           <span className="font-semibold text-rose-800">+₹{mandiArhatiyaCut.toLocaleString()}</span>
                         </div>
-                        <div className="flex justify-between py-1 text-stone-600">
+                        <div className="flex justify-between py-1 text-stone-600 dark:text-stone-300">
                           <span>Wholesale Broker Markup:</span>
                           <span className="font-semibold text-rose-800">+₹{wholesalerMarkup.toLocaleString()}</span>
                         </div>
-                        <div className="flex justify-between py-1 text-stone-600">
+                        <div className="flex justify-between py-1 text-stone-600 dark:text-stone-300">
                           <span>Retail Supermarket / Kirana Markup:</span>
                           <span className="font-semibold text-rose-800">+₹{retailerMarkup.toLocaleString()}</span>
                         </div>
-                        <div className="flex justify-between py-1 text-stone-600">
+                        <div className="flex justify-between py-1 text-stone-600 dark:text-stone-300">
                           <span>Post-Harvest Perishability Spoilage (30%):</span>
                           <span className="font-semibold text-rose-800">+₹{foodPerishabilityLoss.toLocaleString()}</span>
                         </div>
                       </div>
 
                       <div className="pt-3 border-t border-rose-200 flex items-center justify-between">
-                        <span className="text-xs font-bold text-stone-800">Consumer / Buyer Pays:</span>
+                        <span className="text-xs font-bold text-stone-800 dark:text-stone-200">Consumer / Buyer Pays:</span>
                         <span className="text-xl font-black text-rose-950">₹{traditionalConsumerTotal.toLocaleString()}</span>
                       </div>
                     </div>
@@ -845,7 +845,7 @@ export const DemandIntelligencePage: React.FC = () => {
                       <div className="flex items-center justify-between border-b border-emerald-200 pb-3">
                         <div>
                           <span className="text-[11px] font-black uppercase text-emerald-800 tracking-wider">SeedhaMandi Direct Model</span>
-                          <h3 className="text-base font-extrabold text-stone-900">Direct Farmgate + AI Logistics</h3>
+                          <h3 className="text-base font-extrabold text-stone-900 dark:text-stone-100">Direct Farmgate + AI Logistics</h3>
                         </div>
                         <span className="px-2.5 py-1 rounded-full bg-emerald-200 text-emerald-950 font-bold text-xs">
                           Smart India Hackathon
@@ -857,30 +857,30 @@ export const DemandIntelligencePage: React.FC = () => {
                           <span>Farmer Direct Bank Realization:</span>
                           <span className="font-black text-emerald-900">₹{seedhaFarmerTotal.toLocaleString()} (₹{seedhaFarmerRate}/kg)</span>
                         </div>
-                        <div className="flex justify-between py-1 text-stone-600">
+                        <div className="flex justify-between py-1 text-stone-600 dark:text-stone-300">
                           <span>Village Aggregator Commission:</span>
                           <span className="font-bold text-emerald-800">₹0 (Eliminated)</span>
                         </div>
-                        <div className="flex justify-between py-1 text-stone-600">
+                        <div className="flex justify-between py-1 text-stone-600 dark:text-stone-300">
                           <span>APMC Broker Fees:</span>
                           <span className="font-bold text-emerald-800">₹0 (Eliminated)</span>
                         </div>
-                        <div className="flex justify-between py-1 text-stone-600">
+                        <div className="flex justify-between py-1 text-stone-600 dark:text-stone-300">
                           <span>Optimized Multimodal Logistics (Direct):</span>
-                          <span className="font-semibold text-stone-900">+₹{seedhaLogisticsFee.toLocaleString()}</span>
+                          <span className="font-semibold text-stone-900 dark:text-stone-100">+₹{seedhaLogisticsFee.toLocaleString()}</span>
                         </div>
-                        <div className="flex justify-between py-1 text-stone-600">
+                        <div className="flex justify-between py-1 text-stone-600 dark:text-stone-300">
                           <span>Escrow & Digital Quality Fee (3%):</span>
-                          <span className="font-semibold text-stone-900">+₹{seedhaEscrowPlatformFee.toLocaleString()}</span>
+                          <span className="font-semibold text-stone-900 dark:text-stone-100">+₹{seedhaEscrowPlatformFee.toLocaleString()}</span>
                         </div>
-                        <div className="flex justify-between py-1 text-stone-600">
+                        <div className="flex justify-between py-1 text-stone-600 dark:text-stone-300">
                           <span>Transit Perishability Loss:</span>
                           <span className="font-bold text-emerald-800">Near Zero (AI Routing)</span>
                         </div>
                       </div>
 
                       <div className="pt-3 border-t border-emerald-200 flex items-center justify-between">
-                        <span className="text-xs font-bold text-stone-800">Consumer / Buyer Pays:</span>
+                        <span className="text-xs font-bold text-stone-800 dark:text-stone-200">Consumer / Buyer Pays:</span>
                         <span className="text-xl font-black text-emerald-950">₹{seedhaConsumerTotal.toLocaleString()}</span>
                       </div>
 

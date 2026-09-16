@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Sprout, 
   ShoppingBag, 
@@ -13,7 +13,9 @@ import {
   Menu, 
   X,
   Users,
-  Trophy
+  Trophy,
+  Moon,
+  Sun
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { UserRole } from '../types';
@@ -38,6 +40,28 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenCart }) => {
 
   const [isRoleMenuOpen, setIsRoleMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  
+  // Dark Mode State
+  const [isDark, setIsDark] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('theme') === 'dark' || 
+        (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    const root = window.document.documentElement;
+    if (isDark) {
+      root.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      root.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  }, [isDark]);
+
+  const toggleDarkMode = () => setIsDark(!isDark);
 
   const roleLabels: Record<UserRole, { label: string; bg: string; text: string; icon: any }> = {
     CONSUMER: { label: 'Consumer / Buyer', bg: 'bg-emerald-100', text: 'text-emerald-800', icon: ShoppingBag },
@@ -50,7 +74,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenCart }) => {
   const RoleIcon = currentRoleConfig.icon;
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-stone-200">
+    <header className="sticky top-0 z-40 bg-white/95 dark:bg-stone-950/95 backdrop-blur-md border-b border-stone-200 dark:border-stone-800 transition-colors">
       {/* Top Banner: Direct Farm Promise & System Telemetry */}
       <div className="bg-emerald-900 text-emerald-100 text-xs py-1.5 px-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -95,10 +119,10 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenCart }) => {
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="text-2xl font-extrabold tracking-tight text-emerald-950">Seedha<span className="text-emerald-600">Mandi</span></span>
-                <span className="text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-900 border border-amber-300 px-1.5 py-0.5 rounded">Prototype</span>
+                <span className="text-2xl font-extrabold tracking-tight text-emerald-950 dark:text-emerald-100 transition-colors">Seedha<span className="text-emerald-600 dark:text-emerald-400">Mandi</span></span>
+                <span className="text-[10px] font-bold uppercase tracking-wider bg-amber-100 dark:bg-amber-900/50 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700 px-1.5 py-0.5 rounded transition-colors">Prototype</span>
               </div>
-              <p className="text-[11px] text-stone-500 font-medium tracking-wide">Direct from Farm, Straight to You</p>
+              <p className="text-[11px] text-stone-500 dark:text-stone-400 font-medium tracking-wide transition-colors">Direct from Farm, Straight to You</p>
             </div>
           </div>
 
@@ -108,8 +132,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenCart }) => {
               onClick={() => setActiveTab('landing')}
               className={`px-3.5 py-2 rounded-lg text-sm font-semibold transition-colors ${
                 activeTab === 'landing'
-                  ? 'text-emerald-800 bg-emerald-50'
-                  : 'text-stone-600 hover:text-emerald-700 hover:bg-stone-50'
+                  ? 'text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-900/30'
+                  : 'text-stone-600 dark:text-stone-300 hover:text-emerald-700 dark:hover:text-emerald-400 hover:bg-stone-50 dark:hover:bg-stone-800'
               }`}
             >
               Home (Select Role)
@@ -122,8 +146,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenCart }) => {
               }}
               className={`px-3.5 py-2 rounded-lg text-sm font-semibold transition-colors ${
                 activeTab === 'marketplace'
-                  ? 'text-emerald-800 bg-emerald-50'
-                  : 'text-stone-600 hover:text-emerald-700 hover:bg-stone-50'
+                  ? 'text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-900/30'
+                  : 'text-stone-600 dark:text-stone-300 hover:text-emerald-700 dark:hover:text-emerald-400 hover:bg-stone-50 dark:hover:bg-stone-800'
               }`}
             >
               Consumer Market
@@ -136,8 +160,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenCart }) => {
               }}
               className={`px-3.5 py-2 rounded-lg text-sm font-semibold transition-colors ${
                 activeTab === 'farmer_dashboard'
-                  ? 'text-emerald-800 bg-emerald-50'
-                  : 'text-stone-600 hover:text-emerald-700 hover:bg-stone-50'
+                  ? 'text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-900/30'
+                  : 'text-stone-600 dark:text-stone-300 hover:text-emerald-700 dark:hover:text-emerald-400 hover:bg-stone-50 dark:hover:bg-stone-800'
               }`}
             >
               Farmer Hub
@@ -150,8 +174,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenCart }) => {
               }}
               className={`px-3.5 py-2 rounded-lg text-sm font-semibold transition-colors ${
                 activeTab === 'logistics_dashboard'
-                  ? 'text-emerald-800 bg-emerald-50'
-                  : 'text-stone-600 hover:text-emerald-700 hover:bg-stone-50'
+                  ? 'text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-900/30'
+                  : 'text-stone-600 dark:text-stone-300 hover:text-emerald-700 dark:hover:text-emerald-400 hover:bg-stone-50 dark:hover:bg-stone-800'
               }`}
             >
               Logistics (Bhubaneswar)
@@ -161,8 +185,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenCart }) => {
               onClick={() => setActiveTab('demand_intel')}
               className={`px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center gap-1.5 transition-colors ${
                 activeTab === 'demand_intel'
-                  ? 'text-amber-800 bg-amber-50'
-                  : 'text-stone-600 hover:text-amber-800 hover:bg-stone-50'
+                  ? 'text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/30'
+                  : 'text-stone-600 dark:text-stone-300 hover:text-amber-800 dark:hover:text-amber-400 hover:bg-stone-50 dark:hover:bg-stone-800'
               }`}
             >
               <TrendingUp className="w-4 h-4 text-amber-600" />
@@ -198,6 +222,15 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenCart }) => {
                   {cartCount}
                 </span>
               )}
+            </button>
+
+            {/* Dark Mode Toggle */}
+            <button
+              onClick={toggleDarkMode}
+              className="p-2.5 text-stone-700 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-stone-800 rounded-xl transition-colors"
+              title="Toggle Theme"
+            >
+              {isDark ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5" />}
             </button>
 
             {/* Quick Role Switcher Dropdown */}

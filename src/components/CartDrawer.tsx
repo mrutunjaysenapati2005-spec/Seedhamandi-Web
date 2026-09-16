@@ -187,7 +187,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
       />
 
       <div className="fixed inset-y-0 right-0 max-w-full flex pl-6 sm:pl-10">
-        <div className="w-screen max-w-lg bg-white shadow-2xl flex flex-col">
+        <div className="w-screen max-w-lg bg-white dark:bg-stone-900 shadow-2xl flex flex-col">
           {/* =============================================================== */}
           {/* DRAWER TOP HEADER                                               */}
           {/* =============================================================== */}
@@ -298,7 +298,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   className={`px-3 py-1 rounded-full text-xs font-bold transition cursor-pointer ${
                     isBulkActive 
                       ? 'bg-amber-600 text-white shadow-xs' 
-                      : 'bg-white text-stone-700 border border-stone-300'
+                      : 'bg-white dark:bg-stone-900 text-stone-700 dark:text-stone-300 border border-stone-300'
                   }`}
                 >
                   {isBulkActive ? 'Bulk Active (8% OFF)' : 'Enable Bulk'}
@@ -308,9 +308,9 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               {/* Cart Items List */}
               <div className="flex-1 overflow-y-auto p-4 space-y-3">
                 {cart.length === 0 ? (
-                  <div className="text-center py-16 space-y-3 text-stone-500">
+                  <div className="text-center py-16 space-y-3 text-stone-500 dark:text-stone-400">
                     <ShoppingBag className="w-12 h-12 mx-auto text-stone-300" />
-                    <p className="text-sm font-semibold text-stone-700">Your basket is currently empty</p>
+                    <p className="text-sm font-semibold text-stone-700 dark:text-stone-300">Your basket is currently empty</p>
                     <p className="text-xs text-stone-400 max-w-xs mx-auto">
                       Explore fresh vegetables, seasonal GI fruits, and grains direct from verified Indian farmers.
                     </p>
@@ -330,7 +330,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     {cart.map(item => (
                       <div
                         key={item.product.id}
-                        className="p-3 bg-stone-50 border border-stone-200/80 rounded-xl space-y-2.5"
+                        className="p-3 bg-stone-50 dark:bg-stone-950 border border-stone-200/80 rounded-xl space-y-2.5"
                       >
                         <div className="flex gap-3">
                           <img
@@ -340,7 +340,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                           />
                           <div className="flex-1 min-w-0">
                             <div className="flex items-start justify-between">
-                              <h4 className="font-bold text-xs text-stone-900 truncate">
+                              <h4 className="font-bold text-xs text-stone-900 dark:text-stone-100 truncate">
                                 {item.product.name}
                               </h4>
                               <button
@@ -351,7 +351,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                                 <Trash2 className="w-3.5 h-3.5" />
                               </button>
                             </div>
-                            <p className="text-[11px] text-stone-500">
+                            <p className="text-[11px] text-stone-500 dark:text-stone-400">
                               {item.product.farmerName} • {item.product.location}
                             </p>
                             <div className="text-xs font-black text-emerald-800 mt-0.5">
@@ -363,11 +363,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                         {/* Quantity controls + Quick bulk increments */}
                         <div className="flex items-center justify-between pt-1 border-t border-stone-200/60 text-xs">
                           <div className="flex items-center gap-1.5">
-                            <div className="flex items-center bg-white border border-stone-200 rounded-lg px-2 py-0.5">
+                            <div className="flex items-center bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded-lg px-2 py-0.5">
                               <button
                                 type="button"
                                 onClick={() => updateCartQty(item.product.id, item.quantity - 1)}
-                                className="p-0.5 text-stone-600 hover:text-stone-900 cursor-pointer"
+                                className="p-0.5 text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:text-stone-100 cursor-pointer"
                               >
                                 <Minus className="w-3 h-3" />
                               </button>
@@ -375,7 +375,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                               <button
                                 type="button"
                                 onClick={() => updateCartQty(item.product.id, item.quantity + 1)}
-                                className="p-0.5 text-stone-600 hover:text-stone-900 cursor-pointer"
+                                className="p-0.5 text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:text-stone-100 cursor-pointer"
                               >
                                 <Plus className="w-3 h-3" />
                               </button>
@@ -387,7 +387,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                             <button
                               type="button"
                               onClick={() => updateCartQty(item.product.id, item.quantity + 25)}
-                              className="px-2 py-0.5 text-[10px] font-bold bg-stone-200 hover:bg-amber-200 text-stone-800 rounded-md transition cursor-pointer"
+                              className="px-2 py-0.5 text-[10px] font-bold bg-stone-200 hover:bg-amber-200 text-stone-800 dark:text-stone-200 rounded-md transition cursor-pointer"
                               title="Add 25 kg lot"
                             >
                               +25 kg
@@ -403,7 +403,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                           </div>
 
                           <div className="text-right">
-                            <span className="text-xs font-bold text-stone-900 font-mono">
+                            <span className="text-xs font-bold text-stone-900 dark:text-stone-100 font-mono">
                               ₹{item.product.price * item.quantity}
                             </span>
                           </div>
@@ -440,7 +440,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                         value={street}
                         onChange={e => setStreet(e.target.value)}
                         placeholder="Street Address / Flat No."
-                        className="w-full bg-white border border-emerald-300 rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:border-emerald-600"
+                        className="w-full bg-white dark:bg-stone-900 border border-emerald-300 rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:border-emerald-600"
                       />
                       <div className="grid grid-cols-3 gap-2">
                         <input
@@ -448,21 +448,21 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                           value={city}
                           onChange={e => setCity(e.target.value)}
                           placeholder="City"
-                          className="bg-white border border-emerald-300 rounded-lg px-2 py-1 text-xs"
+                          className="bg-white dark:bg-stone-900 transition-colors border border-emerald-300 rounded-lg px-2 py-1 text-xs"
                         />
                         <input
                           type="text"
                           value={state}
                           onChange={e => setState(e.target.value)}
                           placeholder="State"
-                          className="bg-white border border-emerald-300 rounded-lg px-2 py-1 text-xs"
+                          className="bg-white dark:bg-stone-900 transition-colors border border-emerald-300 rounded-lg px-2 py-1 text-xs"
                         />
                         <input
                           type="text"
                           value={pincode}
                           onChange={e => setPincode(e.target.value)}
                           placeholder="Pincode"
-                          className="bg-white border border-emerald-300 rounded-lg px-2 py-1 text-xs font-mono"
+                          className="bg-white dark:bg-stone-900 transition-colors border border-emerald-300 rounded-lg px-2 py-1 text-xs font-mono"
                         />
                       </div>
                       <input
@@ -470,7 +470,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                         value={deliveryNotes}
                         onChange={e => setDeliveryNotes(e.target.value)}
                         placeholder="Special delivery instructions (e.g. Call before arrival)"
-                        className="w-full bg-white border border-emerald-300 rounded-lg px-2.5 py-1 text-[11px] placeholder:text-stone-400"
+                        className="w-full bg-white dark:bg-stone-900 border border-emerald-300 rounded-lg px-2.5 py-1 text-[11px] placeholder:text-stone-400"
                       />
                     </div>
                   </>
@@ -479,11 +479,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
               {/* Bottom Summary & Place Order Button */}
               {cart.length > 0 && (
-                <div className="p-4 bg-stone-50 border-t border-stone-200 space-y-3">
+                <div className="p-4 bg-stone-50 dark:bg-stone-950 border-t border-stone-200 dark:border-stone-700 space-y-3">
                   <div className="space-y-1 text-xs">
-                    <div className="flex justify-between text-stone-600">
+                    <div className="flex justify-between text-stone-600 dark:text-stone-300">
                       <span>Direct Farmgate Harvest Value:</span>
-                      <span className="font-semibold text-stone-900 font-mono">₹{cartTotal}</span>
+                      <span className="font-semibold text-stone-900 dark:text-stone-100 font-mono">₹{cartTotal}</span>
                     </div>
 
                     {wholesaleDiscount > 0 && (
@@ -496,12 +496,12 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                       </div>
                     )}
 
-                    <div className="flex justify-between text-stone-600">
+                    <div className="flex justify-between text-stone-600 dark:text-stone-300">
                       <span>Logistics Freight ({recommendedVehicle.name.split(' ')[0]}):</span>
-                      <span className="font-semibold text-stone-900 font-mono">₹{logisticsFee}</span>
+                      <span className="font-semibold text-stone-900 dark:text-stone-100 font-mono">₹{logisticsFee}</span>
                     </div>
                     
-                    <div className="flex justify-between text-emerald-800 font-black pt-1.5 border-t border-stone-200 text-sm">
+                    <div className="flex justify-between text-emerald-800 font-black pt-1.5 border-t border-stone-200 dark:border-stone-700 text-sm">
                       <span>Total Payable:</span>
                       <span className="text-base font-mono">₹{grandTotal}</span>
                     </div>
@@ -518,7 +518,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     <ArrowRight className="w-4 h-4" />
                   </button>
 
-                  <p className="text-[11px] text-center text-stone-500">
+                  <p className="text-[11px] text-center text-stone-500 dark:text-stone-400">
                     Protected by SeedhaMandi Quality Inspection & Escrow Guarantee
                   </p>
                 </div>
@@ -532,8 +532,8 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
           {currentStep === 'checkout' && (
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
               {/* Destination & Order Summary Banner */}
-              <div className="p-3 bg-stone-100 border border-stone-200 rounded-xl space-y-1.5 text-xs">
-                <div className="flex items-center justify-between text-stone-700 font-bold">
+              <div className="p-3 bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl space-y-1.5 text-xs">
+                <div className="flex items-center justify-between text-stone-700 dark:text-stone-300 font-bold">
                   <span className="flex items-center gap-1.5">
                     <MapPin className="w-3.5 h-3.5 text-emerald-700" />
                     <span>Delivery: {street}, {city}</span>
@@ -546,7 +546,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     Edit Address
                   </button>
                 </div>
-                <div className="flex items-center justify-between text-[11px] text-stone-500">
+                <div className="flex items-center justify-between text-[11px] text-stone-500 dark:text-stone-400">
                   <span>{cart.length} Farm Batches ({totalWeightKg} kg)</span>
                   <span>Assigned: {recommendedVehicle.name.split(' ')[0]}</span>
                 </div>
@@ -576,10 +576,10 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto shadow-sm animate-bounce">
                   <CheckCircle2 className="w-10 h-10" />
                 </div>
-                <h3 className="text-xl font-black text-stone-900">
+                <h3 className="text-xl font-black text-stone-900 dark:text-stone-100">
                   Order #{placedOrder.id} Placed!
                 </h3>
-                <p className="text-xs text-stone-600 max-w-xs mx-auto">
+                <p className="text-xs text-stone-600 dark:text-stone-300 max-w-xs mx-auto">
                   Instant real-time dispatch alerts transmitted to farmer collective and Bhubaneswar fleet.
                 </p>
               </div>
@@ -590,7 +590,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   <KeyRound className="w-4 h-4 text-amber-700" />
                   <span>Doorstep Inspection & Delivery OTP</span>
                 </div>
-                <div className="text-3xl font-mono font-black tracking-widest text-emerald-950 bg-white py-2 rounded-xl border border-amber-200">
+                <div className="text-3xl font-mono font-black tracking-widest text-emerald-950 bg-white dark:bg-stone-900 py-2 rounded-xl border border-amber-200">
                   {placedOrder.deliveryOtp}
                 </div>
                 <p className="text-[11px] text-amber-800 leading-snug">
@@ -605,22 +605,22 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   <span>Instant UPI Settlement Receipts:</span>
                 </div>
 
-                <div className="p-2.5 bg-white rounded-xl border border-emerald-100 space-y-1">
-                  <div className="flex justify-between items-center text-stone-800">
+                <div className="p-2.5 bg-white dark:bg-stone-900 rounded-xl border border-emerald-100 space-y-1">
+                  <div className="flex justify-between items-center text-stone-800 dark:text-stone-200">
                     <span className="font-bold">🌾 Farmer Harvest Payout:</span>
                     <strong className="text-emerald-800 font-mono">₹{placedOrder.itemsTotal}</strong>
                   </div>
-                  <div className="text-[10px] text-stone-500">
+                  <div className="text-[10px] text-stone-500 dark:text-stone-400">
                     100% credited to {placedOrder.items[0]?.farmerName || 'Farmer'} (Zero broker cut)
                   </div>
                 </div>
 
-                <div className="p-2.5 bg-white rounded-xl border border-emerald-100 space-y-1">
-                  <div className="flex justify-between items-center text-stone-800">
+                <div className="p-2.5 bg-white dark:bg-stone-900 rounded-xl border border-emerald-100 space-y-1">
+                  <div className="flex justify-between items-center text-stone-800 dark:text-stone-200">
                     <span className="font-bold">🚚 Logistics Partner Freight:</span>
                     <strong className="text-blue-800 font-mono">₹{placedOrder.logisticsFee}</strong>
                   </div>
-                  <div className="text-[10px] text-stone-500">
+                  <div className="text-[10px] text-stone-500 dark:text-stone-400">
                     Assigned: {recommendedVehicle.name} (Bhubaneswar Hub)
                   </div>
                 </div>
@@ -641,7 +641,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="w-full py-2.5 bg-white hover:bg-stone-100 text-stone-700 border border-stone-300 rounded-xl font-bold text-xs transition cursor-pointer"
+                  className="w-full py-2.5 bg-white dark:bg-stone-900 hover:bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 border border-stone-300 rounded-xl font-bold text-xs transition cursor-pointer"
                 >
                   Done & Continue Shopping
                 </button>

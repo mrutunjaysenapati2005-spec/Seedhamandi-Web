@@ -15,6 +15,8 @@ import { DemandIntelligencePage } from './pages/DemandIntelligencePage';
 import { Product } from './types';
 import { api } from './services/api';
 import { CheckCircle2, Sprout, ArrowRight } from 'lucide-react';
+import { Toaster } from 'react-hot-toast';
+import { LogisticsNotificationCenter } from './components/LogisticsNotificationCenter';
 
 const MainContent: React.FC = () => {
   const { 
@@ -58,7 +60,7 @@ const MainContent: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-stone-50 font-sans selection:bg-emerald-200 selection:text-emerald-950">
+    <div className="min-h-screen flex flex-col bg-stone-50 dark:bg-stone-950 font-sans selection:bg-emerald-200 selection:text-emerald-950 transition-colors duration-200">
       {/* Navigation */}
       <Navbar onOpenCart={openCart} />
 
@@ -152,6 +154,8 @@ const MainContent: React.FC = () => {
 export default function App() {
   return (
     <AuthProvider>
+      <Toaster position="bottom-right" reverseOrder={false} />
+      <LogisticsNotificationCenter />
       <MainContent />
     </AuthProvider>
   );
