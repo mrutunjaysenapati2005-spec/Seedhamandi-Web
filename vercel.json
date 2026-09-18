@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://seedhamandi-web-9rxn.onrender.com/api/:path*"
+    }
+  ]
+}
