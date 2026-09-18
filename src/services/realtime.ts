@@ -33,9 +33,11 @@ class RealtimeService {
 
   private connect() {
     try {
-      const isHttps = window.location.protocol === 'https:';
+      const isVercel = window.location.hostname.includes('vercel.app');
+      const backendHost = isVercel ? 'seedhamandi-web-9rxn.onrender.com' : window.location.host;
+      const isHttps = window.location.protocol === 'https:' || isVercel;
       const wsProtocol = isHttps ? 'wss:' : 'ws:';
-      const wsUrl = `${wsProtocol}//${window.location.host}/ws`;
+      const wsUrl = `${wsProtocol}//${backendHost}/ws`;
 
       this.ws = new WebSocket(wsUrl);
 
