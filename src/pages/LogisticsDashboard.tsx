@@ -32,6 +32,7 @@ import { api } from '../services/api';
 import { BhubaneswarMap } from '../components/BhubaneswarMap';
 import { InteractiveLogisticsMap, MapDeliveryRequest } from '../components/InteractiveLogisticsMap';
 import { VicinityDispatchToast, VicinityAlert, playVicinityChime } from '../components/VicinityDispatchToast';
+import { realtimeService } from '../services/realtime';
 
 export interface DispatchOffer {
   id: string;
@@ -240,6 +241,9 @@ export const LogisticsDashboard: React.FC = () => {
   const [vicinityAlerts, setVicinityAlerts] = useState<VicinityAlert[]>([]);
   const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
   const [autoRadar, setAutoRadar] = useState<boolean>(true);
+  const [isWsConnected, setIsWsConnected] = useState<boolean>(false);
+  const [isFallbackPolling, setIsFallbackPolling] = useState<boolean>(false);
+  const [lastSyncTime, setLastSyncTime] = useState<Date>(new Date());
   const previousPlacedOrderIdsRef = useRef<Set<string>>(new Set());
   const nextSimIndexRef = useRef<number>(0);
 
@@ -348,27 +352,77 @@ export const LogisticsDashboard: React.FC = () => {
     }, 100);
   };
 
-  useEffect(() => {
-    loadDeliveriesAndNotifications();
-    const interval = setInterval(loadDeliveriesAndNotifications, 10000); // Polling for real-time dispatch updates
-    return () => clearInterval(interval);
-  }, []);
-
-  const loadDeliveriesAndNotifications = async () => {
+  const loadDeliveriesAndNotifications = async (silent = false) => {
     try {
-      setLoading(true);
+      if (!silent) setLoading(true);
       const [orderRes, notifRes] = await Promise.all([
         api.getOrders(),
         api.getNotifications(),
       ]);
       setOrders(orderRes.orders || []);
       setNotifications(notifRes.notifications || []);
+      setLastSyncTime(new Date());
     } catch (e) {
-      console.error(e);
+      // Quietly handle transient network interruptions
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
+
+  useEffect(() => {
+    // Initial fetch
+    loadDeliveriesAndNotifications();
+
+    // 1. Subscribe to real-time WebSocket / SSE broadcast events
+    const unsubscribe = realtimeService.subscribe((event) => {
+      setIsWsConnected(true);
+      setIsFallbackPolling(false);
+      setLastSyncTime(new Date());
+
+      if (event.type === 'order:created' && event.data?.order) {
+        const newOrder = event.data.order;
+        setOrders((prev) => {
+          if (prev.some((o) => o.id === newOrder.id)) return prev;
+          return [newOrder, ...prev];
+        });
+      } else if (event.type === 'order:status_change' && event.data?.order) {
+        const updated = event.data.order;
+        setOrders((prev) =>
+          prev.map((o) => (o.id === updated.id ? updated : o))
+        );
+      } else if (event.type === 'order:updated' && event.data?.order) {
+        const updated = event.data.order;
+        setOrders((prev) =>
+          prev.map((o) => (o.id === updated.id ? updated : o))
+        );
+      }
+    });
+
+    // 2. Fallback Polling Mechanism:
+    // Periodically checks order status from the server API if WebSocket/event notifications are not received
+    const FALLBACK_THRESHOLD_MS = 6000;
+    const pollingInterval = setInterval(() => {
+      if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return;
+      if (typeof navigator !== 'undefined' && !navigator.onLine) return;
+
+      const connected = realtimeService.isConnected();
+      const lastEventAge = Date.now() - realtimeService.getLastEventTime();
+
+      if (!connected || lastEventAge > FALLBACK_THRESHOLD_MS) {
+        // Fallback polling active: periodically sync order status with server API
+        setIsFallbackPolling(true);
+        loadDeliveriesAndNotifications(true);
+      } else {
+        setIsFallbackPolling(false);
+        setIsWsConnected(true);
+      }
+    }, 5000);
+
+    return () => {
+      unsubscribe();
+      clearInterval(pollingInterval);
+    };
+  }, []);
 
   // Turn newly placed backend orders without carrier into dispatch offers!
   const backendUnassignedOffers: DispatchOffer[] = orders
@@ -688,8 +742,31 @@ export const LogisticsDashboard: React.FC = () => {
               </button>
             </div>
 
+            {/* Sync & Real-time Stream Indicator */}
+            <div
+              className={`px-3 py-2 rounded-2xl border text-xs font-semibold flex items-center gap-2 backdrop-blur-md transition-all ${
+                isFallbackPolling
+                  ? 'bg-amber-500/10 border-amber-500/30 text-amber-300'
+                  : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
+              }`}
+            >
+              <span
+                className={`w-2 h-2 rounded-full ${
+                  isFallbackPolling ? 'bg-amber-400 animate-pulse' : 'bg-emerald-400 animate-ping'
+                }`}
+              />
+              <div className="flex flex-col text-[11px] leading-tight">
+                <span className="font-bold">
+                  {isFallbackPolling ? 'Fallback Polling' : 'WebSocket Live'}
+                </span>
+                <span className="text-[9px] opacity-75">
+                  {isFallbackPolling ? 'Auto-syncing server' : 'Connected to stream'}
+                </span>
+              </div>
+            </div>
+
             <button
-              onClick={loadDeliveriesAndNotifications}
+              onClick={() => loadDeliveriesAndNotifications(false)}
               className="px-4 py-3 rounded-2xl bg-blue-800/80 hover:bg-blue-700 text-white text-xs font-bold border border-blue-600 flex items-center justify-center gap-2 transition active:scale-95 shadow-md"
             >
               <RefreshCw className="w-4 h-4" />

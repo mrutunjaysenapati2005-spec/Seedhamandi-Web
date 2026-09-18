@@ -22,11 +22,13 @@ import {
   AlertTriangle,
   Sliders,
   Volume2,
-  VolumeX
+  VolumeX,
+  XCircle
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Product, Order, OrderStatus, AppNotification, BulkRfq } from '../types';
 import { api } from '../services/api';
+import { realtimeService } from '../services/realtime';
 import { FarmerDemandInventoryD3Chart } from '../components/FarmerDemandInventoryD3Chart';
 import { FarmersEarningChart } from '../components/FarmersEarningChart';
 import { 
@@ -35,6 +37,13 @@ import {
   LowStockToastAlert, 
   playLowStockChime 
 } from '../components/FarmerLowStockAlerts';
+import {
+  FarmerIncomingOrderModal,
+  FarmerIncomingOrderToast,
+  DemoPurchaseTriggerButton,
+  playIncomingOrderChime,
+} from '../components/FarmerIncomingOrderNotification';
+import { LogisticsPartner } from '../types';
 
 interface FarmerDashboardProps {
   products: Product[];
@@ -51,6 +60,12 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({
   const [rfqs, setRfqs] = useState<BulkRfq[]>([]);
   const [loadingOrders, setLoadingOrders] = useState(true);
   const [activeTab, setActiveTab] = useState<'inventory' | 'demand_forecast' | 'orders' | 'sold_history' | 'payouts' | 'rfqs'>('inventory');
+
+  // Interactive Customer Order Decision & Logistics Assignment State
+  const [logisticsPartners, setLogisticsPartners] = useState<LogisticsPartner[]>([]);
+  const [activeModalOrder, setActiveModalOrder] = useState<Order | null>(null);
+  const [incomingOrderToast, setIncomingOrderToast] = useState<Order | null>(null);
+  const [isSimulatingCustomerOrder, setIsSimulatingCustomerOrder] = useState(false);
 
   // Real-time Low Stock Alert System State
   const [globalThreshold, setGlobalThreshold] = useState<number>(() => {
@@ -86,29 +101,61 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({
   const [withdrawing, setWithdrawing] = useState(false);
   const [payoutSuccess, setPayoutSuccess] = useState(false);
 
-  useEffect(() => {
-    loadFarmerOrdersAndNotifs();
-    const interval = setInterval(loadFarmerOrdersAndNotifs, 10000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const loadFarmerOrdersAndNotifs = async () => {
+  const loadFarmerOrdersAndNotifs = async (silent = false) => {
     try {
-      setLoadingOrders(true);
-      const [ordRes, notifRes, rfqRes] = await Promise.all([
+      if (!silent) setLoadingOrders(true);
+      const [ordRes, notifRes, rfqRes, logRes] = await Promise.all([
         api.getOrders(),
         api.getNotifications(),
         api.getRfqs(),
+        api.getLogisticsPartners(),
       ]);
-      setOrders(ordRes.orders || []);
-      setNotifications(notifRes.notifications || []);
-      setRfqs(rfqRes.rfqs || []);
-    } catch (e) {
-      console.error(e);
+      if (ordRes && Array.isArray(ordRes.orders)) setOrders(ordRes.orders);
+      if (notifRes && Array.isArray(notifRes.notifications)) setNotifications(notifRes.notifications);
+      if (rfqRes && Array.isArray(rfqRes.rfqs)) setRfqs(rfqRes.rfqs);
+      if (logRes && Array.isArray(logRes.partners)) setLogisticsPartners(logRes.partners);
+    } catch {
+      // Gracefully handle transient network glitches during background sync
     } finally {
-      setLoadingOrders(false);
+      if (!silent) setLoadingOrders(false);
     }
   };
+
+  useEffect(() => {
+    loadFarmerOrdersAndNotifs(false);
+
+    // Real-time subscription for live orders and notifications
+    const unsubscribe = realtimeService.subscribe((event) => {
+      if (event.type === 'order:created' && event.data?.order) {
+        const newOrder = event.data.order;
+        setOrders(prev => {
+          if (prev.some(o => o.id === newOrder.id)) return prev;
+          return [newOrder, ...prev];
+        });
+
+        // Trigger interactive toast and audio alert for farmer
+        setIncomingOrderToast(newOrder);
+        if (soundEnabled) {
+          playIncomingOrderChime();
+        }
+      } else if (event.type === 'order:status_change' && event.data?.order) {
+        const updated = event.data.order;
+        setOrders(prev => prev.map(o => (o.id === updated.id ? updated : o)));
+        setActiveModalOrder(prev => (prev && prev.id === updated.id ? updated : prev));
+      }
+    });
+
+    const interval = setInterval(() => {
+      if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return;
+      if (typeof navigator !== 'undefined' && !navigator.onLine) return;
+      loadFarmerOrdersAndNotifs(true);
+    }, 8000);
+
+    return () => {
+      unsubscribe();
+      clearInterval(interval);
+    };
+  }, [soundEnabled]);
 
   const myProducts = products.filter(
     p => p.farmerId === (user?.id || 'usr_farmer_1') || p.farmerName.includes('Ramesh') || role === 'FPO_REP'
@@ -301,6 +348,98 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({
     }
   };
 
+  const handleRejectOrder = async (orderId: string, reason: string) => {
+    try {
+      await api.updateOrderStatus(orderId, 'REJECTED_LOW_STOCK', reason, undefined, undefined, reason);
+      setFeedback({
+        type: 'success',
+        msg: `Order #${orderId} rejected due to low stock. Escrow funds refunded to customer.`,
+      });
+      setIncomingOrderToast(prev => (prev?.id === orderId ? null : prev));
+      await loadFarmerOrdersAndNotifs(true);
+    } catch (err: any) {
+      setFeedback({ type: 'error', msg: err.message || 'Failed to reject order' });
+    }
+  };
+
+  const handleAcceptOrder = async (orderId: string) => {
+    try {
+      await api.updateOrderStatus(orderId, 'CONFIRMED', 'Order accepted by Farmer. Ready for logistics dispatch.');
+      setFeedback({
+        type: 'success',
+        msg: `Order #${orderId} accepted! Please assign a delivery partner.`,
+      });
+      setIncomingOrderToast(prev => (prev?.id === orderId ? null : prev));
+      await loadFarmerOrdersAndNotifs(true);
+    } catch (err: any) {
+      setFeedback({ type: 'error', msg: err.message || 'Failed to accept order' });
+    }
+  };
+
+  const handleAssignDeliveryPartner = async (orderId: string, partner: LogisticsPartner) => {
+    try {
+      await api.updateOrderStatus(
+        orderId,
+        'CONFIRMED',
+        `Carrier ${partner.name} assigned for dispatch pickup.`,
+        partner.id,
+        partner.vehicleNumber
+      );
+      setFeedback({
+        type: 'success',
+        msg: `Delivery partner ${partner.name} assigned! Dispatch en route to farm gate.`,
+      });
+      await loadFarmerOrdersAndNotifs(true);
+    } catch (err: any) {
+      setFeedback({ type: 'error', msg: err.message || 'Failed to assign delivery partner' });
+    }
+  };
+
+  const handlePackAndTransfer = async (orderId: string, partnerName: string, vehicleNumber: string) => {
+    try {
+      await api.updateOrderStatus(
+        orderId,
+        'PICKED_UP',
+        `Harvest packed into crates and transferred to delivery carrier ${partnerName} (${vehicleNumber}). In transit.`
+      );
+      setFeedback({
+        type: 'success',
+        msg: `Order #${orderId} packed and handed over to ${partnerName}! Consignment is in transit.`,
+      });
+      await loadFarmerOrdersAndNotifs(true);
+    } catch (err: any) {
+      setFeedback({ type: 'error', msg: err.message || 'Failed to transfer order' });
+    }
+  };
+
+  const handleTriggerDemoCustomerPurchase = async (preset?: {
+    productId?: string;
+    quantity?: number;
+    customerName?: string;
+    customerCity?: string;
+  }) => {
+    try {
+      setIsSimulatingCustomerOrder(true);
+      const res = await api.simulateCustomerOrder(preset);
+      if (res && res.order) {
+        setOrders(prev => [res.order, ...prev.filter(o => o.id !== res.order.id)]);
+        setIncomingOrderToast(res.order);
+        setActiveModalOrder(res.order);
+        if (soundEnabled) {
+          playIncomingOrderChime();
+        }
+        setFeedback({
+          type: 'success',
+          msg: `Demo order #${res.order.id} simulated! Customer ${res.order.consumerName} wants to buy ${res.order.items[0]?.quantity} ${res.order.items[0]?.unit} of ${res.order.items[0]?.name}.`,
+        });
+      }
+    } catch (err: any) {
+      setFeedback({ type: 'error', msg: err.message || 'Failed to simulate customer purchase' });
+    } finally {
+      setIsSimulatingCustomerOrder(false);
+    }
+  };
+
   const handleInstantPayout = () => {
     setWithdrawing(true);
     setTimeout(() => {
@@ -336,7 +475,13 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <DemoPurchaseTriggerButton
+              products={myProducts.length > 0 ? myProducts : products}
+              onTriggerDemo={handleTriggerDemoCustomerPurchase}
+              isSimulating={isSimulatingCustomerOrder}
+            />
+
             <button
               onClick={openSeedhaMitra}
               className="px-4 py-2.5 rounded-xl bg-emerald-800/80 hover:bg-emerald-700 text-amber-300 text-xs font-bold border border-emerald-600 flex items-center gap-1.5 transition"
@@ -354,6 +499,41 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({
             </button>
           </div>
         </div>
+
+        {/* Real-time Floating Customer Incoming Order Toast */}
+        {incomingOrderToast && (
+          <div className="fixed top-20 right-4 z-50 animate-in slide-in-from-top-4 duration-300">
+            <FarmerIncomingOrderToast
+              order={incomingOrderToast}
+              onOpenDetails={(ord) => {
+                setActiveModalOrder(ord);
+                setIncomingOrderToast(null);
+              }}
+              onQuickReject={(ord) => {
+                handleRejectOrder(ord.id, 'Harvest stock is low and current batch is reserved.');
+              }}
+              onQuickAccept={(ord) => {
+                setActiveModalOrder(ord);
+                setIncomingOrderToast(null);
+              }}
+              onDismiss={() => setIncomingOrderToast(null)}
+            />
+          </div>
+        )}
+
+        {/* Full Step-by-Step Customer Order Decision & Logistics Assignment Modal */}
+        {activeModalOrder && (
+          <FarmerIncomingOrderModal
+            order={activeModalOrder}
+            product={products.find(p => p.id === activeModalOrder.items[0]?.productId)}
+            availablePartners={logisticsPartners}
+            onClose={() => setActiveModalOrder(null)}
+            onRejectOrder={handleRejectOrder}
+            onAcceptOrder={handleAcceptOrder}
+            onAssignDeliveryPartner={handleAssignDeliveryPartner}
+            onPackAndTransfer={handlePackAndTransfer}
+          />
+        )}
 
         {/* Real-time Floating Low Stock Toast Alerts */}
         <FarmerLowStockToast
@@ -845,34 +1025,80 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({
                       </div>
 
                       {/* Status Action Buttons */}
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex flex-wrap items-center gap-2 pt-1">
                         {order.status === 'PLACED' && (
-                          <button
-                            onClick={() => handleUpdateOrderStatus(order.id, 'CONFIRMED')}
-                            className="px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-bold"
-                          >
-                            Confirm Produce Availability
-                          </button>
+                          <>
+                            <button
+                              onClick={() => handleRejectOrder(order.id, 'Harvest lot inventory is low and current batch is reserved.')}
+                              className="px-3 py-1.5 bg-red-50 dark:bg-red-950/40 hover:bg-red-100 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800 rounded-lg text-xs font-bold flex items-center gap-1 transition"
+                            >
+                              <XCircle className="w-3.5 h-3.5 text-red-500" />
+                              <span>Reject (Low Stock)</span>
+                            </button>
+
+                            <button
+                              onClick={() => setActiveModalOrder(order)}
+                              className="px-3.5 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-xs transition"
+                            >
+                              <CheckCircle2 className="w-3.5 h-3.5" />
+                              <span>Accept & Assign Partner</span>
+                            </button>
+                          </>
                         )}
-                        {order.status === 'CONFIRMED' && (
+
+                        {order.status === 'CONFIRMED' && !order.logisticsId && (
                           <button
-                            onClick={() => handleUpdateOrderStatus(order.id, 'PREPARING')}
-                            className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-bold"
-                          >
-                            Mark Harvested & Packed in Crates
-                          </button>
-                        )}
-                        {order.status === 'PREPARING' && (
-                          <button
-                            onClick={() => handleUpdateOrderStatus(order.id, 'PICKED_UP')}
-                            className="px-3 py-1.5 bg-blue-700 hover:bg-blue-800 text-white rounded-lg text-xs font-bold flex items-center gap-1"
+                            onClick={() => setActiveModalOrder(order)}
+                            className="px-3.5 py-1.5 bg-blue-700 hover:bg-blue-800 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-xs transition"
                           >
                             <Truck className="w-3.5 h-3.5" />
-                            <span>Handover to Logistics Carrier</span>
+                            <span>Assign Delivery Partner</span>
                           </button>
                         )}
+
+                        {order.status === 'CONFIRMED' && order.logisticsId && (
+                          <button
+                            onClick={() => setActiveModalOrder(order)}
+                            className="px-3.5 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-xs transition"
+                          >
+                            <Package className="w-3.5 h-3.5" />
+                            <span>Pack & Transfer to Delivery Partner</span>
+                          </button>
+                        )}
+
+                        {(order.status === 'PREPARING' || order.status === 'PACKED') && (
+                          <button
+                            onClick={() => setActiveModalOrder(order)}
+                            className="px-3.5 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-xs transition"
+                          >
+                            <Truck className="w-3.5 h-3.5" />
+                            <span>Pack & Transfer to Delivery Partner (Handover)</span>
+                          </button>
+                        )}
+
+                        {order.status === 'PICKED_UP' && (
+                          <div className="text-xs font-bold text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-900 px-3 py-1 rounded-lg flex items-center gap-1.5">
+                            <Truck className="w-3.5 h-3.5 text-blue-600 animate-pulse" />
+                            <span>Handed over to {order.logisticsName || 'Delivery Partner'} ({order.vehicleNumber || 'OD 02 AX 8840'})</span>
+                          </div>
+                        )}
+
+                        {order.status === 'IN_TRANSIT' && (
+                          <div className="text-xs font-bold text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-900 px-3 py-1 rounded-lg flex items-center gap-1.5">
+                            <Truck className="w-3.5 h-3.5 text-blue-600 animate-pulse" />
+                            <span>In Transit to Consumer • Live Tracked</span>
+                          </div>
+                        )}
+
+                        {(order.status === 'REJECTED_LOW_STOCK' || order.status === 'CANCELLED') && (
+                          <div className="text-xs font-bold text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-900 px-3 py-1 rounded-lg flex items-center gap-1.5">
+                            <XCircle className="w-3.5 h-3.5 text-red-600" />
+                            <span>Rejected: Low Stock (Escrow Refunded)</span>
+                          </div>
+                        )}
+
                         {order.status === 'DELIVERED' && (
-                          <div className="text-xs font-bold text-emerald-800 flex items-center gap-1.5">
+                          <div className="text-xs font-bold text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 px-3 py-1 rounded-lg">
                             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                             <span>Payment Released to Bank Account</span>
                           </div>

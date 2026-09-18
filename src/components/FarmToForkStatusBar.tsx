@@ -184,10 +184,11 @@ export const FarmToForkStatusBar: React.FC<FarmToForkStatusBarProps> = ({
 
   // Advance stage for demo simulation
   const handleAdvanceStage = async () => {
-    const nextStatusMap: Record<OrderStatus, OrderStatus> = {
+    const nextStatusMap: Partial<Record<OrderStatus, OrderStatus>> = {
       'PLACED': 'CONFIRMED',
-      'CONFIRMED': 'PICKED_UP',
-      'PREPARING': 'PICKED_UP',
+      'CONFIRMED': 'PACKED',
+      'PREPARING': 'PACKED',
+      'PACKED': 'PICKED_UP',
       'PICKED_UP': 'IN_TRANSIT',
       'IN_TRANSIT': 'DELIVERED',
       'DELIVERED': 'PLACED',

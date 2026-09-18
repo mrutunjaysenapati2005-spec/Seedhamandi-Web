@@ -79,8 +79,8 @@ export interface OrderDoc {
   platformFee: number;
   totalAmount: number;
   paymentMethod: 'UPI' | 'NET_BANKING' | 'CARD' | 'ESCROW_COD' | 'KISAN_CREDIT';
-  paymentStatus: 'PAID' | 'ESCROW_LOCKED' | 'RELEASED_TO_FARMER';
-  status: 'PLACED' | 'CONFIRMED' | 'PREPARING' | 'PICKED_UP' | 'IN_TRANSIT' | 'DELIVERED';
+  paymentStatus: 'PAID' | 'ESCROW_LOCKED' | 'RELEASED_TO_FARMER' | 'REFUNDED';
+  status: 'PLACED' | 'CONFIRMED' | 'PREPARING' | 'PACKED' | 'PICKED_UP' | 'IN_TRANSIT' | 'DELIVERED' | 'REJECTED_LOW_STOCK' | 'CANCELLED';
   deliveryOtp: string;
   logisticsId?: string;
   logisticsName?: string;
@@ -105,7 +105,7 @@ export interface NotificationDoc {
   orderId?: string;
   title: string;
   message: string;
-  type: 'NEW_ORDER' | 'DISPATCH_OFFER' | 'DELIVERY_ACCEPTED' | 'ORDER_PACKED' | 'OUT_FOR_DELIVERY' | 'PAYOUT_RELEASED' | 'LOW_STOCK';
+  type: 'NEW_ORDER' | 'DISPATCH_OFFER' | 'DELIVERY_ACCEPTED' | 'ORDER_PACKED' | 'OUT_FOR_DELIVERY' | 'PAYOUT_RELEASED' | 'LOW_STOCK' | 'ORDER_REJECTED' | 'ORDER_ACCEPTED' | 'CARRIER_ASSIGNED';
   vehicleTypeRequired?: 'BIKE_SCOOTY' | 'MINI_TRUCK' | 'TRACTOR' | 'REEFER_VAN';
   isRead: boolean;
   createdAt: string;
@@ -203,6 +203,36 @@ const initialUsers: UserDoc[] = [
     isPhoneVerified: true,
     vehicleType: 'Refrigerated Tata 407 (3.5 Ton)',
     vehicleNumber: 'MH 12 QX 4902',
+    district: 'Pune',
+    state: 'Maharashtra',
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'usr_logistics_2',
+    name: 'Gramin Agro Cargo (Suresh Yadav)',
+    email: 'suresh.cargo@seedhamandi.in',
+    phone: '+91 98220 54321',
+    role: 'LOGISTICS',
+    passwordHash: 'logistics123',
+    isEmailVerified: true,
+    isPhoneVerified: true,
+    vehicleType: 'Tata Ace Mini Truck (1.5 Ton)',
+    vehicleNumber: 'MH 14 TR 3109',
+    district: 'Baramati',
+    state: 'Maharashtra',
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'usr_logistics_3',
+    name: 'SpeedKisan Rural Logistics (Amit Deshmukh)',
+    email: 'amit.speed@seedhamandi.in',
+    phone: '+91 98450 99887',
+    role: 'LOGISTICS',
+    passwordHash: 'logistics123',
+    isEmailVerified: true,
+    isPhoneVerified: true,
+    vehicleType: 'Mahindra Bolero Agro Pickup (2 Ton)',
+    vehicleNumber: 'MH 12 BK 9021',
     district: 'Pune',
     state: 'Maharashtra',
     createdAt: new Date().toISOString(),

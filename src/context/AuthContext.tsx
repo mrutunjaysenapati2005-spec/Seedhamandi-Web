@@ -104,7 +104,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   });
 
   const [token, setToken] = useState<string | null>(() => {
-    return localStorage.getItem('seedhamandi_token') || 'demo_token';
+    const saved = localStorage.getItem('seedhamandi_token');
+    if (!saved) {
+      localStorage.setItem('seedhamandi_token', 'demo_token_CONSUMER');
+      return 'demo_token_CONSUMER';
+    }
+    return saved;
   });
 
   const [activeTab, setActiveTab] = useState<string>('landing');
@@ -227,8 +232,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const quickSwitchRole = (newRole: UserRole) => {
     const profile = demoProfiles[newRole];
     setUser(profile);
-    setToken('demo_token_' + newRole);
+    const newToken = 'demo_token_' + newRole;
+    setToken(newToken);
     localStorage.setItem('seedhamandi_user', JSON.stringify(profile));
+    localStorage.setItem('seedhamandi_token', newToken);
 
     // Navigate to respective view
     if (newRole === 'FARMER' || newRole === 'FPO_REP') {

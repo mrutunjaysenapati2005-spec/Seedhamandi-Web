@@ -15,6 +15,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { Order } from '../types';
 import { api } from '../services/api';
+import { realtimeService } from '../services/realtime';
 import { OrderTrackingModal } from '../components/OrderTrackingModal';
 import { FarmToForkStatusBar, FarmToForkMiniBar } from '../components/FarmToForkStatusBar';
 import { Radio, Eye, Layers, Search, Check, ExternalLink } from 'lucide-react';
@@ -84,15 +85,9 @@ export const ConsumerDashboard: React.FC = () => {
   const [itemSearchQuery, setItemSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'DELIVERED' | 'IN_TRANSIT'>('ALL');
 
-  useEffect(() => {
-    loadOrders();
-    const interval = setInterval(loadOrders, 3000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const loadOrders = async () => {
+  const loadOrders = async (silent = false) => {
     try {
-      setLoading(true);
+      if (!silent) setLoading(true);
       const res = await api.getOrders();
       const fetchedOrders = res.orders || [];
       setOrders(fetchedOrders);
@@ -106,12 +101,43 @@ export const ConsumerDashboard: React.FC = () => {
         }
         return activeOne;
       });
-    } catch (e) {
-      console.error(e);
+    } catch {
+      // Graceful fallback during offline or temporary reconnects
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadOrders(false);
+
+    // Subscribe to real-time status changes
+    const unsubscribe = realtimeService.subscribe((event) => {
+      if (event.type === 'order:status_change' && event.data?.order) {
+        const updated = event.data.order;
+        setOrders(prev => prev.map(o => (o.id === updated.id ? updated : o)));
+        setActiveTrackingOrder(prev => (prev?.id === updated.id ? updated : prev));
+      } else if (event.type === 'order:created' && event.data?.order) {
+        const newOrder = event.data.order;
+        setOrders(prev => {
+          if (prev.some(o => o.id === newOrder.id)) return prev;
+          return [newOrder, ...prev];
+        });
+      }
+    });
+
+    // Fallback sync every 6 seconds when tab is active
+    const interval = setInterval(() => {
+      if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return;
+      if (typeof navigator !== 'undefined' && !navigator.onLine) return;
+      loadOrders(true);
+    }, 6000);
+
+    return () => {
+      unsubscribe();
+      clearInterval(interval);
+    };
+  }, []);
 
   const totalSpent = orders.reduce((sum, o) => sum + o.totalAmount, 0);
   const totalDirectToFarmers = orders.reduce((sum, o) => sum + o.itemsTotal, 0);

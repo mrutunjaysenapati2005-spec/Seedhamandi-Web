@@ -1,8 +1,11 @@
 import express from 'express';
 import path from 'path';
 import dotenv from 'dotenv';
+import http from 'http';
+import { EventEmitter } from 'events';
+import { WebSocketServer, WebSocket } from 'ws';
 import { createServer as createViteServer } from 'vite';
-import { db, UserDoc, ProductDoc, OrderDoc } from './server/db.js';
+import { db, UserDoc, ProductDoc, OrderDoc, NotificationDoc } from './server/db.js';
 import { createJwtToken, verifyJwtToken, sendEmailOtp, sendSmsOtp, verifyOtp, hashString } from './server/auth.js';
 import { askSeedhaMitra, generateCropForecast, optimizeRuralRoute } from './server/ai.js';
 
@@ -13,6 +16,46 @@ const PORT = 3000;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Real-time Event System
+const orderEvents = new EventEmitter();
+orderEvents.setMaxListeners(200);
+
+const sseClients = new Set<express.Response>();
+let wssInstance: WebSocketServer | null = null;
+
+export function broadcastOrderEvent(type: string, data: any) {
+  const payload = JSON.stringify({
+    type,
+    data,
+    timestamp: new Date().toISOString(),
+  });
+
+  orderEvents.emit(type, data);
+  orderEvents.emit('event', { type, data });
+
+  // Broadcast to WebSocket clients
+  if (wssInstance) {
+    wssInstance.clients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        try {
+          client.send(payload);
+        } catch (err) {
+          // ignore
+        }
+      }
+    });
+  }
+
+  // Broadcast to SSE clients
+  sseClients.forEach((res) => {
+    try {
+      res.write(`event: ${type}\ndata: ${payload}\n\n`);
+    } catch (err) {
+      sseClients.delete(res);
+    }
+  });
+}
 
 // Simple Auth Middleware
 function authMiddleware(req: any, res: any, next: any) {
@@ -565,6 +608,19 @@ app.post('/api/orders', authMiddleware, (req: any, res) => {
       },
     });
 
+    // 3. Broadcast real-time order creation event to all connected clients
+    broadcastOrderEvent('order:created', {
+      order: newOrder,
+      orderId: newOrder.id,
+      farmerId,
+      cropName: populatedItems[0]?.name,
+      quantity: populatedItems[0]?.quantity,
+      unit: populatedItems[0]?.unit,
+      customerName: user?.name || 'Customer',
+      escrowAmount: finalItemsTotal,
+      message: `${user?.name || 'Customer'} placed an order for ${itemsSummary} (₹${finalItemsTotal}).`,
+    });
+
     res.status(201).json({
       message: 'Order confirmed and placed successfully.',
       order: newOrder,
@@ -575,17 +631,187 @@ app.post('/api/orders', authMiddleware, (req: any, res) => {
   }
 });
 
-app.get('/api/orders', authMiddleware, (req: any, res) => {
-  const role = req.user.role;
+// Verified Logistics Partners Endpoint for Farmers
+app.get('/api/logistics-partners', (req, res) => {
+  const drivers = db.users.filter(u => u.role === 'LOGISTICS');
+  const partners = [
+    {
+      id: 'usr_logistics_1',
+      name: 'KisanVahan Cold Logistics (Ravi Kumar)',
+      phone: '+91 98990 77665',
+      vehicleType: 'Refrigerated Cold Van (4°C Reefer)',
+      vehicleNumber: 'MH 12 QX 4902',
+      district: 'Pune / Baramati',
+      rating: 4.9,
+      completedTrips: 342,
+      etaMinutes: 15,
+      capacityKg: 1500,
+      freightEstimate: 120,
+      specialty: 'Perishable fruits, leafy vegetables & export lots',
+    },
+    {
+      id: 'usr_logistics_2',
+      name: 'Gramin Agro Cargo (Suresh Yadav)',
+      phone: '+91 98220 54321',
+      vehicleType: 'Tata Ace Mini Truck (1.5 Ton)',
+      vehicleNumber: 'MH 14 TR 3109',
+      district: 'Baramati Rural Hub',
+      rating: 4.8,
+      completedTrips: 218,
+      etaMinutes: 10,
+      capacityKg: 1200,
+      freightEstimate: 100,
+      specialty: 'Grain sacks, onion crates & root vegetables',
+    },
+    {
+      id: 'usr_logistics_3',
+      name: 'SpeedKisan Rural Express (Amit Deshmukh)',
+      phone: '+91 98450 99887',
+      vehicleType: 'Mahindra Bolero Agro Pickup (2 Ton)',
+      vehicleNumber: 'MH 12 BK 9021',
+      district: 'Pune Outer Ring',
+      rating: 4.7,
+      completedTrips: 189,
+      etaMinutes: 25,
+      capacityKg: 2000,
+      freightEstimate: 140,
+      specialty: 'Heavy bulk harvest & multi-village consolidation',
+    },
+  ];
+
+  res.json({ count: partners.length, partners });
+});
+
+// Demo Notification Endpoint: Simulate Customer Buying Crops
+app.post('/api/orders/simulate-customer-order', optionalAuthMiddleware, (req: any, res) => {
+  try {
+    const { productId, quantity, customerName, customerCity } = req.body || {};
+    
+    // Pick target product
+    let product = productId ? db.getProductById(productId) : null;
+    if (!product) {
+      product = db.products.find(p => p.farmerId === (req.user?.id || 'usr_farmer_1') || p.farmerName.includes('Ramesh')) || db.products[0];
+    }
+    if (!product) {
+      return res.status(400).json({ error: 'No harvest crop found in inventory to purchase.' });
+    }
+
+    const buyerName = customerName || 'Pooja Sharma';
+    const buyerCity = customerCity || 'Indiranagar, Bengaluru';
+    const orderQty = Number(quantity) || 45;
+    const itemsTotal = product.price * orderQty;
+    const logisticsFee = 120;
+    const totalAmount = itemsTotal + logisticsFee;
+    const deliveryOtp = Math.floor(100000 + Math.random() * 900000).toString();
+    const orderId = 'ord_' + Math.floor(1000 + Math.random() * 9000);
+
+    const newOrder: OrderDoc = {
+      id: orderId,
+      consumerId: 'usr_consumer_sim_' + Date.now(),
+      consumerName: buyerName,
+      consumerPhone: '+91 98111 44556',
+      shippingAddress: {
+        street: 'Plot 42, 100 Feet Road, Indiranagar',
+        city: buyerCity,
+        state: 'Karnataka',
+        pincode: '560038',
+      },
+      items: [
+        {
+          productId: product.id,
+          name: product.name,
+          price: product.price,
+          quantity: orderQty,
+          unit: product.unit,
+          farmerId: product.farmerId,
+          farmerName: product.farmerName,
+          image: product.image,
+        },
+      ],
+      itemsTotal,
+      logisticsFee,
+      platformFee: 0,
+      totalAmount,
+      paymentMethod: 'UPI',
+      paymentStatus: 'ESCROW_LOCKED',
+      status: 'PLACED',
+      deliveryOtp,
+      vehicleTypeRequired: orderQty > 50 ? 'MINI_TRUCK' : 'REEFER_VAN',
+      isBulkOrder: orderQty >= 100,
+      orderType: orderQty >= 100 ? 'BULK_WHOLESALE' : 'RETAIL',
+      estimatedDeliveryTime: 'Within 24 Hours (Fresh Morning Dispatch)',
+      statusHistory: [
+        {
+          status: 'PLACED',
+          timestamp: new Date().toISOString(),
+          note: `Customer ${buyerName} placed order for ${orderQty} ${product.unit} of ${product.name}. ₹${totalAmount} secured in SeedhaMandi Escrow.`,
+        },
+      ],
+      createdAt: new Date().toISOString(),
+    };
+
+    db.addOrder(newOrder);
+
+    // 1. Add notification for Farmer
+    const notifId = 'notif_' + Date.now() + '_farmer_incoming';
+    const notification: NotificationDoc = {
+      id: notifId,
+      recipientRole: 'FARMER',
+      recipientUserId: product.farmerId,
+      orderId: newOrder.id,
+      title: `🌾 Customer Wants to Buy ${orderQty} ${product.unit} of ${product.name}!`,
+      message: `${buyerName} placed a purchase request for ${orderQty} ${product.unit} of ${product.name} (₹${itemsTotal}). Payment is held in Escrow. Please accept order to assign delivery partner or reject if harvest stock is low.`,
+      type: 'NEW_ORDER',
+      isRead: false,
+      createdAt: new Date().toISOString(),
+      data: {
+        orderId: newOrder.id,
+        cropName: product.name,
+        quantity: orderQty,
+        unit: product.unit,
+        customerName: buyerName,
+        escrowAmount: itemsTotal,
+        customerCity: buyerCity,
+      },
+    };
+    db.addNotification(notification);
+
+    // 2. Broadcast real-time order creation event
+    broadcastOrderEvent('order:created', {
+      order: newOrder,
+      orderId: newOrder.id,
+      farmerId: product.farmerId,
+      cropName: product.name,
+      quantity: orderQty,
+      unit: product.unit,
+      customerName: buyerName,
+      escrowAmount: itemsTotal,
+      customerCity: buyerCity,
+      message: `${buyerName} wants to buy ${orderQty} ${product.unit} of ${product.name} (₹${itemsTotal})!`,
+    });
+
+    res.status(201).json({
+      message: 'Demo customer crop purchase simulated successfully!',
+      order: newOrder,
+      notification,
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/orders', optionalAuthMiddleware, (req: any, res) => {
+  const role = req.user?.role || 'CONSUMER';
+  const userId = req.user?.id || 'usr_consumer_1';
   let orders: OrderDoc[] = [];
 
   if (role === 'CONSUMER') {
-    orders = db.getOrders({ consumerId: req.user.id });
+    orders = db.getOrders({ consumerId: userId });
   } else if (role === 'FARMER' || role === 'FPO_REP') {
-    orders = db.getOrders({ farmerId: req.user.id });
+    orders = db.getOrders({ farmerId: userId });
   } else if (role === 'LOGISTICS') {
     // Return both assigned orders AND unassigned available orders ready for pickup
-    orders = db.orders.filter(o => o.logisticsId === req.user.id || !o.logisticsId);
+    orders = db.orders.filter(o => o.logisticsId === userId || !o.logisticsId);
   } else {
     orders = db.orders;
   }
@@ -645,6 +871,12 @@ app.post('/api/orders/:id/accept-delivery', authMiddleware, (req: any, res) => {
     });
 
     res.json({ message: 'Delivery accepted successfully!', order: updated });
+    broadcastOrderEvent('order:status_change', {
+      orderId: req.params.id,
+      status: 'CONFIRMED',
+      note: `Delivery dispatch accepted by carrier ${updates.logisticsName} (${updates.vehicleNumber}).`,
+      order: updated,
+    });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
@@ -653,6 +885,32 @@ app.post('/api/orders/:id/accept-delivery', authMiddleware, (req: any, res) => {
 // Reject Delivery Endpoint for Logistics
 app.post('/api/orders/:id/reject-delivery', authMiddleware, (req: any, res) => {
   res.json({ message: 'Delivery passed. Offer routed to next available carrier.', orderId: req.params.id });
+});
+
+// Server-Sent Events (SSE) stream endpoint
+app.get('/api/events', (req, res) => {
+  res.writeHead(200, {
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache, no-transform',
+    'Connection': 'keep-alive',
+  });
+  res.write(`event: connected\ndata: ${JSON.stringify({ type: 'connected', message: 'SSE stream connected', timestamp: new Date().toISOString() })}\n\n`);
+  
+  sseClients.add(res);
+
+  const heartbeat = setInterval(() => {
+    try {
+      res.write(': heartbeat\n\n');
+    } catch (e) {
+      clearInterval(heartbeat);
+      sseClients.delete(res);
+    }
+  }, 20000);
+
+  req.on('close', () => {
+    clearInterval(heartbeat);
+    sseClients.delete(res);
+  });
 });
 
 // Notifications Endpoints
@@ -675,16 +933,30 @@ app.get('/api/orders/:id', (req, res) => {
   res.json({ order });
 });
 
-app.put('/api/orders/:id/status', authMiddleware, (req: any, res) => {
-  const { status, note, logisticsId, vehicleNumber } = req.body;
+app.put('/api/orders/:id/status', optionalAuthMiddleware, (req: any, res) => {
+  const { status, note, logisticsId, vehicleNumber, rejectionReason } = req.body;
   const order = db.getOrderById(req.params.id);
   if (!order) return res.status(404).json({ error: 'Order not found.' });
 
   const history = [...order.statusHistory];
+  let customNote = note || `Status updated to ${status}.`;
+
+  if (status === 'REJECTED_LOW_STOCK' || status === 'CANCELLED') {
+    customNote = rejectionReason
+      ? `Rejected by Farmer: ${rejectionReason}. Escrow payment refunded to customer.`
+      : `Rejected by Farmer due to Low Stock / Unfulfilled Harvest. Escrow refunded to customer.`;
+  } else if (status === 'CONFIRMED') {
+    customNote = `Order Accepted by Farmer! Preparing packaging crates and awaiting logistics handover.`;
+  } else if (status === 'PACKED') {
+    customNote = `Harvest weighed, graded, and packed in safety crates. Ready for delivery partner handover.`;
+  } else if (status === 'PICKED_UP') {
+    customNote = `Transferred to Delivery Partner (${order.logisticsName || 'KisanVahan Logistics'}). Handover verified with Delivery OTP. Consignment in road transit.`;
+  }
+
   history.push({
     status,
     timestamp: new Date().toISOString(),
-    note: note || `Status updated to ${status}.`,
+    note: customNote,
   });
 
   const updates: Partial<OrderDoc> = {
@@ -701,9 +973,94 @@ app.put('/api/orders/:id/status', authMiddleware, (req: any, res) => {
 
   if (status === 'DELIVERED') {
     updates.paymentStatus = 'RELEASED_TO_FARMER';
+  } else if (status === 'REJECTED_LOW_STOCK' || status === 'CANCELLED') {
+    updates.paymentStatus = 'REFUNDED';
   }
 
   const updated = db.updateOrder(req.params.id, updates);
+
+  // Trigger contextual notifications
+  if (status === 'REJECTED_LOW_STOCK' || status === 'CANCELLED') {
+    // Notify Consumer
+    db.addNotification({
+      id: 'notif_' + Date.now() + '_consumer_reject',
+      recipientRole: 'CONSUMER',
+      recipientUserId: order.consumerId,
+      orderId: order.id,
+      title: '⚠️ Order Cancelled: Low Crop Stock',
+      message: `Farmer indicated harvest is unavailable or below safe reserve threshold. ₹${order.totalAmount} has been refunded to your payment account.`,
+      type: 'ORDER_REJECTED',
+      isRead: false,
+      createdAt: new Date().toISOString(),
+    });
+
+    // Notify Farmer
+    const farmerId = order.items[0]?.farmerId;
+    if (farmerId) {
+      db.addNotification({
+        id: 'notif_' + Date.now() + '_farmer_reject',
+        recipientRole: 'FARMER',
+        recipientUserId: farmerId,
+        orderId: order.id,
+        title: `Order #${order.id} Rejected (Low Stock)`,
+        message: `You rejected Order #${order.id} due to low stock. Customer was notified and escrow funds refunded.`,
+        type: 'ORDER_REJECTED',
+        isRead: false,
+        createdAt: new Date().toISOString(),
+      });
+    }
+  } else if (status === 'CONFIRMED') {
+    // Notify Consumer
+    db.addNotification({
+      id: 'notif_' + Date.now() + '_consumer_confirmed',
+      recipientRole: 'CONSUMER',
+      recipientUserId: order.consumerId,
+      orderId: order.id,
+      title: '🌾 Order Accepted by Farmer!',
+      message: `Farmer Ramesh Patel accepted your order #${order.id}. Packing harvest crates and scheduling delivery carrier.`,
+      type: 'ORDER_ACCEPTED',
+      isRead: false,
+      createdAt: new Date().toISOString(),
+    });
+  }
+
+  if (logisticsId) {
+    // Notify Logistics Driver
+    db.addNotification({
+      id: 'notif_' + Date.now() + '_logistics_assigned',
+      recipientRole: 'LOGISTICS',
+      recipientUserId: logisticsId,
+      orderId: order.id,
+      title: '🚚 Delivery Dispatch Assigned!',
+      message: `Farmer has assigned you for Order #${order.id} (${order.items.map(i => `${i.quantity} ${i.unit} ${i.name}`).join(', ')}). Pickup location: Baramati / Pune farm gate.`,
+      type: 'DISPATCH_OFFER',
+      isRead: false,
+      createdAt: new Date().toISOString(),
+    });
+  }
+
+  if (status === 'PICKED_UP') {
+    // Notify Consumer
+    db.addNotification({
+      id: 'notif_' + Date.now() + '_consumer_picked',
+      recipientRole: 'CONSUMER',
+      recipientUserId: order.consumerId,
+      orderId: order.id,
+      title: '🚚 Transferred to Delivery Partner!',
+      message: `Your produce has been handed over to ${updates.logisticsName || order.logisticsName || 'KisanVahan Logistics'} and is out for doorstep transit.`,
+      type: 'OUT_FOR_DELIVERY',
+      isRead: false,
+      createdAt: new Date().toISOString(),
+    });
+  }
+
+  broadcastOrderEvent('order:status_change', {
+    orderId: req.params.id,
+    status,
+    note: customNote,
+    order: updated,
+  });
+
   res.json({ message: 'Order status updated successfully', order: updated });
 });
 
@@ -915,6 +1272,33 @@ app.put('/api/rfqs/:id/match', authMiddleware, (req: any, res) => {
 /* ========================================================================== */
 
 async function startServer() {
+  const server = http.createServer(app);
+
+  // Attach WebSocket Server on /ws
+  const wss = new WebSocketServer({ server, path: '/ws' });
+  wssInstance = wss;
+
+  wss.on('connection', (ws) => {
+    ws.send(
+      JSON.stringify({
+        type: 'connected',
+        message: 'SeedhaMandi WebSocket connected',
+        timestamp: new Date().toISOString(),
+      })
+    );
+
+    ws.on('message', (msg) => {
+      try {
+        const parsed = JSON.parse(msg.toString());
+        if (parsed.type === 'ping') {
+          ws.send(JSON.stringify({ type: 'pong', timestamp: new Date().toISOString() }));
+        }
+      } catch (e) {
+        // ignore
+      }
+    });
+  });
+
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
       server: { middlewareMode: true },
@@ -929,7 +1313,7 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
+  server.listen(PORT, '0.0.0.0', () => {
     console.log(`SeedhaMandi Server running on http://0.0.0.0:${PORT}`);
   });
 }

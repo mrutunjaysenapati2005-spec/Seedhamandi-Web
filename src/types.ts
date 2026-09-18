@@ -79,9 +79,12 @@ export type OrderStatus =
   | 'PLACED'
   | 'CONFIRMED'
   | 'PREPARING'
+  | 'PACKED'
   | 'PICKED_UP'
   | 'IN_TRANSIT'
-  | 'DELIVERED';
+  | 'DELIVERED'
+  | 'REJECTED_LOW_STOCK'
+  | 'CANCELLED';
 
 export type PaymentMethod =
   | 'UPI'
@@ -99,10 +102,26 @@ export interface AppNotification {
   orderId?: string;
   title: string;
   message: string;
-  type: 'NEW_ORDER' | 'DISPATCH_OFFER' | 'DELIVERY_ACCEPTED' | 'ORDER_PACKED' | 'OUT_FOR_DELIVERY' | 'PAYOUT_RELEASED' | 'LOW_STOCK';
+  type: 'NEW_ORDER' | 'DISPATCH_OFFER' | 'DELIVERY_ACCEPTED' | 'ORDER_PACKED' | 'OUT_FOR_DELIVERY' | 'PAYOUT_RELEASED' | 'LOW_STOCK' | 'ORDER_REJECTED' | 'ORDER_ACCEPTED';
   vehicleTypeRequired?: VehicleType;
   isRead: boolean;
   createdAt: string;
+  data?: any;
+}
+
+export interface LogisticsPartner {
+  id: string;
+  name: string;
+  phone: string;
+  vehicleType: string;
+  vehicleNumber: string;
+  district: string;
+  rating: number;
+  completedTrips: number;
+  etaMinutes: number;
+  capacityKg: number;
+  freightEstimate: number;
+  specialty: string;
 }
 
 export interface Order {
