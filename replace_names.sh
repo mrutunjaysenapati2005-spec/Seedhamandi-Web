@@ -4,7 +4,6 @@ sed -i 's/Nashik Red Onions/Onion/g' server/db.ts server/ai.ts server.ts src/pag
 sed -i 's/Red Nashik Onions/Onion/g' src/pages/FarmerDashboard.tsx
 sed -i 's/Red Onions/Onion/g' server/ai.ts
 sed -i 's/Export Quality Onions/Onion/g' src/pages/LogisticsDashboard.tsx
-
 sed -i 's/Devgad Alphonso Mangoes (GI Tagged)/Mango/g' server/db.ts
 sed -i 's/Sharbati Wheat (Sehore Golden Grain)/Wheat/g' server/db.ts
 sed -i 's/Sharbati Gehu/Wheat/g' src/pages/LogisticsDashboard.tsx

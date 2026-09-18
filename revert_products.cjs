@@ -10,4 +10,5 @@ if (startProd9 !== -1) {
     dbContent = dbContent.substring(0, bracketStart) + dbContent.substring(endArray);
   }
 }
+
 fs.writeFileSync('server/db.ts', dbContent);

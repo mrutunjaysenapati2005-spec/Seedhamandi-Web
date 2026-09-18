@@ -40,7 +40,6 @@ export function verifyJwtToken(token: string): any | null {
     const [header, payload, signature] = parts;
     const expectedSignature = crypto.createHmac('sha256', JWT_SECRET).update(`${header}.${payload}`).digest('base64url');
     if (signature !== expectedSignature) return null;
-
     const decoded = JSON.parse(Buffer.from(payload, 'base64url').toString());
     if (decoded.exp && decoded.exp < Math.floor(Date.now() / 1000)) {
       return null; // Expired

@@ -1,5 +1,4 @@
 const fs = require('fs');
-
 const dbContent = fs.readFileSync('server/db.ts', 'utf-8');
 
 const newProducts = `
@@ -75,7 +74,6 @@ const newProducts = `
     harvestDate: 'Fresh', qualityGrade: 'Standard', image: 'https://images.unsplash.com/photo-1599818815152-da7361bf150e?auto=format&fit=crop&w=600&q=80',
     description: 'Fresh Green Peas', availability: true, farmerId: 'usr_farmer_1', farmerName: 'Ramesh Patel', farmerPhone: '+91 98234 11201', organicCertified: false, createdAt: new Date().toISOString()
   },
-];
 `;
 
 const updatedContent = dbContent.replace(
