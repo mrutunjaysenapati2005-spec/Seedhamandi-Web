@@ -1112,11 +1112,11 @@ app.get('/api/logistics/earnings', authMiddleware, (req: any, res) => {
 // 6. AI Agent "SeedhaMitra" & Demand Intelligence
 app.post('/api/ai/chat', optionalAuthMiddleware, async (req: any, res) => {
   try {
-    const { message } = req.body;
+    const { message, history } = req.body;
     if (!message) return res.status(400).json({ error: 'Message cannot be empty.' });
 
     const userContext = req.user ? { role: req.user.role, name: req.user.name } : undefined;
-    const reply = await askSeedhaMitra(message, userContext);
+    const reply = await askSeedhaMitra(message, userContext, history);
     res.json({ reply });
   } catch (err: any) {
     res.status(500).json({ error: err.message });

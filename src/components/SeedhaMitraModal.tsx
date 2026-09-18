@@ -14,27 +14,30 @@ export const SeedhaMitraModal: React.FC = () => {
   const initialPrompts: Record<string, string[]> = {
     FARMER: [
       'What is the current Mandi price vs Direct Farm price for red onions?',
-      'How does SeedhaMandi eliminate intermediary deductions?',
-      'How should I pack plum tomatoes to maintain shelf life during transit?',
+      'How to preserve tomato shelf life without cold storage?',
+      'Explain how photosynthesis changes in high summer heat',
       'What are the highest demand crops projected for next month?',
+      'Can you write a poem about Indian harvest season?',
     ],
     FPO_REP: [
-      'How can I register produce on behalf of 54 rural farmers without smartphones?',
-      'How does direct escrow disbursement work for individual farmer bank accounts?',
-      'Can an FPO aggregate orders for collective refrigerated truck dispatch?',
-      'What quality certification fetches export-grade pricing?',
+      'How does direct escrow disbursement work for individual farmers?',
+      'Explain the economic advantage of farmer producer cooperatives',
+      'How to register produce on behalf of 54 rural farmers without smartphones?',
+      'What are the best strategies for rural logistics consolidation?',
+      'Explain inflation and how it impacts rural purchasing power',
     ],
     CONSUMER: [
+      'Explain quantum computing in simple everyday terms',
       'Why is GI-tagged Devgad Alphonso superior to chemical-ripened mangoes?',
-      'Explain the difference between Vedic A2 Bilona Ghee and commercial ghee.',
-      'Recommend a balanced weekly farm-fresh basket for a family of 4.',
-      'How can I track the exact farm provenance of my order?',
+      'Recommend a balanced weekly farm-fresh diet plan',
+      'How does escrow secure online marketplace purchases?',
+      'Write a Python function to calculate compound interest',
     ],
     LOGISTICS: [
       'What temperature should refrigerated vans maintain for fragile fruits?',
+      'Explain the traveling salesperson problem for multi-stop delivery routes',
       'How does the 6-stage OTP delivery handoff guarantee instant payout release?',
-      'How do I consolidate multi-farm pickups in the Pune-Nashik belt?',
-      'What are the penalty rules for transit delays on perishable lots?',
+      'What are the best rural route planning practices for monsoons?',
     ],
   };
 
@@ -45,7 +48,7 @@ export const SeedhaMitraModal: React.FC = () => {
       const welcome: ChatMessage = {
         id: 'msg_welcome',
         sender: 'bot',
-        text: `Namaste ${user?.name || 'Friend'}! I am **SeedhaMitra** (सीधा मित्र), your AI agricultural advisor powered by real-time farm intelligence.\n\nWhether you need market price discovery, crop demand trends, FPO cooperative guidance, or produce quality insights, ask me anything!`,
+        text: `Namaste ${user?.name || 'Friend'}! I am **SeedhaMitra** (सीधा मित्र), your intelligent AI companion.\n\nYou can talk to me like a real AI and ask me **literally anything** — whether about science, mathematics, coding, philosophy, world history, cooking, life advice, or agricultural markets, crop health, and rural trade. What would you like to explore today?`,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       };
       setMessages([welcome]);
@@ -69,16 +72,17 @@ export const SeedhaMitraModal: React.FC = () => {
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     };
 
-    setMessages(prev => [...prev, userMsg]);
+    const nextHistory = [...messages, userMsg];
+    setMessages(nextHistory);
     setInput('');
     setLoading(true);
 
     try {
-      const res = await api.askAI(query);
+      const res = await api.askAI(query, messages.map(m => ({ sender: m.sender, text: m.text })));
       const botMsg: ChatMessage = {
         id: 'msg_bot_' + Date.now(),
         sender: 'bot',
-        text: res.reply || 'Apologies, I could not generate a response. Please try again.',
+        text: res.reply || 'Apologies, I could not generate a response. Please ask me again!',
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       };
       setMessages(prev => [...prev, botMsg]);
@@ -96,27 +100,67 @@ export const SeedhaMitraModal: React.FC = () => {
   };
 
   const formatText = (text: string) => {
-    // Simple inline parser for bold and lists
+    // Simple inline parser for code, bold, and lists
     const lines = text.split('\n');
-    return lines.map((line, idx) => {
+    let inCodeBlock = false;
+    let codeLines: string[] = [];
+    const elements: React.ReactNode[] = [];
+
+    lines.forEach((line, idx) => {
+      if (line.trim().startsWith('```')) {
+        if (inCodeBlock) {
+          elements.push(
+            <pre key={`code_${idx}`} className="bg-stone-800 text-stone-100 p-3 rounded-xl text-xs font-mono overflow-x-auto my-2 border border-stone-700">
+              <code>{codeLines.join('\n')}</code>
+            </pre>
+          );
+          codeLines = [];
+          inCodeBlock = false;
+        } else {
+          inCodeBlock = true;
+          codeLines = [];
+        }
+        return;
+      }
+
+      if (inCodeBlock) {
+        codeLines.push(line);
+        return;
+      }
+
       let styled = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      styled = styled.replace(/`([^`]+)`/g, '<code class="px-1.5 py-0.5 rounded bg-stone-200 dark:bg-stone-700 font-mono text-xs text-emerald-800 dark:text-emerald-300">$1</code>');
+
       if (line.startsWith('• ') || line.startsWith('- ')) {
-        return (
+        elements.push(
           <li
             key={idx}
             className="ml-4 list-disc text-sm my-0.5 leading-relaxed"
             dangerouslySetInnerHTML={{ __html: styled.replace(/^[•-]\s*/, '') }}
           />
         );
+      } else if (line.trim().length === 0) {
+        elements.push(<div key={idx} className="h-1.5" />);
+      } else {
+        elements.push(
+          <p
+            key={idx}
+            className="text-sm leading-relaxed mb-1.5"
+            dangerouslySetInnerHTML={{ __html: styled }}
+          />
+        );
       }
-      return (
-        <p
-          key={idx}
-          className="text-sm leading-relaxed mb-2"
-          dangerouslySetInnerHTML={{ __html: styled }}
-        />
-      );
     });
+
+    if (inCodeBlock && codeLines.length > 0) {
+      elements.push(
+        <pre key="code_end" className="bg-stone-800 text-stone-100 p-3 rounded-xl text-xs font-mono overflow-x-auto my-2 border border-stone-700">
+          <code>{codeLines.join('\n')}</code>
+        </pre>
+      );
+    }
+
+    return elements;
   };
 
   return (
@@ -130,12 +174,12 @@ export const SeedhaMitraModal: React.FC = () => {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="font-extrabold text-base tracking-tight">SeedhaMitra AI Agent</h3>
-                <span className="px-2 py-0.5 rounded-full bg-emerald-700/80 text-[10px] font-bold tracking-wider text-amber-300 border border-emerald-600">
-                  Agri-Intelligence Live
+                <h3 className="font-extrabold text-base tracking-tight">SeedhaMitra AI</h3>
+                <span className="px-2 py-0.5 rounded-full bg-emerald-700/80 text-[10px] font-bold tracking-wider text-emerald-100 border border-emerald-600/60">
+                  Online
                 </span>
               </div>
-              <p className="text-xs text-emerald-200">Real-time Mandi Discovery & Farm Advisory</p>
+              <p className="text-xs text-emerald-200">Universal Conversational Intelligence & Advisory</p>
             </div>
           </div>
 
@@ -185,7 +229,7 @@ export const SeedhaMitraModal: React.FC = () => {
                 }`}
               >
                 <div className="text-xs opacity-75 mb-1 flex items-center justify-between gap-4">
-                  <span className="font-bold">{msg.sender === 'user' ? 'You' : 'SeedhaMitra Advisor'}</span>
+                  <span className="font-bold">{msg.sender === 'user' ? 'You' : 'SeedhaMitra AI'}</span>
                   <span>{msg.timestamp}</span>
                 </div>
                 <div>{formatText(msg.text)}</div>
@@ -206,7 +250,7 @@ export const SeedhaMitraModal: React.FC = () => {
               </div>
               <div className="bg-white dark:bg-stone-900 transition-colors dark:bg-stone-800 border border-stone-200 dark:border-stone-700 dark:border-stone-700 rounded-2xl px-4 py-3 flex items-center gap-2 transition-colors">
                 <Loader2 className="w-4 h-4 animate-spin text-emerald-700 dark:text-emerald-500" />
-                <span>SeedhaMitra is analyzing agricultural rates & crop telemetry...</span>
+                <span>SeedhaMitra is thinking & reasoning...</span>
               </div>
             </div>
           )}
@@ -226,7 +270,7 @@ export const SeedhaMitraModal: React.FC = () => {
               type="text"
               value={input}
               onChange={e => setInput(e.target.value)}
-              placeholder={`Ask SeedhaMitra about prices, demand, FPO model, or produce...`}
+              placeholder="Ask SeedhaMitra anything"
               className="flex-1 bg-stone-100 dark:bg-stone-800 dark:bg-stone-900 border border-stone-300 dark:border-stone-700 text-stone-900 dark:text-stone-100 dark:text-stone-100 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-600 dark:focus:border-emerald-500 focus:bg-white dark:bg-stone-900 dark:focus:bg-stone-950 transition"
             />
             <button
@@ -239,8 +283,11 @@ export const SeedhaMitraModal: React.FC = () => {
             </button>
           </form>
           <div className="flex items-center justify-between text-[11px] text-stone-500 dark:text-stone-400 dark:text-stone-400 px-1 mt-2">
-            <span>Powered by Gemini Server-Side AI & SeedhaMandi Knowledge Graph</span>
-            <span className="text-emerald-700 dark:text-emerald-500 font-medium">Bilingual Support (English & Hindi)</span>
+            <span className="flex items-center gap-1.5 font-medium">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              Universal AI Agent
+            </span>
+            <span className="text-emerald-700 dark:text-emerald-500 font-medium">English & हिंदी</span>
           </div>
         </div>
       </div>

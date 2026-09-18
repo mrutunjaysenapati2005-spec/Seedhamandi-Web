@@ -339,11 +339,11 @@ export const api = {
   },
 
   // AI SeedhaMitra
-  async askAI(message: string): Promise<{ reply: string }> {
+  async askAI(message: string, history?: Array<{ sender: 'user' | 'bot'; text: string }>): Promise<{ reply: string }> {
     const res = await fetch('/api/ai/chat', {
       method: 'POST',
       headers: getHeaders(),
-      body: JSON.stringify({ message }),
+      body: JSON.stringify({ message, history }),
     });
     return res.json();
   },
