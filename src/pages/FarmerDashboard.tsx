@@ -23,7 +23,8 @@ import {
   Sliders,
   Volume2,
   VolumeX,
-  XCircle
+  XCircle,
+  Calendar
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Product, Order, OrderStatus, AppNotification, BulkRfq } from '../types';
@@ -54,7 +55,7 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({
   products,
   onRefreshProducts,
 }) => {
-  const { user, role, openSeedhaMitra } = useAuth();
+  const { user, role, openSeedhaMitra, escrowDisbursedDelta, completedDeliveryIds } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [rfqs, setRfqs] = useState<BulkRfq[]>([]);
@@ -161,13 +162,19 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({
     p => p.farmerId === (user?.id || 'usr_farmer_1') || p.farmerName.includes('Ramesh') || role === 'FPO_REP'
   );
 
-  const totalDeliveredRevenue = orders
-    .filter(o => o.status === 'DELIVERED')
-    .reduce((sum, o) => sum + o.itemsTotal, 0) + (role === 'FPO_REP' ? 96500 : 38400);
+  const totalDeliveredRevenue =
+    orders
+      .filter(o => o.status === 'DELIVERED' || completedDeliveryIds.includes(o.id))
+      .reduce((sum, o) => sum + o.itemsTotal, 0) +
+    (role === 'FPO_REP' ? 96500 : 38400) +
+    escrowDisbursedDelta;
 
-  const pendingEscrow = orders
-    .filter(o => o.status !== 'DELIVERED' && o.status !== 'CANCELLED')
-    .reduce((sum, o) => sum + o.itemsTotal, 0) + 7200;
+  const basePendingEscrow =
+    orders
+      .filter(o => o.status !== 'DELIVERED' && o.status !== 'CANCELLED' && !completedDeliveryIds.includes(o.id))
+      .reduce((sum, o) => sum + o.itemsTotal, 0) + 7200;
+
+  const pendingEscrow = Math.max(0, basePendingEscrow - escrowDisbursedDelta);
 
   const handleCreateProduct = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -502,7 +509,7 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({
 
         {/* Real-time Floating Customer Incoming Order Toast */}
         {incomingOrderToast && (
-          <div className="fixed top-20 right-4 z-50 animate-in slide-in-from-top-4 duration-300">
+          <div className="fixed bottom-4 left-4 right-4 sm:bottom-auto sm:top-20 sm:right-6 sm:left-auto z-50 max-w-md mx-auto sm:mx-0 animate-in slide-in-from-bottom-4 sm:slide-in-from-top-4 duration-300">
             <FarmerIncomingOrderToast
               order={incomingOrderToast}
               onOpenDetails={(ord) => {
@@ -695,23 +702,23 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({
         </div>
 
         {/* Sub Navigation Tabs */}
-        <div className="flex border-b border-stone-200 dark:border-stone-700 dark:border-stone-800 overflow-x-auto transition-colors">
+        <div className="flex border-b border-stone-200 dark:border-stone-800 overflow-x-auto whitespace-nowrap scrollbar-none transition-colors -mx-4 px-4 sm:mx-0 sm:px-0">
           <button
             onClick={() => setActiveTab('inventory')}
-            className={`py-3 px-5 text-xs font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap ${
+            className={`py-3 px-5 text-xs font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer shrink-0 ${
               activeTab === 'inventory'
-                ? 'border-emerald-700 text-emerald-900 dark:text-emerald-400 bg-white dark:bg-stone-900 dark:bg-stone-900/50'
-                : 'border-transparent text-stone-500 dark:text-stone-400 dark:text-stone-400 hover:text-stone-800 dark:text-stone-200 dark:hover:text-stone-200'
+                ? 'border-emerald-700 text-emerald-900 dark:text-emerald-400 bg-white dark:bg-stone-900/50'
+                : 'border-transparent text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200'
             }`}
           >
             My Produce Inventory ({myProducts.length})
           </button>
           <button
             onClick={() => setActiveTab('demand_forecast')}
-            className={`py-3 px-5 text-xs font-bold uppercase tracking-wider transition-colors border-b-2 flex items-center gap-1.5 whitespace-nowrap ${
+            className={`py-3 px-5 text-xs font-bold uppercase tracking-wider transition-colors border-b-2 flex items-center gap-1.5 whitespace-nowrap cursor-pointer shrink-0 ${
               activeTab === 'demand_forecast'
-                ? 'border-emerald-700 text-emerald-900 dark:text-emerald-400 bg-white dark:bg-stone-900 dark:bg-stone-900/50'
-                : 'border-transparent text-stone-500 dark:text-stone-400 dark:text-stone-400 hover:text-stone-800 dark:text-stone-200 dark:hover:text-stone-200'
+                ? 'border-emerald-700 text-emerald-900 dark:text-emerald-400 bg-white dark:bg-stone-900/50'
+                : 'border-transparent text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200'
             }`}
           >
             <TrendingUp className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-500" />
@@ -722,20 +729,20 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({
           </button>
           <button
             onClick={() => setActiveTab('orders')}
-            className={`py-3 px-5 text-xs font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap ${
+            className={`py-3 px-5 text-xs font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer shrink-0 ${
               activeTab === 'orders'
-                ? 'border-emerald-700 text-emerald-900 dark:text-emerald-400 bg-white dark:bg-stone-900 dark:bg-stone-900/50'
-                : 'border-transparent text-stone-500 dark:text-stone-400 dark:text-stone-400 hover:text-stone-800 dark:text-stone-200 dark:hover:text-stone-200'
+                ? 'border-emerald-700 text-emerald-900 dark:text-emerald-400 bg-white dark:bg-stone-900/50'
+                : 'border-transparent text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200'
             }`}
           >
             Orders & Dispatches ({orders.length})
           </button>
           <button
             onClick={() => setActiveTab('sold_history')}
-            className={`py-3 px-5 text-xs font-bold uppercase tracking-wider transition-colors border-b-2 flex items-center gap-1.5 whitespace-nowrap ${
+            className={`py-3 px-5 text-xs font-bold uppercase tracking-wider transition-colors border-b-2 flex items-center gap-1.5 whitespace-nowrap cursor-pointer shrink-0 ${
               activeTab === 'sold_history'
-                ? 'border-emerald-700 text-emerald-900 dark:text-emerald-400 bg-white dark:bg-stone-900 dark:bg-stone-900/50'
-                : 'border-transparent text-stone-500 dark:text-stone-400 dark:text-stone-400 hover:text-stone-800 dark:text-stone-200 dark:hover:text-stone-200'
+                ? 'border-emerald-700 text-emerald-900 dark:text-emerald-400 bg-white dark:bg-stone-900/50'
+                : 'border-transparent text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200'
             }`}
           >
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-500" />
@@ -743,20 +750,20 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({
           </button>
           <button
             onClick={() => setActiveTab('payouts')}
-            className={`py-3 px-5 text-xs font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap ${
+            className={`py-3 px-5 text-xs font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap cursor-pointer shrink-0 ${
               activeTab === 'payouts'
-                ? 'border-emerald-700 text-emerald-900 dark:text-emerald-400 bg-white dark:bg-stone-900 dark:bg-stone-900/50'
-                : 'border-transparent text-stone-500 dark:text-stone-400 dark:text-stone-400 hover:text-stone-800 dark:text-stone-200 dark:hover:text-stone-200'
+                ? 'border-emerald-700 text-emerald-900 dark:text-emerald-400 bg-white dark:bg-stone-900/50'
+                : 'border-transparent text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200'
             }`}
           >
             Escrow & DBT Settlements
           </button>
           <button
             onClick={() => setActiveTab('rfqs')}
-            className={`py-3 px-5 text-xs font-bold uppercase tracking-wider transition-colors border-b-2 flex items-center gap-1.5 whitespace-nowrap ${
+            className={`py-3 px-5 text-xs font-bold uppercase tracking-wider transition-colors border-b-2 flex items-center gap-1.5 whitespace-nowrap cursor-pointer shrink-0 ${
               activeTab === 'rfqs'
-                ? 'border-emerald-700 text-emerald-900 dark:text-emerald-400 bg-white dark:bg-stone-900 dark:bg-stone-900/50'
-                : 'border-transparent text-stone-500 dark:text-stone-400 dark:text-stone-400 hover:text-stone-800 dark:text-stone-200 dark:hover:text-stone-200'
+                ? 'border-emerald-700 text-emerald-900 dark:text-emerald-400 bg-white dark:bg-stone-900/50'
+                : 'border-transparent text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200'
             }`}
           >
             <span>Bulk RFQs & B2B Tenders</span>
@@ -808,131 +815,148 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({
                 </div>
               </div>
 
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs text-stone-700 dark:text-stone-300">
-                  <thead className="bg-stone-100/75 text-stone-500 dark:text-stone-400 uppercase text-[10px] font-bold border-b border-stone-200 dark:border-stone-700">
-                    <tr>
-                      <th className="p-3.5">Produce & Variety</th>
-                      <th className="p-3.5">Attributed Grower</th>
-                      <th className="p-3.5">Category</th>
-                      <th className="p-3.5">Farmgate Price</th>
-                      <th className="p-3.5">Mandi Benchmark</th>
-                      <th className="p-3.5">Available Stock & Threshold</th>
-                      <th className="p-3.5">Stock Health Status</th>
-                      <th className="p-3.5 text-right">Quick Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-stone-100">
-                    {myProducts.map(product => {
-                      const itemThreshold = product.lowStockThreshold !== undefined ? product.lowStockThreshold : globalThreshold;
-                      const isDepleted = product.quantity <= 0;
-                      const isLowStock = product.quantity <= itemThreshold;
-                      const stockPct = Math.min(100, Math.round((product.quantity / (itemThreshold * 2.5 || 100)) * 100));
+              {/* Vertical Stacked Cards for Farmgate Produce Inventory */}
+              <div className="p-4 sm:p-5 space-y-4">
+                {myProducts.map(product => {
+                  const itemThreshold = product.lowStockThreshold !== undefined ? product.lowStockThreshold : globalThreshold;
+                  const isDepleted = product.quantity <= 0;
+                  const isLowStock = product.quantity <= itemThreshold;
+                  const stockPct = Math.min(100, Math.round((product.quantity / (itemThreshold * 2.5 || 100)) * 100));
+                  const harvestDateFormatted = product.harvestDate || 'Harvested 2 days ago (Peak Freshness)';
 
-                      return (
-                        <tr 
-                          key={product.id} 
-                          className={`transition ${
-                            isDepleted 
-                              ? 'bg-rose-50/50 hover:bg-rose-50' 
-                              : isLowStock 
-                              ? 'bg-amber-50/40 hover:bg-amber-50/70' 
-                              : 'hover:bg-stone-50/80'
-                          }`}
-                        >
-                          <td className="p-3.5 flex items-center gap-3">
-                            <img src={product.image} alt={product.name} className="w-10 h-10 rounded-lg object-cover shadow-2xs shrink-0" />
-                            <div>
-                              <div className="font-bold text-stone-900 dark:text-stone-100">{product.name}</div>
-                              <div className="text-[10px] text-stone-500 dark:text-stone-400">{product.location}</div>
+                  return (
+                    <div
+                      key={product.id}
+                      className={`p-4 sm:p-5 rounded-2xl border transition-all shadow-xs ${
+                        isDepleted
+                          ? 'bg-rose-50/40 dark:bg-rose-950/20 border-rose-300 dark:border-rose-800'
+                          : isLowStock
+                          ? 'bg-amber-50/40 dark:bg-amber-950/20 border-amber-300 dark:border-amber-800 ring-1 ring-amber-400/30'
+                          : 'bg-white dark:bg-stone-900 border-stone-200 dark:border-stone-800 hover:border-emerald-500/50'
+                      }`}
+                    >
+                      {/* Top Header: Image, Variety, Grower & Price */}
+                      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                        <div className="flex items-center gap-3.5">
+                          <img
+                            src={product.image}
+                            alt={product.name}
+                            className="w-16 h-16 sm:w-18 sm:h-18 rounded-2xl object-cover shadow-xs shrink-0 border border-stone-200 dark:border-stone-700"
+                          />
+                          <div>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <h3 className="font-extrabold text-base text-stone-900 dark:text-stone-100 leading-tight">
+                                {product.name}
+                              </h3>
+                              {product.isFpoListed && (
+                                <span className="px-2 py-0.5 rounded-md text-[10px] font-black bg-amber-100 dark:bg-amber-900/60 text-amber-900 dark:text-amber-300">
+                                  FPO Aggregated
+                                </span>
+                              )}
+                              <span className="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300">
+                                {product.category}
+                              </span>
                             </div>
-                          </td>
-                          <td className="p-3.5">
-                            <span className="font-semibold text-stone-800 dark:text-stone-200">
-                              {product.actualFarmerName || product.farmerName}
+
+                            <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5">
+                              Grower: <strong className="text-stone-800 dark:text-stone-200">{product.actualFarmerName || product.farmerName}</strong> • {product.location}
+                            </p>
+
+                            <div className="flex items-center gap-1.5 mt-1 text-xs text-stone-600 dark:text-stone-300">
+                              <Calendar className="w-3.5 h-3.5 text-stone-400 shrink-0" />
+                              <span className="font-medium text-[11px]">{harvestDateFormatted}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Price & Mandi Benchmark */}
+                        <div className="flex sm:flex-col items-baseline sm:items-end justify-between sm:justify-start pt-2 sm:pt-0 border-t sm:border-t-0 border-stone-100 dark:border-stone-800">
+                          <div>
+                            <span className="text-[10px] uppercase font-bold text-stone-400 block sm:text-right">Farmgate Price</span>
+                            <div className="text-xl font-black text-emerald-700 dark:text-emerald-400">
+                              ₹{product.price}
+                              <span className="text-xs font-semibold text-stone-500 dark:text-stone-400">/{product.unit}</span>
+                            </div>
+                          </div>
+                          {product.mandiBenchmarkPrice && (
+                            <span className="text-[11px] text-stone-500 dark:text-stone-400">
+                              Mandi ref: ₹{product.mandiBenchmarkPrice}/{product.unit}
                             </span>
-                            {product.isFpoListed && (
-                              <span className="block text-[9px] text-orange-600 font-bold">FPO Aggregated</span>
-                            )}
-                          </td>
-                          <td className="p-3.5 font-medium">{product.category}</td>
-                          <td className="p-3.5 font-bold text-emerald-800">₹{product.price}/{product.unit}</td>
-                          <td className="p-3.5 text-stone-500 dark:text-stone-400">
-                            {product.mandiBenchmarkPrice ? `₹${product.mandiBenchmarkPrice}/${product.unit}` : '—'}
-                          </td>
+                          )}
+                        </div>
+                      </div>
 
-                          {/* Available Stock & Safety Threshold */}
-                          <td className="p-3.5">
-                            <div className="space-y-1 min-w-[130px]">
-                              <div className="flex items-center justify-between font-bold text-xs">
-                                <span className={isDepleted ? 'text-rose-700 font-black' : isLowStock ? 'text-amber-800 font-black' : 'text-stone-900'}>
-                                  {product.quantity} {product.unit}
-                                </span>
-                                <span className="text-[10px] text-stone-400 font-normal">
-                                  Alert: ≤{itemThreshold} {product.unit}
-                                </span>
-                              </div>
-                              <div className="w-full h-2 bg-stone-200/80 rounded-full overflow-hidden">
-                                <div
-                                  className={`h-full rounded-full transition-all duration-500 ${
-                                    isDepleted
-                                      ? 'bg-rose-600'
-                                      : isLowStock
-                                      ? 'bg-amber-500 animate-pulse'
-                                      : 'bg-emerald-600'
-                                  }`}
-                                  style={{ width: `${Math.max(6, stockPct)}%` }}
-                                />
-                              </div>
-                            </div>
-                          </td>
+                      {/* Stock Health Progress Bar */}
+                      <div className="mt-4 pt-3 border-t border-stone-100 dark:border-stone-800 space-y-2">
+                        <div className="flex items-center justify-between text-xs">
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-stone-800 dark:text-stone-200">
+                              Available Lot Stock:
+                            </span>
+                            <span className={`font-black ${isDepleted ? 'text-rose-600' : isLowStock ? 'text-amber-600' : 'text-emerald-600'}`}>
+                              {product.quantity} {product.unit}
+                            </span>
+                            <span className="text-[11px] text-stone-400">
+                              (Threshold: ≤{itemThreshold} {product.unit})
+                            </span>
+                          </div>
 
-                          {/* Stock Health Status */}
-                          <td className="p-3.5">
+                          <div>
                             {isDepleted ? (
-                              <span className="px-2.5 py-1 rounded-full bg-rose-600 text-white font-black text-[10px] flex items-center gap-1 w-fit shadow-2xs">
+                              <span className="px-2.5 py-0.5 rounded-full bg-rose-600 text-white font-black text-[10px] flex items-center gap-1 shadow-2xs">
                                 <AlertTriangle className="w-3 h-3" />
-                                <span>Depleted (0 {product.unit})</span>
+                                <span>Depleted</span>
                               </span>
                             ) : isLowStock ? (
-                              <span className="px-2.5 py-1 rounded-full bg-amber-100 text-amber-950 border border-amber-300 font-black text-[10px] flex items-center gap-1.5 w-fit animate-pulse shadow-2xs">
-                                <AlertTriangle className="w-3 h-3 text-amber-600 shrink-0" />
-                                <span>Low Stock Alert ({product.quantity} left)</span>
+                              <span className="px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/60 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-700 font-black text-[10px] flex items-center gap-1 animate-pulse shadow-2xs">
+                                <AlertTriangle className="w-3 h-3 text-amber-600" />
+                                <span>Low Stock</span>
                               </span>
                             ) : (
-                              <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px] flex items-center gap-1.5 w-fit">
-                                <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
+                              <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-bold text-[10px] flex items-center gap-1">
+                                <CheckCircle2 className="w-3 h-3 text-emerald-600" />
                                 <span>Healthy Stock</span>
                               </span>
                             )}
-                          </td>
+                          </div>
+                        </div>
 
-                          {/* Quick Actions */}
-                          <td className="p-3.5 text-right">
-                            <div className="flex items-center justify-end gap-1.5">
-                              <button
-                                onClick={() => handleRestockProduct(product.id, product.unit === 'crates' ? 25 : 100)}
-                                className="px-2.5 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-[11px] flex items-center gap-1 transition active:scale-95 shadow-2xs cursor-pointer"
-                                title={`Restock +${product.unit === 'crates' ? '25 Crates' : '100 kg'}`}
-                              >
-                                <Plus className="w-3 h-3" />
-                                <span>Restock (+{product.unit === 'crates' ? '25' : '100'})</span>
-                              </button>
+                        {/* Progress Bar (emerald for healthy, amber for low stock) */}
+                        <div className="w-full h-2.5 bg-stone-100 dark:bg-stone-800 rounded-full overflow-hidden">
+                          <div
+                            className={`h-full rounded-full transition-all duration-500 ${
+                              isDepleted
+                                ? 'bg-rose-600'
+                                : isLowStock
+                                ? 'bg-amber-500 animate-pulse'
+                                : 'bg-emerald-600'
+                            }`}
+                            style={{ width: `${Math.max(6, stockPct)}%` }}
+                          />
+                        </div>
+                      </div>
 
-                              <button
-                                onClick={() => handleSimulateStockDrain(product.id)}
-                                className="px-2 py-1.5 rounded-lg border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-900 font-bold text-[10px] flex items-center gap-1 transition cursor-pointer"
-                                title="Simulate rapid stock drain to trigger low-stock alert"
-                              >
-                                <span>Drain Test</span>
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                      {/* Full-width 48px touch-target action button ("+ Restock Lot") */}
+                      <div className="mt-4 pt-3 border-t border-stone-100 dark:border-stone-800 flex flex-col sm:flex-row items-center gap-2">
+                        <button
+                          onClick={() => handleRestockProduct(product.id, product.unit === 'crates' ? 25 : 100)}
+                          className="w-full min-h-[48px] h-12 rounded-xl bg-emerald-700 hover:bg-emerald-800 active:scale-98 text-white font-black text-sm flex items-center justify-center gap-2 transition shadow-xs cursor-pointer"
+                        >
+                          <Plus className="w-4 h-4" />
+                          <span>+ Restock Lot (+{product.unit === 'crates' ? '25 Crates' : '100 kg'})</span>
+                        </button>
+
+                        <button
+                          onClick={() => handleSimulateStockDrain(product.id)}
+                          className="w-full sm:w-auto min-h-[48px] h-12 px-4 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 font-bold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer shrink-0"
+                          title="Simulate rapid stock drain for hackathon demo"
+                        >
+                          <span>Simulate Drain</span>
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -1170,176 +1194,199 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({
               </div>
             </div>
 
-            {/* Sold Items Table */}
-            <div className="bg-white dark:bg-stone-900 transition-colors rounded-2xl border border-stone-200 dark:border-stone-700 overflow-hidden shadow-xs">
-              <div className="p-4 border-b border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-950 flex items-center justify-between">
-                <h4 className="font-bold text-xs uppercase tracking-wider text-stone-700 dark:text-stone-300">
-                  Delivered Lots & Direct Payment Receipts
-                </h4>
-                <span className="text-xs text-stone-500 dark:text-stone-400 font-medium">Auto-synced with Consumer OTP confirmations</span>
+            {/* Delivered Produce & Direct Settlement Receipt Cards */}
+            <div className="space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-1">
+                <div>
+                  <h4 className="font-extrabold text-sm uppercase tracking-wider text-stone-800 dark:text-stone-200 flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                    <span>Delivered Lots & Direct DBT Settlement Receipts</span>
+                  </h4>
+                  <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5">
+                    Individual lot receipts with customer OTP confirmation, net earnings, and instant bank disbursement hashes.
+                  </p>
+                </div>
+                <span className="text-xs text-emerald-700 dark:text-emerald-400 font-bold bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 px-3 py-1 rounded-full self-start sm:self-auto">
+                  100% Cleared Escrow Receipts
+                </span>
               </div>
 
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs text-stone-700 dark:text-stone-300">
-                  <thead className="bg-stone-100/75 text-stone-500 dark:text-stone-400 uppercase text-[10px] font-bold border-b border-stone-200 dark:border-stone-700">
-                    <tr>
-                      <th className="p-3.5">Consignment ID & Date</th>
-                      <th className="p-3.5">Produce & Lot Size</th>
-                      <th className="p-3.5">Direct Buyer</th>
-                      <th className="p-3.5">Sold Rate vs Mandi</th>
-                      <th className="p-3.5">Net Payout</th>
-                      <th className="p-3.5">Margin Gain</th>
-                      <th className="p-3.5">Disbursement Ref</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-stone-100">
-                    {[
-                      {
-                        lotId: 'LOT-SLD-8941',
-                        orderId: 'ord_1079',
-                        date: 'Delivered 2 days ago',
-                        name: 'Fresh Nashik Red Onions (Direct Farm Lot)',
-                        qty: '25 kg Sack',
-                        buyer: 'Ananya Sharma',
-                        buyerType: 'Urban Consumer (HAL 2nd Stage)',
-                        soldRate: '₹28/kg',
-                        mandiRate: '₹20/kg',
-                        payout: '₹700',
-                        gain: '+₹200 (+40%)',
-                        ref: 'IMPS-92018471',
-                        status: 'Disbursed to Bank',
-                      },
-                      {
-                        lotId: 'LOT-SLD-8938',
-                        orderId: 'ord_1079',
-                        date: 'Delivered 2 days ago',
-                        name: 'Sehore Sharbati Gehu / Wheat',
-                        qty: '30 kg Grain Bag',
-                        buyer: 'Ananya Sharma',
-                        buyerType: 'Urban Consumer (HAL 2nd Stage)',
-                        soldRate: '₹44/kg',
-                        mandiRate: '₹32/kg',
-                        payout: '₹1,320',
-                        gain: '+₹360 (+37.5%)',
-                        ref: 'IMPS-92018472',
-                        status: 'Disbursed to Bank',
-                      },
-                      {
-                        lotId: 'LOT-SLD-8920',
-                        orderId: 'ord_1065',
-                        date: 'Delivered 7 days ago',
-                        name: 'Desi Chana / Bengal Gram (Unpolished)',
-                        qty: '40 kg Sacks',
-                        buyer: 'Ananya Sharma',
-                        buyerType: 'Urban Consumer (HAL 2nd Stage)',
-                        soldRate: '₹78/kg',
-                        mandiRate: '₹66/kg',
-                        payout: '₹3,120',
-                        gain: '+₹480 (+18.2%)',
-                        ref: 'IMPS-83910245',
-                        status: 'Disbursed to Bank',
-                      },
-                      {
-                        lotId: 'LOT-SLD-8915',
-                        orderId: 'ord_1065',
-                        date: 'Delivered 7 days ago',
-                        name: 'Organic Vine Ripe Tomatoes (Polyhouse)',
-                        qty: '10 kg Crates',
-                        buyer: 'Ananya Sharma',
-                        buyerType: 'Urban Consumer (HAL 2nd Stage)',
-                        soldRate: '₹32/kg',
-                        mandiRate: '₹22/kg',
-                        payout: '₹320',
-                        gain: '+₹100 (+45.4%)',
-                        ref: 'IMPS-83910246',
-                        status: 'Disbursed to Bank',
-                      },
-                      {
-                        lotId: 'LOT-SLD-8894',
-                        orderId: 'ord_bulk_910',
-                        date: 'Delivered 12 days ago',
-                        name: 'Nashik Red Onions (Grade A Export Quality)',
-                        qty: '450 kg Bulk Lot',
-                        buyer: 'Taj Vivanta Kitchens',
-                        buyerType: 'Commercial Hospitality Buyer',
-                        soldRate: '₹31/kg',
-                        mandiRate: '₹22/kg',
-                        payout: '₹13,950',
-                        gain: '+₹4,050 (+40.9%)',
-                        ref: 'RTGS-01928472',
-                        status: 'Disbursed to Bank',
-                      },
-                      {
-                        lotId: 'LOT-SLD-8872',
-                        orderId: 'ord_bulk_892',
-                        date: 'Delivered 18 days ago',
-                        name: 'Organic Vine Ripe Tomatoes',
-                        qty: '280 kg Crate Sacks',
-                        buyer: 'Puri Jagannath Bhojanalaya',
-                        buyerType: 'Cooperative Institution',
-                        soldRate: '₹29/kg',
-                        mandiRate: '₹19/kg',
-                        payout: '₹8,120',
-                        gain: '+₹2,800 (+52.6%)',
-                        ref: 'IMPS-72910481',
-                        status: 'Disbursed to Bank',
-                      },
-                      {
-                        lotId: 'LOT-SLD-8840',
-                        orderId: 'ord_bulk_870',
-                        date: 'Delivered 24 days ago',
-                        name: 'Sehore Sharbati Gehu (Gold Grain Lot)',
-                        qty: '550 kg Grain Sacks',
-                        buyer: 'Bengaluru Healthy Bakes Federation',
-                        buyerType: 'Artisan Bakery Network',
-                        soldRate: '₹44/kg',
-                        mandiRate: '₹33/kg',
-                        payout: '₹24,200',
-                        gain: '+₹6,050 (+33.3%)',
-                        ref: 'RTGS-98120412',
-                        status: 'Disbursed to Bank',
-                      },
-                    ].map(row => (
-                      <tr key={row.lotId} className="hover:bg-stone-50/80 transition">
-                        <td className="p-3.5">
-                          <div className="font-mono font-bold text-stone-900 dark:text-stone-100">{row.lotId}</div>
-                          <div className="text-[10px] text-stone-500 dark:text-stone-400">{row.date}</div>
-                          <span className="text-[9px] text-stone-400 font-mono">Ref #{row.orderId}</span>
-                        </td>
-                        <td className="p-3.5">
-                          <div className="font-bold text-stone-900 dark:text-stone-100">{row.name}</div>
-                          <div className="text-[11px] text-stone-500 dark:text-stone-400 font-medium">Batch: {row.qty}</div>
-                        </td>
-                        <td className="p-3.5">
-                          <div className="font-semibold text-stone-800 dark:text-stone-200">{row.buyer}</div>
-                          <div className="text-[10px] text-stone-500 dark:text-stone-400">{row.buyerType}</div>
-                        </td>
-                        <td className="p-3.5">
+              {/* Responsive Vertical Settlement Receipt Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {[
+                  {
+                    lotId: '#LOT-SLD-8941',
+                    orderId: 'ord_1079',
+                    date: 'Delivered 2 days ago',
+                    name: 'Fresh Nashik Red Onions (Direct Farm Lot)',
+                    qty: '25 kg Sack',
+                    buyer: 'Ananya Sharma',
+                    buyerType: 'Urban Consumer (HAL 2nd Stage)',
+                    soldRate: '₹28/kg',
+                    mandiRate: '₹20/kg',
+                    payout: '₹700 Net Payout',
+                    gain: '+₹200 (+40%)',
+                    ref: '✓ DBT Credited to SBI (IMPS-92018471)',
+                    status: 'Disbursed to Bank',
+                  },
+                  {
+                    lotId: '#LOT-SLD-8938',
+                    orderId: 'ord_1079',
+                    date: 'Delivered 2 days ago',
+                    name: 'Sehore Sharbati Gehu / Wheat',
+                    qty: '30 kg Grain Bag',
+                    buyer: 'Ananya Sharma',
+                    buyerType: 'Urban Consumer (HAL 2nd Stage)',
+                    soldRate: '₹44/kg',
+                    mandiRate: '₹32/kg',
+                    payout: '₹1,320 Net Payout',
+                    gain: '+₹360 (+37.5%)',
+                    ref: '✓ DBT Credited to SBI (IMPS-92018472)',
+                    status: 'Disbursed to Bank',
+                  },
+                  {
+                    lotId: '#LOT-SLD-8920',
+                    orderId: 'ord_1065',
+                    date: 'Delivered 7 days ago',
+                    name: 'Desi Chana / Bengal Gram (Unpolished)',
+                    qty: '40 kg Sacks',
+                    buyer: 'Ananya Sharma',
+                    buyerType: 'Urban Consumer (HAL 2nd Stage)',
+                    soldRate: '₹78/kg',
+                    mandiRate: '₹66/kg',
+                    payout: '₹3,120 Net Payout',
+                    gain: '+₹480 (+18.2%)',
+                    ref: '✓ DBT Credited to SBI (IMPS-83910245)',
+                    status: 'Disbursed to Bank',
+                  },
+                  {
+                    lotId: '#LOT-SLD-8915',
+                    orderId: 'ord_1065',
+                    date: 'Delivered 7 days ago',
+                    name: 'Organic Vine Ripe Tomatoes (Polyhouse)',
+                    qty: '10 kg Crates',
+                    buyer: 'Ananya Sharma',
+                    buyerType: 'Urban Consumer (HAL 2nd Stage)',
+                    soldRate: '₹32/kg',
+                    mandiRate: '₹22/kg',
+                    payout: '₹320 Net Payout',
+                    gain: '+₹100 (+45.4%)',
+                    ref: '✓ DBT Credited to SBI (IMPS-83910246)',
+                    status: 'Disbursed to Bank',
+                  },
+                  {
+                    lotId: '#LOT-SLD-8894',
+                    orderId: 'ord_bulk_910',
+                    date: 'Delivered 12 days ago',
+                    name: 'Nashik Red Onions (Grade A Export Quality)',
+                    qty: '450 kg Bulk Lot',
+                    buyer: 'Taj Vivanta Kitchens',
+                    buyerType: 'Commercial Hospitality Buyer',
+                    soldRate: '₹31/kg',
+                    mandiRate: '₹22/kg',
+                    payout: '₹13,950 Net Payout',
+                    gain: '+₹4,050 (+40.9%)',
+                    ref: '✓ DBT Credited to SBI (RTGS-01928472)',
+                    status: 'Disbursed to Bank',
+                  },
+                  {
+                    lotId: '#LOT-SLD-8872',
+                    orderId: 'ord_bulk_892',
+                    date: 'Delivered 18 days ago',
+                    name: 'Organic Vine Ripe Tomatoes',
+                    qty: '280 kg Crate Sacks',
+                    buyer: 'Puri Jagannath Bhojanalaya',
+                    buyerType: 'Cooperative Institution',
+                    soldRate: '₹29/kg',
+                    mandiRate: '₹19/kg',
+                    payout: '₹8,120 Net Payout',
+                    gain: '+₹2,800 (+52.6%)',
+                    ref: '✓ DBT Credited to SBI (IMPS-72910481)',
+                    status: 'Disbursed to Bank',
+                  },
+                  {
+                    lotId: '#LOT-SLD-8840',
+                    orderId: 'ord_bulk_870',
+                    date: 'Delivered 24 days ago',
+                    name: 'Sehore Sharbati Gehu (Gold Grain Lot)',
+                    qty: '550 kg Grain Sacks',
+                    buyer: 'Bengaluru Healthy Bakes Federation',
+                    buyerType: 'Artisan Bakery Network',
+                    soldRate: '₹44/kg',
+                    mandiRate: '₹33/kg',
+                    payout: '₹24,200 Net Payout',
+                    gain: '+₹6,050 (+33.3%)',
+                    ref: '✓ DBT Credited to SBI (RTGS-98120412)',
+                    status: 'Disbursed to Bank',
+                  },
+                ].map(row => (
+                  <div
+                    key={row.lotId}
+                    className="bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800 p-5 shadow-xs hover:border-emerald-600/50 dark:hover:border-emerald-500/50 transition-all flex flex-col justify-between space-y-4"
+                  >
+                    {/* Header: Consignment ID + Date */}
+                    <div className="flex items-start justify-between gap-2 border-b border-stone-100 dark:border-stone-800 pb-3">
+                      <div>
+                        <span className="font-mono font-black text-stone-900 dark:text-stone-100 text-sm tracking-tight">
+                          {row.lotId}
+                        </span>
+                        <span className="text-[11px] text-stone-400 dark:text-stone-500 block mt-0.5">
+                          {row.date}
+                        </span>
+                      </div>
+                      <span className="px-2.5 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-black text-[11px] tracking-wide shrink-0">
+                        {row.gain}
+                      </span>
+                    </div>
+
+                    {/* Body: Produce Name, Weight, Buyer Info */}
+                    <div className="space-y-2 text-xs">
+                      <div>
+                        <div className="font-extrabold text-stone-900 dark:text-stone-100 text-sm leading-snug">
+                          {row.name}
+                        </div>
+                        <div className="text-xs text-stone-500 dark:text-stone-400 font-medium mt-0.5">
+                          Weight: <strong className="text-stone-800 dark:text-stone-200">{row.qty}</strong>
+                        </div>
+                      </div>
+
+                      <div className="p-3 bg-stone-50 dark:bg-stone-950/70 rounded-xl border border-stone-100 dark:border-stone-800 space-y-1">
+                        <div className="text-[10px] text-stone-400 font-bold uppercase tracking-wider">
+                          Buyer
+                        </div>
+                        <div className="font-bold text-stone-900 dark:text-stone-100">
+                          {row.buyer}
+                        </div>
+                        <div className="text-[11px] text-stone-500 dark:text-stone-400">
+                          {row.buyerType}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between text-[11px] pt-1">
+                        <span className="text-stone-500 dark:text-stone-400 font-medium">Realized Farmgate Rate:</span>
+                        <div className="text-right">
                           <span className="font-bold text-stone-900 dark:text-stone-100">{row.soldRate}</span>
-                          <span className="block text-[10px] text-stone-400 line-through">
-                            Mandi: {row.mandiRate}
-                          </span>
-                        </td>
-                        <td className="p-3.5">
-                          <span className="font-black text-emerald-800 text-sm">{row.payout}</span>
-                          <span className="block text-[9px] text-emerald-600 font-semibold">100% Farmgate</span>
-                        </td>
-                        <td className="p-3.5">
-                          <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-black text-[10px]">
-                            {row.gain}
-                          </span>
-                        </td>
-                        <td className="p-3.5">
-                          <div className="font-mono text-[11px] font-bold text-stone-700 dark:text-stone-300">{row.ref}</div>
-                          <div className="flex items-center gap-1 text-[10px] text-emerald-700 font-medium">
-                            <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                            <span>{row.status}</span>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                          <span className="text-[10px] text-stone-400 line-through ml-1.5">Mandi: {row.mandiRate}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Footer: Bold Green Payout + Direct DBT Credited Badge */}
+                    <div className="pt-3 border-t border-stone-100 dark:border-stone-800 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-stone-500 dark:text-stone-400 font-bold uppercase">Net Settlement</span>
+                        <span className="text-base font-black text-emerald-700 dark:text-emerald-400">
+                          {row.payout}
+                        </span>
+                      </div>
+
+                      <div className="p-2 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/80 rounded-xl flex items-center gap-1.5 text-[11px] font-bold text-emerald-800 dark:text-emerald-300">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                        <span className="truncate">{row.ref}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -1444,43 +1491,45 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({
                         </span>
                         <h4 className="font-extrabold text-stone-900 dark:text-stone-100 text-base">{rfq.cropName}</h4>
                       </div>
-                      <span className={`px-2.5 py-1 rounded-full text-[10px] font-black tracking-wider uppercase ${
+                      <span className={`px-2.5 py-1 rounded-full text-[10px] font-black tracking-wider uppercase flex items-center gap-1 ${
                         rfq.status === 'MATCHED'
-                          ? 'bg-emerald-100 text-emerald-800'
-                          : 'bg-amber-100 text-amber-900'
+                          ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+                          : 'bg-amber-100 dark:bg-amber-950 text-amber-900 dark:text-amber-300 border border-amber-200 dark:border-amber-800'
                       }`}>
-                        {rfq.status}
+                        {rfq.status === 'MATCHED' && <CheckCircle2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />}
+                        <span>{rfq.status === 'MATCHED' ? 'Contract Awarded to You' : 'Open for Bids'}</span>
                       </span>
                     </div>
 
-                    <div className="p-3.5 rounded-2xl bg-stone-50 dark:bg-stone-950 border border-stone-100 space-y-2 text-xs">
+                    <div className="p-3.5 rounded-2xl bg-stone-50 dark:bg-stone-950 border border-stone-100 dark:border-stone-800 space-y-2 text-xs">
                       <div className="flex justify-between text-stone-600 dark:text-stone-300">
                         <span>Required Volume:</span>
                         <span className="font-black text-stone-900 dark:text-stone-100">{rfq.quantityRequired.toLocaleString()} {rfq.unit}</span>
                       </div>
                       <div className="flex justify-between text-stone-600 dark:text-stone-300">
                         <span>Offered Buying Price:</span>
-                        <span className="font-black text-emerald-800">₹{rfq.targetPricePerUnit}/{rfq.unit}</span>
+                        <span className="font-black text-emerald-800 dark:text-emerald-400">₹{rfq.targetPricePerUnit}/{rfq.unit}</span>
                       </div>
                       <div className="flex justify-between text-stone-600 dark:text-stone-300">
                         <span>Gross Contract Value:</span>
-                        <span className="font-black text-amber-900">
+                        <span className="font-black text-amber-900 dark:text-amber-400">
                           ₹{(rfq.quantityRequired * rfq.targetPricePerUnit).toLocaleString('en-IN')}
                         </span>
                       </div>
                       <div className="flex justify-between text-stone-600 dark:text-stone-300">
                         <span>Logistics Fleet:</span>
-                        <span className="font-bold text-blue-800">
+                        <span className="font-bold text-blue-800 dark:text-blue-400">
                           {rfq.vehicleTypeRequired === 'TRACTOR' ? '🚜 Tractor Trolley' : '🚚 Mini Truck'}
                         </span>
                       </div>
                     </div>
 
                     <div className="text-[11px] text-stone-500 dark:text-stone-400">
-                      Destination: <strong>{rfq.deliveryLocation}</strong>
+                      Destination: <strong className="text-stone-800 dark:text-stone-200">{rfq.deliveryLocation}</strong>
                       {rfq.matchedFarmerOrFpo && (
-                        <div className="text-emerald-700 font-bold mt-1">
-                          Matched with: {rfq.matchedFarmerOrFpo}
+                        <div className="text-emerald-700 dark:text-emerald-400 font-bold mt-1 flex items-center gap-1">
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          <span>FPO / Farmer: {rfq.matchedFarmerOrFpo}</span>
                         </div>
                       )}
                     </div>
@@ -1509,8 +1558,9 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({
                       <span>Accept & Contract Harvest</span>
                     </button>
                   ) : (
-                    <div className="w-full py-2 rounded-xl bg-emerald-50 text-emerald-800 font-bold text-xs text-center border border-emerald-200">
-                      Contract Locked
+                    <div className="w-full py-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-bold text-xs text-center border border-emerald-200 dark:border-emerald-800 flex items-center justify-center gap-1.5">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                      <span>Contract Awarded to You</span>
                     </div>
                   )}
                 </div>

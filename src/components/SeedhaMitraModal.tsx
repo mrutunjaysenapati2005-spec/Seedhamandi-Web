@@ -1,43 +1,183 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Sparkles, X, Send, Bot, User as UserIcon, Loader2, Volume2, Lightbulb, RefreshCw } from 'lucide-react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Sparkles, X, Send, Bot, User as UserIcon, Loader2, Lightbulb, Mic, MicOff, AlertCircle, Check, Volume2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import { ChatMessage } from '../types';
 
 export const SeedhaMitraModal: React.FC = () => {
-  const { isSeedhaMitraOpen, closeSeedhaMitra, user, role } = useAuth();
+  const { isSeedhaMitraOpen, closeSeedhaMitra, role } = useAuth();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // Web Speech API Voice Dictation
+  const [isListening, setIsListening] = useState(false);
+  const [speechSupported, setSpeechSupported] = useState(true);
+  const [speechError, setSpeechError] = useState<string | null>(null);
+  const [interimTranscript, setInterimTranscript] = useState<string>('');
+  const [voiceLang, setVoiceLang] = useState<'hi-IN' | 'en-IN'>('en-IN');
+  const recognitionRef = useRef<any>(null);
+
+  // Check browser compatibility on mount
+  useEffect(() => {
+    const SpeechRecognition =
+      typeof window !== 'undefined' &&
+      ((window as any).SpeechRecognition || (window as any).webkitSpeechRecognition);
+    setSpeechSupported(!!SpeechRecognition);
+  }, []);
+
+  // Cleanup speech recognition when modal closes or unmounts
+  const stopListening = useCallback(() => {
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.abort();
+      } catch (e) {
+        // ignore
+      }
+      recognitionRef.current = null;
+    }
+    setIsListening(false);
+    setInterimTranscript('');
+  }, []);
+
+  useEffect(() => {
+    if (!isSeedhaMitraOpen) {
+      stopListening();
+    }
+  }, [isSeedhaMitraOpen, stopListening]);
+
+  const toggleSpeechRecognition = () => {
+    setSpeechError(null);
+    const SpeechRecognition =
+      typeof window !== 'undefined' &&
+      ((window as any).SpeechRecognition || (window as any).webkitSpeechRecognition);
+
+    if (!SpeechRecognition) {
+      setSpeechSupported(false);
+      setSpeechError('Voice dictation (Web Speech API) is not supported in this browser. Please use Google Chrome, Edge, or Safari.');
+      return;
+    }
+
+    if (isListening) {
+      stopListening();
+      return;
+    }
+
+    try {
+      const recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = true;
+      recognition.maxAlternatives = 1;
+      recognition.lang = voiceLang;
+
+      recognition.onstart = () => {
+        setIsListening(true);
+        setSpeechError(null);
+        setInterimTranscript('');
+      };
+
+      recognition.onresult = (event: any) => {
+        let currentInterim = '';
+        let currentFinal = '';
+
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          const item = event.results[i];
+          if (item.isFinal) {
+            currentFinal += item[0].transcript;
+          } else {
+            currentInterim += item[0].transcript;
+          }
+        }
+
+        if (currentInterim) {
+          setInterimTranscript(currentInterim);
+        }
+
+        if (currentFinal) {
+          setInput(prev => {
+            const trimmed = prev.trim();
+            const addition = currentFinal.trim();
+            return trimmed ? `${trimmed} ${addition}` : addition;
+          });
+          setInterimTranscript('');
+        }
+      };
+
+      recognition.onerror = (event: any) => {
+        console.warn('Speech recognition event error:', event.error);
+        setIsListening(false);
+        setInterimTranscript('');
+
+        switch (event.error) {
+          case 'not-allowed':
+          case 'permission-denied':
+            setSpeechError('Microphone permission was denied. Please allow microphone access in your browser settings.');
+            break;
+          case 'no-speech':
+            setSpeechError('No speech was detected. Please click the mic icon and speak again.');
+            break;
+          case 'audio-capture':
+            setSpeechError('No microphone detected. Please verify your audio recording device.');
+            break;
+          case 'network':
+            setSpeechError('Network communication error during voice transcription.');
+            break;
+          case 'aborted':
+            // user stopped speech recognition intentionally
+            break;
+          default:
+            setSpeechError(`Voice dictation issue: ${event.error || 'Unknown'}. Please try typing.`);
+            break;
+        }
+      };
+
+      recognition.onspeechend = () => {
+        // User stopped speaking
+        setIsListening(false);
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+        setInterimTranscript('');
+      };
+
+      recognitionRef.current = recognition;
+      recognition.start();
+    } catch (err: any) {
+      console.warn('Error starting voice recognition:', err);
+      setIsListening(false);
+      setSpeechError('Could not activate microphone. Please verify device permissions and try again.');
+    }
+  };
+
   const initialPrompts: Record<string, string[]> = {
     FARMER: [
       'What is the current Mandi price vs Direct Farm price for red onions?',
       'How to preserve tomato shelf life without cold storage?',
-      'Explain how photosynthesis changes in high summer heat',
-      'What are the highest demand crops projected for next month?',
-      'Can you write a poem about Indian harvest season?',
+      'What are the highest demand crops projected for next week?',
+      'How does Aadhaar DBT direct bank payout escrow work?',
+      'Best organic pest control for sucking pests in chili and tomato?',
     ],
     FPO_REP: [
+      'How to aggregate produce for 54 rural farmers without smartphones?',
       'How does direct escrow disbursement work for individual farmers?',
-      'Explain the economic advantage of farmer producer cooperatives',
-      'How to register produce on behalf of 54 rural farmers without smartphones?',
       'What are the best strategies for rural logistics consolidation?',
-      'Explain inflation and how it impacts rural purchasing power',
+      'How to verify quality grade sorting at rural aggregation centers?',
+      'What are the projected bulk order volumes for Bhubaneswar region?',
     ],
     CONSUMER: [
-      'Explain quantum computing in simple everyday terms',
-      'Why is GI-tagged Devgad Alphonso superior to chemical-ripened mangoes?',
-      'Recommend a balanced weekly farm-fresh diet plan',
-      'How does escrow secure online marketplace purchases?',
-      'Write a Python function to calculate compound interest',
+      'Why is direct farm-to-door produce fresher and pesticide-free?',
+      'How does the 6-digit OTP escrow protect my purchase?',
+      'What seasonal vegetables are arriving from Maharashtra and Odisha?',
+      'How can I trace my lot back to the verified farmer?',
+      'What is the shelf-life difference in cold-chain dispatched produce?',
     ],
     LOGISTICS: [
       'What temperature should refrigerated vans maintain for fragile fruits?',
-      'Explain the traveling salesperson problem for multi-stop delivery routes',
-      'How does the 6-stage OTP delivery handoff guarantee instant payout release?',
-      'What are the best rural route planning practices for monsoons?',
+      'How does the 6-stage OTP delivery handoff guarantee instant freight release?',
+      'What are the best multi-stop rural route planning practices?',
+      'How does waypoint telemetry track cold chain temperature?',
     ],
   };
 
@@ -48,7 +188,7 @@ export const SeedhaMitraModal: React.FC = () => {
       const welcome: ChatMessage = {
         id: 'msg_welcome',
         sender: 'bot',
-        text: `Namaste ${user?.name || 'Friend'}! I am **SeedhaMitra** (सीधा मित्र), your intelligent AI companion.\n\nYou can talk to me like a real AI and ask me **literally anything** — whether about science, mathematics, coding, philosophy, world history, cooking, life advice, or agricultural markets, crop health, and rural trade. What would you like to explore today?`,
+        text: `Namaste! I am **SeedhaMitra** (सीधा मित्र), your direct mandi intelligence advisor.\n\nAsk me about real-time crop market prices, crop protection, post-harvest cold storage, or SeedhaMandi direct escrow settlements. How can I assist your farm or harvest today?`,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       };
       setMessages([welcome]);
@@ -179,7 +319,7 @@ export const SeedhaMitraModal: React.FC = () => {
                   Online
                 </span>
               </div>
-              <p className="text-xs text-emerald-200">Universal Conversational Intelligence & Advisory</p>
+              <p className="text-xs text-emerald-200">Direct Agricultural & Mandi Intelligence Advisor</p>
             </div>
           </div>
 
@@ -258,7 +398,83 @@ export const SeedhaMitraModal: React.FC = () => {
         </div>
 
         {/* Input Bar */}
-        <div className="p-3 bg-white dark:bg-stone-900 dark:bg-stone-950 border-t border-stone-200 dark:border-stone-700 dark:border-stone-800 transition-colors">
+        <div className="p-3 bg-white dark:bg-stone-900 border-t border-stone-200 dark:border-stone-800 transition-colors">
+          {/* Active Speech Recognition Visual Feedback Banner */}
+          {isListening && (
+            <div className="mb-2.5 p-3 bg-emerald-950 text-white rounded-xl border border-emerald-700 shadow-md animate-in fade-in slide-in-from-bottom-2 duration-150 space-y-2">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="relative flex items-center justify-center">
+                    <span className="w-3.5 h-3.5 rounded-full bg-red-500 animate-ping absolute"></span>
+                    <span className="w-3 h-3 rounded-full bg-red-500 relative"></span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs font-black text-amber-300 uppercase tracking-wider">
+                      Listening...
+                    </span>
+                    <span className="text-[11px] text-emerald-200 font-medium">
+                      ({voiceLang === 'hi-IN' ? 'Hindi / हिंदी' : 'Indian English'})
+                    </span>
+                  </div>
+                </div>
+
+                {/* Animated Sound Waves */}
+                <div className="flex items-center gap-1 px-2 py-1 bg-emerald-900/80 rounded-md border border-emerald-700/60">
+                  <span className="w-1 h-3 bg-amber-400 rounded-full animate-bounce"></span>
+                  <span className="w-1 h-5 bg-amber-300 rounded-full animate-bounce [animation-delay:150ms]"></span>
+                  <span className="w-1 h-2.5 bg-amber-400 rounded-full animate-bounce [animation-delay:300ms]"></span>
+                  <span className="w-1 h-4 bg-amber-300 rounded-full animate-bounce [animation-delay:75ms]"></span>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={stopListening}
+                    className="px-2.5 py-1 rounded-lg bg-emerald-800 hover:bg-emerald-700 text-[11px] font-bold text-white transition flex items-center gap-1 cursor-pointer"
+                  >
+                    <Check className="w-3.5 h-3.5 text-amber-300" />
+                    <span>Done Speaking</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={stopListening}
+                    className="p-1 text-stone-300 hover:text-white rounded-md transition"
+                    title="Cancel voice input"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Interim Real-time Transcription Stream */}
+              <div className="text-xs bg-emerald-900/60 rounded-lg p-2 border border-emerald-800 text-stone-100 font-mono">
+                <span className="text-emerald-300 font-semibold mr-1.5">Live Voice:</span>
+                {interimTranscript ? (
+                  <span className="text-amber-200 italic font-medium">{interimTranscript}</span>
+                ) : (
+                  <span className="text-emerald-300/70 italic">Speak now into your microphone...</span>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Speech Error Banner */}
+          {speechError && (
+            <div className="mb-2 p-2.5 bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800 rounded-xl flex items-start justify-between gap-2 text-xs text-amber-900 dark:text-amber-200 animate-in fade-in duration-150">
+              <div className="flex items-start gap-2">
+                <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                <span className="leading-snug">{speechError}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSpeechError(null)}
+                className="p-0.5 text-amber-700 dark:text-amber-300 hover:opacity-75 transition cursor-pointer shrink-0"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
+
           <form
             onSubmit={e => {
               e.preventDefault();
@@ -270,24 +486,57 @@ export const SeedhaMitraModal: React.FC = () => {
               type="text"
               value={input}
               onChange={e => setInput(e.target.value)}
-              placeholder="Ask SeedhaMitra anything"
-              className="flex-1 bg-stone-100 dark:bg-stone-800 dark:bg-stone-900 border border-stone-300 dark:border-stone-700 text-stone-900 dark:text-stone-100 dark:text-stone-100 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-600 dark:focus:border-emerald-500 focus:bg-white dark:bg-stone-900 dark:focus:bg-stone-950 transition"
+              placeholder={isListening ? 'Listening to your voice...' : 'Ask SeedhaMitra about mandi rates, crops, or logistics...'}
+              className="flex-1 min-h-[48px] h-12 bg-stone-100 dark:bg-stone-800 border border-stone-300 dark:border-stone-700 text-stone-900 dark:text-stone-100 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-emerald-600 dark:focus:border-emerald-500 focus:bg-white dark:focus:bg-stone-900 transition"
             />
+
+            {/* Voice Dictation Button (Web Speech API) */}
+            <button
+              type="button"
+              onClick={toggleSpeechRecognition}
+              className={`min-w-[48px] min-h-[48px] w-12 h-12 rounded-xl flex items-center justify-center transition shadow-xs cursor-pointer relative ${
+                isListening
+                  ? 'bg-red-600 text-white animate-pulse ring-4 ring-red-400/50'
+                  : 'bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300'
+              }`}
+              title={isListening ? 'Stop Voice Recording' : `Speak in ${voiceLang === 'hi-IN' ? 'Hindi' : 'English'}`}
+              aria-label="Voice Input"
+            >
+              {isListening ? (
+                <>
+                  <MicOff className="w-5 h-5 text-white" />
+                  <span className="absolute -top-1 -right-1 w-3 h-3 bg-amber-400 rounded-full border-2 border-white dark:border-stone-900 animate-ping"></span>
+                </>
+              ) : (
+                <Mic className="w-5 h-5 text-emerald-700 dark:text-emerald-400" />
+              )}
+            </button>
+
             <button
               type="submit"
               disabled={!input.trim() || loading}
-              className="px-4 py-2.5 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 text-white rounded-xl font-bold flex items-center gap-1.5 transition shadow-sm active:scale-95"
+              className="min-h-[48px] h-12 px-5 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 text-white rounded-xl font-bold flex items-center gap-1.5 transition shadow-sm active:scale-95 cursor-pointer shrink-0"
             >
               <Send className="w-4 h-4" />
               <span className="hidden sm:inline">Ask</span>
             </button>
           </form>
-          <div className="flex items-center justify-between text-[11px] text-stone-500 dark:text-stone-400 dark:text-stone-400 px-1 mt-2">
+
+          <div className="flex items-center justify-between text-[11px] text-stone-500 dark:text-stone-400 px-1 mt-2.5">
             <span className="flex items-center gap-1.5 font-medium">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
               Universal AI Agent
             </span>
-            <span className="text-emerald-700 dark:text-emerald-500 font-medium">English & हिंदी</span>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setVoiceLang(prev => (prev === 'en-IN' ? 'hi-IN' : 'en-IN'))}
+                className="px-2 py-0.5 rounded-md bg-stone-200/70 dark:bg-stone-800 text-[10px] font-bold text-emerald-700 dark:text-emerald-400 hover:opacity-80 transition cursor-pointer"
+                title="Click to switch voice language"
+              >
+                Voice: {voiceLang === 'hi-IN' ? 'हिंदी (Hindi)' : 'English (India)'}
+              </button>
+            </div>
           </div>
         </div>
       </div>

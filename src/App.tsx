@@ -28,11 +28,22 @@ const MainContent: React.FC = () => {
     openCart, 
     isSihModalOpen, 
     closeSihModal, 
-    quickSwitchRole 
+    quickSwitchRole,
+    escrowReleaseToast,
+    clearEscrowReleaseToast
   } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [toastData, setToastData] = useState<{ message: string; showPlaceOrder?: boolean } | null>(null);
+
+  useEffect(() => {
+    if (escrowReleaseToast) {
+      const timer = setTimeout(() => {
+        clearEscrowReleaseToast();
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [escrowReleaseToast, clearEscrowReleaseToast]);
 
   useEffect(() => {
     loadProducts();
@@ -127,7 +138,7 @@ const MainContent: React.FC = () => {
 
       {/* Toast Notification with Place Order Option */}
       {toastData && (
-        <div className="fixed bottom-6 right-6 z-50 bg-emerald-950 text-white px-4 py-3 rounded-2xl shadow-2xl border border-emerald-700 text-xs font-bold flex items-center gap-3 animate-in slide-in-from-bottom-3 duration-200">
+        <div className="fixed bottom-4 left-4 right-4 sm:bottom-6 sm:right-6 sm:left-auto z-50 max-w-md mx-auto sm:mx-0 bg-emerald-950 text-white px-4 py-3 rounded-2xl shadow-2xl border border-emerald-700 text-xs font-bold flex items-center justify-between gap-3 animate-in slide-in-from-bottom-3 duration-200">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
             <span>{toastData.message}</span>
@@ -139,12 +150,32 @@ const MainContent: React.FC = () => {
                 setToastData(null);
                 openCart('checkout');
               }}
-              className="px-3 py-1.5 bg-amber-400 hover:bg-amber-300 text-emerald-950 rounded-xl text-xs font-black shadow-xs transition flex items-center gap-1 active:scale-95 cursor-pointer whitespace-nowrap"
+              className="px-3 py-1.5 bg-amber-400 hover:bg-amber-300 text-emerald-950 rounded-xl text-xs font-black shadow-xs transition flex items-center gap-1 active:scale-95 cursor-pointer whitespace-nowrap shrink-0"
             >
               <span>Place Order</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           )}
+        </div>
+      )}
+
+      {/* Escrow Released Toast Notification */}
+      {escrowReleaseToast && (
+        <div className="fixed bottom-4 left-4 right-4 sm:bottom-auto sm:top-20 sm:right-6 sm:left-auto z-50 max-w-md mx-auto sm:mx-0 bg-emerald-950 text-white px-5 py-3.5 rounded-2xl shadow-2xl border-2 border-emerald-500 text-sm font-bold flex items-center justify-between gap-3 animate-in slide-in-from-bottom-3 sm:slide-in-from-top-3 duration-300">
+          <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+            <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+          </div>
+          <div>
+            <div className="text-emerald-300 text-[11px] uppercase tracking-wider font-extrabold">Instant Escrow Settlement</div>
+            <div className="text-white text-sm font-black">{escrowReleaseToast.message}</div>
+          </div>
+          <button
+            onClick={clearEscrowReleaseToast}
+            className="ml-2 text-zinc-400 hover:text-white p-1 rounded-lg transition"
+            title="Dismiss"
+          >
+            ✕
+          </button>
         </div>
       )}
     </div>

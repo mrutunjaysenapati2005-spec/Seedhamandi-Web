@@ -113,10 +113,10 @@ export const VicinityDispatchToast: React.FC<VicinityDispatchToastProps> = ({
 
   return (
     <>
-      {/* Top Floating Toast Notification Stack */}
+      {/* Top Floating Toast Notification Stack (Bottom drawer on mobile, top-right on desktop) */}
       <div 
         id="vicinity-toast-container" 
-        className="fixed top-20 right-4 sm:right-6 z-50 flex flex-col gap-3 w-[92vw] sm:w-[440px] pointer-events-none select-none"
+        className="fixed bottom-4 left-4 right-4 sm:bottom-auto sm:top-20 sm:right-6 sm:left-auto z-50 max-w-md mx-auto sm:mx-0 flex flex-col gap-3 w-full sm:w-[440px] pointer-events-none select-none"
       >
         {alerts.map(alert => {
           const remaining = secondsMap[alert.id] ?? alert.expiresInSeconds;
@@ -127,7 +127,7 @@ export const VicinityDispatchToast: React.FC<VicinityDispatchToastProps> = ({
             <div
               key={alert.id}
               id={`vicinity-alert-${alert.id}`}
-              className="pointer-events-auto bg-stone-900/95 text-white rounded-2xl shadow-2xl border-2 border-emerald-500/80 backdrop-blur-md overflow-hidden transition-all duration-300 animate-in slide-in-from-top-4 fade-in"
+              className="pointer-events-auto bg-stone-900/95 text-white rounded-2xl shadow-2xl border-2 border-emerald-500/80 backdrop-blur-md overflow-hidden transition-all duration-300 animate-in slide-in-from-bottom-4 sm:slide-in-from-top-4 fade-in"
             >
               {/* Pulsing Header Banner */}
               <div className="bg-gradient-to-r from-emerald-950 via-stone-900 to-emerald-950 px-4 py-2.5 flex items-center justify-between border-b border-emerald-500/30">
@@ -148,10 +148,11 @@ export const VicinityDispatchToast: React.FC<VicinityDispatchToastProps> = ({
                   </span>
                   <button
                     onClick={() => onDismiss(alert.id)}
-                    className="text-stone-400 hover:text-white p-1 rounded-lg transition hover:bg-stone-800 cursor-pointer"
-                    title="Dismiss alert"
+                    className="text-stone-300 hover:text-white bg-stone-800/80 hover:bg-stone-700/80 p-1.5 rounded-lg border border-stone-700/60 transition cursor-pointer flex items-center justify-center shrink-0"
+                    title="Dismiss alert (✕)"
+                    aria-label="Close dispatch alert"
                   >
-                    <X className="w-4 h-4" />
+                    <X className="w-4 h-4 stroke-[2.5]" />
                   </button>
                 </div>
               </div>

@@ -832,7 +832,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
 
       {/* Immediate 'Just Added' Notification Popover */}
       {justAddedProduct && (
-        <div className="fixed top-20 right-6 z-50 bg-white dark:bg-stone-900 border-2 border-emerald-600 rounded-2xl shadow-xl p-3.5 max-w-sm animate-in slide-in-from-top-3">
+        <div className="fixed bottom-4 left-4 right-4 sm:bottom-auto sm:top-20 sm:right-6 sm:left-auto z-50 max-w-md mx-auto sm:mx-0 w-full sm:w-auto bg-white dark:bg-stone-900 border-2 border-emerald-600 rounded-2xl shadow-xl p-3.5 animate-in slide-in-from-bottom-3 sm:slide-in-from-top-3">
           <div className="flex items-start gap-2.5">
             <img
               src={justAddedProduct.product.image}

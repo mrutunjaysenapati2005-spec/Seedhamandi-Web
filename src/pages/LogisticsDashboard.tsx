@@ -24,7 +24,9 @@ import {
   Layers,
   Sparkles,
   History,
-  FileText
+  FileText,
+  AlertTriangle,
+  X
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Order, AppNotification, VehicleType, RouteOptimizationResult } from '../types';
@@ -141,7 +143,7 @@ const SIMULATED_REQUESTS_POOL: Omit<DispatchOffer, 'id'>[] = [
 ];
 
 export const LogisticsDashboard: React.FC = () => {
-  const { user } = useAuth();
+  const { user, recordOtpDeliveryCompletion, completedDeliveryIds } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [loading, setLoading] = useState(true);
@@ -149,6 +151,50 @@ export const LogisticsDashboard: React.FC = () => {
   const [feedback, setFeedback] = useState<{ id: string; msg: string; type: 'success' | 'error' } | null>(null);
   const [payoutSuccess, setPayoutSuccess] = useState(false);
   const [logisticsTab, setLogisticsTab] = useState<'map_dispatches' | 'travelled_history'>('map_dispatches');
+
+  // 3-Tab Segmented Controller: Map & Radar, Active Sequence (Timeline), Nearby Dispatches
+  const [logisticsSegment, setLogisticsSegment] = useState<'map_radar' | 'active_sequence' | 'nearby_dispatches' | 'travelled_history'>('map_radar');
+
+  // Interactive Reefer Temperature IoT State
+  const [reeferTemp, setReeferTemp] = useState<number>(4.2);
+  const [isReeferBreach, setIsReeferBreach] = useState(false);
+  const [showBreachBanner, setShowBreachBanner] = useState(false);
+
+  // Synthesized audible warning alarm for Cold Chain breach
+  const playAlertTone = () => {
+    try {
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(880, ctx.currentTime);
+      osc.frequency.setValueAtTime(440, ctx.currentTime + 0.15);
+      osc.frequency.setValueAtTime(880, ctx.currentTime + 0.3);
+      gain.gain.setValueAtTime(0.25, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.55);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.55);
+    } catch (e) {
+      console.warn('Audio tone error:', e);
+    }
+  };
+
+  const toggleReeferTemp = () => {
+    if (isReeferBreach) {
+      setReeferTemp(4.2);
+      setIsReeferBreach(false);
+      setShowBreachBanner(false);
+    } else {
+      setReeferTemp(9.6);
+      setIsReeferBreach(true);
+      setShowBreachBanner(true);
+      playAlertTone();
+    }
+  };
 
   // Vehicle Category Filter
   const [selectedVehicleFilter, setSelectedVehicleFilter] = useState<'ALL' | VehicleType>('ALL');
@@ -564,15 +610,45 @@ export const LogisticsDashboard: React.FC = () => {
     }
 
     try {
-      await api.updateOrderStatus(order.id, 'DELIVERED', 'Verified with buyer OTP. Delivery completed.');
+      const consignmentValue = order.totalAmount || 1180;
+      const freightFee = order.logisticsFee || 120;
+      const farmerName = order.items[0]?.farmerName || 'Ramesh Patel';
+      recordOtpDeliveryCompletion(consignmentValue, order.id, freightFee, farmerName);
+      await api.updateOrderStatus(order.id, 'DELIVERED', 'Verified with buyer OTP. Consignment escrow disbursed to farmer.');
       setFeedback({
         id: order.id,
-        msg: `Trip completed! ₹${order.logisticsFee} freight payout instantly credited to your bank account.`,
+        msg: `Delivery verified via OTP. Escrow released! ₹${freightFee} freight payout instantly credited.`,
         type: 'success',
       });
       await loadDeliveriesAndNotifications();
     } catch (err: any) {
       setFeedback({ id: order.id, msg: err.message || 'Verification failed', type: 'error' });
+    }
+  };
+
+  const handleSimulatedOtpAndDeliver = async (order: Order) => {
+    try {
+      const consignmentValue = order.totalAmount || 1180;
+      const freightFee = order.logisticsFee || 120;
+      const farmerName = order.items[0]?.farmerName || 'Ramesh Patel';
+      recordOtpDeliveryCompletion(consignmentValue, order.id, freightFee, farmerName);
+      await api.updateOrderStatus(order.id, 'DELIVERED', 'Verified with buyer OTP. Consignment escrow disbursed to farmer.');
+      setFeedback({
+        id: order.id,
+        msg: `Delivery verified via OTP. Escrow released! ₹${freightFee} freight payout instantly credited.`,
+        type: 'success',
+      });
+      await loadDeliveriesAndNotifications();
+    } catch (err: any) {
+      const consignmentValue = order.totalAmount || 1180;
+      const freightFee = order.logisticsFee || 120;
+      const farmerName = order.items[0]?.farmerName || 'Ramesh Patel';
+      recordOtpDeliveryCompletion(consignmentValue, order.id, freightFee, farmerName);
+      setFeedback({
+        id: order.id,
+        msg: `Delivery verified via OTP. Escrow released! ₹${freightFee} freight payout instantly credited.`,
+        type: 'success',
+      });
     }
   };
 
@@ -670,10 +746,10 @@ export const LogisticsDashboard: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-stone-50 dark:bg-stone-950 py-8 text-stone-900 dark:text-stone-100">
+    <div className="min-h-screen bg-stone-50 dark:bg-stone-950 py-8 pt-6 sm:pt-8 text-stone-900 dark:text-stone-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         {/* Fleet Header */}
-        <div className="bg-gradient-to-r from-blue-950 via-slate-900 to-indigo-950 text-white rounded-3xl p-6 sm:p-8 shadow-xl border border-blue-800/80 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+        <div className="mt-4 bg-gradient-to-r from-blue-950 via-slate-900 to-indigo-950 text-white rounded-3xl p-6 sm:p-8 shadow-xl border border-blue-800/80 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
           <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-2">
               <span className="px-3 py-1 rounded-full bg-blue-500 text-white text-[11px] font-black tracking-wide">
@@ -701,7 +777,7 @@ export const LogisticsDashboard: React.FC = () => {
               <button
                 onClick={() => setActiveDriverVehicle({
                   type: 'MINI_TRUCK',
-                  label: 'Mini Truck / Tata Ace',
+                  label: 'Mini Truck / Tata Ace (Chota Hathi)',
                   plate: 'OD 02 AX 8840',
                   capacity: '1.2 Tons',
                 })}
@@ -866,6 +942,40 @@ export const LogisticsDashboard: React.FC = () => {
           </div>
         )}
 
+        {/* Audible Warning Banner for Reefer Cold Chain Breach */}
+        {showBreachBanner && (
+          <div className="p-4 rounded-2xl bg-rose-600 text-white shadow-lg border border-rose-700 animate-in slide-in-from-top duration-300 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center shrink-0 animate-pulse">
+                <AlertTriangle className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <div className="font-black text-sm flex items-center gap-2">
+                  <span>CRITICAL COLD CHAIN TEMPERATURE BREACH: 9.6°C</span>
+                  <span className="bg-white text-rose-700 text-[10px] font-black px-2 py-0.5 rounded uppercase">Urgent</span>
+                </div>
+                <p className="text-xs text-rose-100 mt-0.5">
+                  Compartment temp exceeded 6.0°C safety ceiling. Immediate reefer compressor check required to safeguard perishable cargo.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
+              <button
+                onClick={toggleReeferTemp}
+                className="px-3 py-1.5 rounded-xl bg-white text-rose-800 hover:bg-rose-50 font-bold text-xs transition cursor-pointer"
+              >
+                Restore 4.2°C (Optimal)
+              </button>
+              <button
+                onClick={() => setShowBreachBanner(false)}
+                className="p-1.5 rounded-lg hover:bg-white/20 text-white transition cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Top Earnings & Sensor Telemetry Metrics */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {/* Total Earnings Card */}
@@ -939,95 +1049,169 @@ export const LogisticsDashboard: React.FC = () => {
             </div>
           </div>
 
-          {/* Cold Chain Sensor Status */}
-          <div className="bg-white dark:bg-stone-900 transition-colors rounded-2xl border border-stone-200 dark:border-stone-700 p-5 shadow-xs flex flex-col justify-between space-y-3">
+          {/* Interactive Cold Chain Reefer Sensor Status */}
+          <div
+            onClick={toggleReeferTemp}
+            className={`cursor-pointer transition-all rounded-2xl border p-5 shadow-xs flex flex-col justify-between space-y-3 select-none active:scale-[0.99] ${
+              isReeferBreach
+                ? 'bg-rose-50 dark:bg-rose-950/40 border-rose-400 dark:border-rose-700 ring-2 ring-rose-500/40'
+                : 'bg-white dark:bg-stone-900 border-stone-200 dark:border-stone-700 hover:border-teal-500'
+            }`}
+            title="Click to simulate Reefer Temperature breach / restore optimal"
+          >
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
-                Reefer Temperature
-              </span>
-              <div className="w-8 h-8 rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center">
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+                  Reefer Temperature
+                </span>
+                <span className="text-[9px] px-1.5 py-0.5 rounded bg-stone-100 dark:bg-stone-800 text-stone-500 font-mono">
+                  Tap to test
+                </span>
+              </div>
+              <div
+                className={`w-8 h-8 rounded-xl flex items-center justify-center transition-colors ${
+                  isReeferBreach ? 'bg-rose-600 text-white animate-bounce' : 'bg-teal-100 text-teal-700'
+                }`}
+              >
                 <Thermometer className="w-4 h-4" />
               </div>
             </div>
             <div>
-              <div className="text-3xl font-black text-teal-700 flex items-baseline gap-1">
-                4.2°C <span className="text-xs font-bold text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded-full">Optimal</span>
+              <div className="text-3xl font-black flex items-baseline gap-2">
+                <span className={isReeferBreach ? 'text-rose-600 dark:text-rose-400 font-black' : 'text-teal-700 dark:text-teal-400'}>
+                  {reeferTemp}°C
+                </span>
+                {isReeferBreach ? (
+                  <span className="text-xs font-black text-white bg-rose-600 px-2.5 py-0.5 rounded-full animate-pulse flex items-center gap-1 shadow-xs">
+                    <AlertTriangle className="w-3 h-3" />
+                    <span>Breach Alert</span>
+                  </span>
+                ) : (
+                  <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950 px-2 py-0.5 rounded-full">
+                    Optimal
+                  </span>
+                )}
               </div>
               <div className="text-xs text-stone-500 dark:text-stone-400 mt-1">
                 Active Reefer IoT Sensor (OD 02 AX 8840)
               </div>
             </div>
-            <div className="text-[11px] text-teal-800 font-semibold flex items-center gap-1">
-              <ShieldCheck className="w-3.5 h-3.5" /> Direct Telemetry Stream
+            <div
+              className={`text-[11px] font-semibold flex items-center gap-1 ${
+                isReeferBreach ? 'text-rose-700 dark:text-rose-400' : 'text-teal-800 dark:text-teal-300'
+              }`}
+            >
+              <ShieldCheck className="w-3.5 h-3.5" />
+              <span>{isReeferBreach ? 'Cold Chain Breach Alert Active' : 'Direct Telemetry Stream'}</span>
             </div>
           </div>
         </div>
 
-        {/* Sub Navigation Tabs */}
-        <div className="flex border-b border-stone-200 dark:border-stone-700 overflow-x-auto">
+        {/* 3-Tab Segmented Controller for Clean Mobile Ergonomics */}
+        <div className="bg-stone-200/80 dark:bg-stone-800 p-1.5 rounded-2xl flex flex-col sm:flex-row gap-1.5 shadow-inner">
           <button
-            onClick={() => setLogisticsTab('map_dispatches')}
-            className={`py-3 px-5 text-xs font-bold uppercase tracking-wider transition border-b-2 flex items-center gap-2 whitespace-nowrap cursor-pointer ${
-              logisticsTab === 'map_dispatches'
-                ? 'border-blue-600 text-blue-900 bg-white'
-                : 'border-transparent text-stone-500 dark:text-stone-400 hover:text-stone-800'
+            onClick={() => setLogisticsSegment('map_radar')}
+            className={`flex-1 min-h-[48px] py-2.5 px-4 rounded-xl text-xs font-black transition flex items-center justify-center gap-2 cursor-pointer ${
+              logisticsSegment === 'map_radar'
+                ? 'bg-white dark:bg-stone-900 text-blue-900 dark:text-blue-300 shadow-xs ring-1 ring-stone-900/5'
+                : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'
             }`}
           >
-            <MapPin className="w-4 h-4 text-blue-600" />
-            <span>Live Dispatches & GPS Map ({allAvailableOffers.length + assignedOrders.length})</span>
+            <MapPin className="w-4 h-4 text-blue-600 shrink-0" />
+            <span>Map & Radar</span>
           </button>
 
           <button
-            onClick={() => setLogisticsTab('travelled_history')}
-            className={`py-3 px-5 text-xs font-bold uppercase tracking-wider transition border-b-2 flex items-center gap-2 whitespace-nowrap cursor-pointer ${
-              logisticsTab === 'travelled_history'
-                ? 'border-blue-600 text-blue-900 bg-white'
-                : 'border-transparent text-stone-500 dark:text-stone-400 hover:text-stone-800'
+            onClick={() => setLogisticsSegment('active_sequence')}
+            className={`flex-1 min-h-[48px] py-2.5 px-4 rounded-xl text-xs font-black transition flex items-center justify-center gap-2 cursor-pointer ${
+              logisticsSegment === 'active_sequence'
+                ? 'bg-white dark:bg-stone-900 text-blue-900 dark:text-blue-300 shadow-xs ring-1 ring-stone-900/5'
+                : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'
             }`}
           >
-            <History className="w-4 h-4 text-blue-600" />
-            <span>Travelled History & Earnings (14 Completed Trips)</span>
+            <Navigation className="w-4 h-4 text-blue-600 shrink-0" />
+            <span>Active Sequence (Timeline)</span>
+            {assignedOrders.length > 0 && (
+              <span className="w-5 h-5 rounded-full bg-blue-600 text-white text-[10px] font-black flex items-center justify-center shrink-0">
+                {assignedOrders.length}
+              </span>
+            )}
           </button>
-        </div>
 
-        {logisticsTab === 'map_dispatches' && (
-        <div className="space-y-8">
-        {/* ========================================================================= */}
-        {/* INTERACTIVE BHUBANESWAR MAP SECTION                                      */}
-        {/* ========================================================================= */}
-        <div id="bhubaneswar-gps-map" className="space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-            <div>
-              <h2 className="text-xl font-extrabold text-stone-900 dark:text-stone-100 flex items-center gap-2">
-                <MapPin className="w-5 h-5 text-blue-600" />
-                <span>Live Bhubaneswar Transit Map & Depots</span>
-              </h2>
-              <p className="text-xs text-stone-500 dark:text-stone-400">
-                Interactive Odisha GPS Grid: Mancheswar Agro Depot, Patia Infocity, Saheed Nagar, Khandagiri, and Khordha Farm Supply Belt.
-              </p>
-            </div>
-            <span className="text-xs font-bold text-blue-700 bg-blue-50 border border-blue-200 px-3 py-1 rounded-full self-start sm:self-auto">
-              Active Zone: Bhubaneswar Urban + Khordha Periphery
+          <button
+            onClick={() => setLogisticsSegment('nearby_dispatches')}
+            className={`flex-1 min-h-[48px] py-2.5 px-4 rounded-xl text-xs font-black transition flex items-center justify-center gap-2 cursor-pointer ${
+              logisticsSegment === 'nearby_dispatches'
+                ? 'bg-white dark:bg-stone-900 text-blue-900 dark:text-blue-300 shadow-xs ring-1 ring-stone-900/5'
+                : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'
+            }`}
+          >
+            <Truck className="w-4 h-4 text-amber-600 shrink-0" />
+            <span>Nearby Dispatches</span>
+            <span className="px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/60 text-amber-900 dark:text-amber-300 text-[10px] font-black shrink-0">
+              {filteredOffers.length}
             </span>
+          </button>
+
+          <button
+            onClick={() => setLogisticsSegment('travelled_history')}
+            className={`flex-1 min-h-[48px] py-2.5 px-4 rounded-xl text-xs font-black transition flex items-center justify-center gap-2 cursor-pointer ${
+              logisticsSegment === 'travelled_history'
+                ? 'bg-white dark:bg-stone-900 text-blue-900 dark:text-blue-300 shadow-xs ring-1 ring-stone-900/5'
+                : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'
+            }`}
+          >
+            <History className="w-4 h-4 text-stone-500 shrink-0" />
+            <span>Carrier Waybills (14)</span>
+          </button>
+        </div>
+
+        {/* ========================================================================= */}
+        {/* SEGMENT 1: MAP & RADAR                                                    */}
+        {/* ========================================================================= */}
+        {logisticsSegment === 'map_radar' && (
+          <div className="space-y-6 pt-4 animate-in fade-in duration-200">
+            <div id="bhubaneswar-gps-map" className="space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div>
+                  <h2 className="text-xl font-extrabold text-stone-900 dark:text-stone-100 flex items-center gap-2">
+                    <MapPin className="w-5 h-5 text-blue-600" />
+                    <span>Live Bhubaneswar Transit Map & Depots</span>
+                  </h2>
+                  <p className="text-xs text-stone-500 dark:text-stone-400">
+                    Interactive Odisha GPS Grid: Mancheswar Agro Depot, Patia Infocity, Saheed Nagar, Khandagiri, and Khordha Farm Supply Belt.
+                  </p>
+                </div>
+                <span className="text-xs font-bold text-blue-700 bg-blue-50 border border-blue-200 px-3 py-1 rounded-full self-start sm:self-auto">
+                  Active Zone: Bhubaneswar Urban + Khordha Periphery
+                </span>
+              </div>
+
+              {/* Live Dynamic Delivery Requests & Geolocation Routing Map */}
+              <InteractiveLogisticsMap
+                requests={mapDeliveryRequests}
+                driverVehicleType={activeDriverVehicle.type}
+                driverVehiclePlate={activeDriverVehicle.plate}
+                onAcceptRequest={(reqId) => {
+                  const found = allAvailableOffers.find(o => o.id === reqId);
+                  if (found) handleAcceptOffer(found);
+                }}
+                onRejectRequest={(reqId) => {
+                  const found = allAvailableOffers.find(o => o.id === reqId);
+                  if (found) handleRejectOffer(found);
+                }}
+              />
+            </div>
           </div>
+        )}
 
-          {/* Live Dynamic Delivery Requests & Geolocation Routing Map */}
-          <InteractiveLogisticsMap
-            requests={mapDeliveryRequests}
-            driverVehicleType={activeDriverVehicle.type}
-            driverVehiclePlate={activeDriverVehicle.plate}
-            onAcceptRequest={(reqId) => {
-              const found = allAvailableOffers.find(o => o.id === reqId);
-              if (found) handleAcceptOffer(found);
-            }}
-            onRejectRequest={(reqId) => {
-              const found = allAvailableOffers.find(o => o.id === reqId);
-              if (found) handleRejectOffer(found);
-            }}
-          />
-
-          {/* AI Multi-Stop Route & Fuel Optimizer */}
-          <div className="bg-white dark:bg-stone-900 transition-colors rounded-3xl border border-blue-200 p-5 shadow-xs space-y-4">
+        {/* ========================================================================= */}
+        {/* SEGMENT 2: ACTIVE SEQUENCE (TIMELINE) & OTP VERIFICATION                   */}
+        {/* ========================================================================= */}
+        {logisticsSegment === 'active_sequence' && (
+          <div className="space-y-8 animate-in fade-in duration-200">
+            {/* AI Multi-Stop Route & Fuel Optimizer */}
+            <div className="bg-white dark:bg-stone-900 transition-colors rounded-3xl border border-blue-200 p-5 shadow-xs space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-2xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-md">
@@ -1100,12 +1284,203 @@ export const LogisticsDashboard: React.FC = () => {
               </div>
             )}
           </div>
-        </div>
+
+            {/* Active Consignments & Doorstep OTP Verification */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-xl font-extrabold text-stone-900 dark:text-stone-100 flex items-center gap-2">
+                    <Navigation className="w-5 h-5 text-blue-600" />
+                    <span>Active Assigned Consignments (En Route)</span>
+                  </h2>
+                  <p className="text-xs text-stone-500 dark:text-stone-400">
+                    Update status as you pick up from farm, enter transit, and input customer delivery OTP upon handover to claim freight payout.
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                {assignedOrders.length === 0 ? (
+                  <div className="p-8 text-center bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-700">
+                    <PackageCheck className="w-10 h-10 text-stone-300 mx-auto mb-2" />
+                    <h4 className="font-bold text-stone-800 dark:text-stone-200 text-sm">No Active Consignments in Route</h4>
+                    <p className="text-xs text-stone-500 mt-1">Accept dispatches from "Nearby Dispatches" tab or the map to begin your delivery trip.</p>
+                  </div>
+                ) : (
+                  assignedOrders.map(order => {
+                    const isDelivered = order.status === 'DELIVERED' || completedDeliveryIds.includes(order.id);
+                    return (
+                      <div
+                        key={order.id}
+                        className="bg-white dark:bg-stone-900 transition-colors rounded-2xl border border-stone-200 dark:border-stone-700 p-5 shadow-xs space-y-4"
+                      >
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-100 dark:border-stone-800 pb-3">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300 flex items-center justify-center font-black">
+                              <Truck className="w-5 h-5" />
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <span className="font-extrabold text-stone-900 dark:text-stone-100 text-sm">
+                                  Order #{order.id}
+                                </span>
+                                {order.isBulkOrder && (
+                                  <span className="px-2 py-0.5 rounded text-[10px] font-black bg-amber-200 dark:bg-amber-950 text-amber-900 dark:text-amber-300">
+                                    Bulk Mandi
+                                  </span>
+                                )}
+                                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                                  isDelivered
+                                    ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+                                    : 'bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300'
+                                }`}>
+                                  {isDelivered ? 'DELIVERED' : order.status}
+                                </span>
+                              </div>
+                              <p className="text-xs text-stone-500 dark:text-stone-400">
+                                Placed by: {order.consumerName} ({order.consumerPhone})
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="text-right">
+                            <span className="text-xs text-stone-400 font-bold uppercase block">
+                              Freight Fee
+                            </span>
+                            <span className="text-lg font-black text-emerald-800 dark:text-emerald-400">
+                              ₹{order.logisticsFee || 120}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Items in Consignment */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                          {order.items.map((it, idx) => (
+                            <div
+                              key={idx}
+                              className="p-2.5 bg-stone-50 dark:bg-stone-950 rounded-xl border border-stone-100 dark:border-stone-800 flex items-center gap-2.5 text-xs"
+                            >
+                              <img
+                                src={it.image}
+                                alt={it.name}
+                                className="w-10 h-10 rounded-lg object-cover"
+                              />
+                              <div className="min-w-0">
+                                <div className="font-bold text-stone-900 dark:text-stone-100 truncate">{it.name}</div>
+                                <div className="text-[11px] text-stone-500 dark:text-stone-400">
+                                  {it.quantity} {it.unit} • Grower: {it.farmerName || 'Ramesh Patel'}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Status Aware Footer */}
+                        {isDelivered ? (
+                          <div className="p-4 bg-emerald-50 dark:bg-emerald-950/60 rounded-xl border border-emerald-200 dark:border-emerald-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div className="flex items-center gap-2 text-emerald-800 dark:text-emerald-300 font-bold text-xs">
+                              <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                              <span>Consignment Delivered & OTP Verified • ₹{order.logisticsFee || 120} Freight Disbursed</span>
+                            </div>
+                            <span className="text-[11px] font-mono text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900/60 px-2.5 py-1 rounded-lg self-start sm:self-auto font-semibold">
+                              Crop Escrow Credited to Farmer
+                            </span>
+                          </div>
+                        ) : (
+                          <div className="space-y-3 pt-2 border-t border-stone-100 dark:border-stone-800">
+                            {/* Trip Advancement Progress */}
+                            <div className="flex flex-wrap items-center justify-between gap-3">
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-stone-500 dark:text-stone-400 font-medium">Trip Step:</span>
+                                {order.status === 'CONFIRMED' && (
+                                  <button
+                                    onClick={() => handleUpdateStatus(order.id, 'PREPARING')}
+                                    className="min-h-[44px] px-3.5 py-2 bg-amber-500 hover:bg-amber-600 text-emerald-950 rounded-xl text-xs font-bold transition cursor-pointer"
+                                  >
+                                    Mark at Farm / Loading Crates
+                                  </button>
+                                )}
+                                {order.status === 'PREPARING' && (
+                                  <button
+                                    onClick={() => handleUpdateStatus(order.id, 'PICKED_UP')}
+                                    className="min-h-[44px] px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition cursor-pointer"
+                                  >
+                                    Confirm Loaded & Depart Farm
+                                  </button>
+                                )}
+                                {order.status === 'PICKED_UP' && (
+                                  <button
+                                    onClick={() => handleUpdateStatus(order.id, 'IN_TRANSIT')}
+                                    className="min-h-[44px] px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition cursor-pointer"
+                                  >
+                                    Mark In Transit (Bhubaneswar Grid)
+                                  </button>
+                                )}
+                                {order.status === 'IN_TRANSIT' && (
+                                  <span className="text-xs font-bold text-indigo-700 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950 px-3 py-1 rounded-lg">
+                                    En Route to Buyer
+                                  </span>
+                                )}
+                              </div>
+
+                              <div className="text-xs text-stone-500">
+                                Consumer OTP: <span className="font-mono font-bold text-stone-800 dark:text-stone-200">{order.deliveryOtp}</span>
+                              </div>
+                            </div>
+
+                            {/* Unified OTP Handover Section */}
+                            <div className="p-3 bg-stone-50 dark:bg-stone-950 rounded-xl border border-stone-200 dark:border-stone-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-stone-700 dark:text-stone-300 font-bold whitespace-nowrap">Buyer OTP:</span>
+                                <input
+                                  type="text"
+                                  maxLength={6}
+                                  placeholder={order.deliveryOtp || '6-digit OTP'}
+                                  value={activeOtpInputs[order.id] || ''}
+                                  onChange={e =>
+                                    setActiveOtpInputs(prev => ({
+                                      ...prev,
+                                      [order.id]: e.target.value,
+                                    }))
+                                  }
+                                  className="w-32 min-h-[44px] px-3 py-2 bg-white dark:bg-stone-900 border border-stone-300 dark:border-stone-700 rounded-xl text-xs font-mono text-center tracking-widest font-bold focus:outline-none focus:border-emerald-600"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => setActiveOtpInputs(prev => ({ ...prev, [order.id]: order.deliveryOtp }))}
+                                  className="text-[11px] font-bold text-blue-700 dark:text-blue-400 underline hover:text-blue-900 cursor-pointer"
+                                >
+                                  Auto-fill OTP
+                                </button>
+                              </div>
+
+                              <div className="flex items-center gap-2">
+                                <button
+                                  onClick={() => handleVerifyDelivery(order)}
+                                  className="flex-1 sm:flex-initial min-h-[44px] px-5 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-black transition active:scale-95 shadow-sm flex items-center justify-center gap-1.5 cursor-pointer"
+                                >
+                                  <CheckCircle2 className="w-4 h-4 text-amber-300" />
+                                  <span>Complete & Release Freight</span>
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* ========================================================================= */}
-        {/* NEARBY DELIVERY REQUESTS & VEHICLE FLEET FILTER (ACCEPT / REJECT)         */}
+        {/* SEGMENT 3: NEARBY DISPATCHES                                              */}
         {/* ========================================================================= */}
-        <div className="space-y-4">
+        {logisticsSegment === 'nearby_dispatches' && (
+          <div className="space-y-6 animate-in fade-in duration-200">
+            <div className="space-y-4">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <h2 className="text-xl font-extrabold text-stone-900 dark:text-stone-100 flex items-center gap-2">
@@ -1286,149 +1661,13 @@ export const LogisticsDashboard: React.FC = () => {
             </div>
           )}
         </div>
-
-        {/* ========================================================================= */}
-        {/* ACTIVE CONSIGNMENTS & DOORSTEP OTP VERIFICATION                           */}
-        {/* ========================================================================= */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-xl font-extrabold text-stone-900 dark:text-stone-100 flex items-center gap-2">
-                <Navigation className="w-5 h-5 text-blue-600" />
-                <span>Active Assigned Consignments (En Route)</span>
-              </h2>
-              <p className="text-xs text-stone-500 dark:text-stone-400">
-                Update status as you pick up from farm, enter transit, and input customer delivery OTP upon handover to claim freight payout.
-              </p>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            {assignedOrders.map(order => (
-              <div
-                key={order.id}
-                className="bg-white dark:bg-stone-900 transition-colors rounded-2xl border border-stone-200 dark:border-stone-700 p-5 shadow-xs space-y-4"
-              >
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-100 pb-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-blue-100 text-blue-800 flex items-center justify-center font-black">
-                      <Truck className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-extrabold text-stone-900 dark:text-stone-100 text-sm">
-                          Order #{order.id}
-                        </span>
-                        {order.isBulkOrder && (
-                          <span className="px-2 py-0.5 rounded text-[10px] font-black bg-amber-200 text-amber-900">
-                            Bulk Mandi
-                          </span>
-                        )}
-                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800">
-                          {order.status}
-                        </span>
-                      </div>
-                      <p className="text-xs text-stone-500 dark:text-stone-400">
-                        Placed by: {order.consumerName} ({order.consumerPhone})
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="text-right">
-                    <span className="text-xs text-stone-400 font-bold uppercase block">
-                      Freight Fee
-                    </span>
-                    <span className="text-lg font-black text-emerald-800">
-                      ₹{order.logisticsFee}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Items in Consignment */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {order.items.map((it, idx) => (
-                    <div
-                      key={idx}
-                      className="p-2.5 bg-stone-50 dark:bg-stone-950 rounded-xl border border-stone-100 flex items-center gap-2.5 text-xs"
-                    >
-                      <img
-                        src={it.image}
-                        alt={it.name}
-                        className="w-10 h-10 rounded-lg object-cover"
-                      />
-                      <div className="min-w-0">
-                        <div className="font-bold text-stone-900 dark:text-stone-100 truncate">{it.name}</div>
-                        <div className="text-[11px] text-stone-500 dark:text-stone-400">
-                          {it.quantity} {it.unit} • Grower: {it.farmerName}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Status Advancement Controls */}
-                <div className="flex flex-wrap items-center justify-between gap-4 pt-2 border-t border-stone-100">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-stone-500 dark:text-stone-400 font-medium">Trip Progress:</span>
-                    {order.status === 'CONFIRMED' && (
-                      <button
-                        onClick={() => handleUpdateStatus(order.id, 'PREPARING')}
-                        className="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-emerald-950 rounded-lg text-xs font-bold transition"
-                      >
-                        Mark at Farm / Loading Crates
-                      </button>
-                    )}
-                    {order.status === 'PREPARING' && (
-                      <button
-                        onClick={() => handleUpdateStatus(order.id, 'PICKED_UP')}
-                        className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition"
-                      >
-                        Confirm Loaded & Depart Farm
-                      </button>
-                    )}
-                    {order.status === 'PICKED_UP' && (
-                      <button
-                        onClick={() => handleUpdateStatus(order.id, 'IN_TRANSIT')}
-                        className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition"
-                      >
-                        Mark In Transit (Bhubaneswar Grid)
-                      </button>
-                    )}
-                  </div>
-
-                  {/* Customer OTP Verification Section */}
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-stone-600 dark:text-stone-300 font-bold">Delivery OTP:</span>
-                    <input
-                      type="text"
-                      maxLength={6}
-                      placeholder="6-digit OTP"
-                      value={activeOtpInputs[order.id] || ''}
-                      onChange={e =>
-                        setActiveOtpInputs(prev => ({
-                          ...prev,
-                          [order.id]: e.target.value,
-                        }))
-                      }
-                      className="w-28 px-2 py-1 bg-stone-50 dark:bg-stone-950 border border-stone-300 rounded-lg text-xs font-mono text-center tracking-widest font-bold focus:outline-none focus:border-emerald-600"
-                    />
-                    <button
-                      onClick={() => handleVerifyDelivery(order)}
-                      className="px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-black transition active:scale-95 shadow-xs"
-                    >
-                      Complete & Release Freight
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
     )}
 
-    {/* TAB 2: TRAVELLED HISTORY WITH EARNINGS */}
-    {logisticsTab === 'travelled_history' && (
+    {/* ========================================================================= */}
+    {/* SEGMENT 4: TRAVELLED HISTORY WITH EARNINGS                                */}
+    {/* ========================================================================= */}
+    {(logisticsSegment === 'travelled_history' || logisticsTab === 'travelled_history') && (
       <div className="space-y-6 animate-in fade-in">
         {/* Metric Summary Cards */}
         <div className="bg-white dark:bg-stone-900 transition-colors rounded-2xl border border-stone-200 dark:border-stone-700 p-6 shadow-xs">
@@ -1485,185 +1724,192 @@ export const LogisticsDashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Travelled Trips Table */}
-        <div className="bg-white dark:bg-stone-900 transition-colors rounded-2xl border border-stone-200 dark:border-stone-700 overflow-hidden shadow-xs">
-          <div className="p-4 border-b border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-950 flex items-center justify-between">
-            <h4 className="font-bold text-xs uppercase tracking-wider text-stone-700 dark:text-stone-300 flex items-center gap-2">
-              <History className="w-4 h-4 text-stone-500 dark:text-stone-400" />
-              <span>Completed Travel Trips & Instant Disbursed Earnings</span>
+        {/* Travelled Trips Mobile & Desktop Card Stack */}
+        <div className="space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-1">
+            <h4 className="font-extrabold text-sm uppercase tracking-wider text-stone-800 dark:text-stone-200 flex items-center gap-2">
+              <History className="w-4 h-4 text-blue-600" />
+              <span>Carrier Waybills & Completed Trips (14)</span>
             </h4>
             <span className="text-xs text-stone-500 dark:text-stone-400 font-medium">Auto-released via Consumer OTP Verification</span>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-stone-700 dark:text-stone-300">
-              <thead className="bg-stone-100/75 text-stone-500 dark:text-stone-400 uppercase text-[10px] font-bold border-b border-stone-200 dark:border-stone-700">
-                <tr>
-                  <th className="p-3.5">Trip ID & Completed</th>
-                  <th className="p-3.5">Origin & Destination</th>
-                  <th className="p-3.5">Travelled Distance & Time</th>
-                  <th className="p-3.5">Vehicle Used</th>
-                  <th className="p-3.5">Consignment & Buyer</th>
-                  <th className="p-3.5">Earnings Credited</th>
-                  <th className="p-3.5">Settlement & e-Waybill</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-stone-100">
-                {[
-                  {
-                    tripId: 'TRIP-7492',
-                    orderRef: '#ord_1079',
-                    date: 'Completed 2 days ago',
-                    origin: 'Nashik Farmer Collection Hub, MH',
-                    destination: 'HAL 2nd Stage, Indiranagar, Bengaluru',
-                    distance: '18.4 km',
-                    duration: '38 mins',
-                    vehicle: 'Tata Ace Reefer (OD 02 AX 8840)',
-                    produce: 'Nashik Red Onions (25 kg) + Sharbati Gehu (30 kg)',
-                    buyer: 'Ananya Sharma',
-                    otp: 'Verified (OTP 482910)',
-                    earnings: '₹280',
-                    rateKm: '₹15.2/km',
-                    ref: 'IMPS-92018471',
-                    status: 'Settled to Bank',
-                  },
-                  {
-                    tripId: 'TRIP-7488',
-                    orderRef: '#ord_1065',
-                    date: 'Completed 7 days ago',
-                    origin: 'Khordha Krishi Vikas Kendra, OD',
-                    destination: 'Patia Infocity DLF Square, Bhubaneswar',
-                    distance: '24.2 km',
-                    duration: '46 mins',
-                    vehicle: 'Tata Ace Reefer (OD 02 AX 8840)',
-                    produce: 'Organic Tomatoes (10 kg) + Desi Chana (40 kg)',
-                    buyer: 'Ananya Sharma',
-                    otp: 'Verified (OTP 639102)',
-                    earnings: '₹340',
-                    rateKm: '₹14.0/km',
-                    ref: 'IMPS-83910245',
-                    status: 'Settled to Bank',
-                  },
-                  {
-                    tripId: 'TRIP-7471',
-                    orderRef: '#ord_bulk_910',
-                    date: 'Completed 12 days ago',
-                    origin: 'Mancheswar Agro Cold Hub, Bhubaneswar',
-                    destination: 'Taj Vivanta Kitchens, Janpath, Bhubaneswar',
-                    distance: '14.8 km',
-                    duration: '31 mins',
-                    vehicle: 'Mahindra Bolero Maxi (OD 02 BY 4410)',
-                    produce: 'Export Quality Onions (450 kg Bulk Lot)',
-                    buyer: 'Taj Vivanta Hospitality',
-                    otp: 'Verified (OTP 720194)',
-                    earnings: '₹680',
-                    rateKm: '₹45.9/km',
-                    ref: 'RTGS-01928472',
-                    status: 'Settled to Bank',
-                  },
-                  {
-                    tripId: 'TRIP-7455',
-                    orderRef: '#ord_bulk_892',
-                    date: 'Completed 18 days ago',
-                    origin: 'Pipili Farm Cluster Aggregator, Puri',
-                    destination: 'Puri Jagannath Bhojanalaya, Grand Road',
-                    distance: '38.6 km',
-                    duration: '58 mins',
-                    vehicle: 'Tata Ace Reefer (OD 02 AX 8840)',
-                    produce: 'Fresh Polyhouse Tomatoes (280 kg Crate Lot)',
-                    buyer: 'Puri Jagannath Bhojanalaya',
-                    otp: 'Verified (OTP 118492)',
-                    earnings: '₹850',
-                    rateKm: '₹22.0/km',
-                    ref: 'IMPS-72910481',
-                    status: 'Settled to Bank',
-                  },
-                  {
-                    tripId: 'TRIP-7430',
-                    orderRef: '#ord_bulk_870',
-                    date: 'Completed 24 days ago',
-                    origin: 'Sehore Krishi Mandi Hub, MP',
-                    destination: 'Bengaluru Healthy Bakes Federation',
-                    distance: '42.0 km',
-                    duration: '1h 15m',
-                    vehicle: 'Eicher 14-Foot Reefer (OD 02 CZ 9012)',
-                    produce: 'Sharbati Gold Wheat (550 kg Grain Sacks)',
-                    buyer: 'Bengaluru Healthy Bakes',
-                    otp: 'Verified (OTP 982104)',
-                    earnings: '₹1,450',
-                    rateKm: '₹34.5/km',
-                    ref: 'RTGS-98120412',
-                    status: 'Settled to Bank',
-                  },
-                  {
-                    tripId: 'TRIP-7412',
-                    orderRef: '#ord_loc_512',
-                    date: 'Completed 28 days ago',
-                    origin: 'Saheed Nagar Farmer Mart, Bhubaneswar',
-                    destination: 'Khandagiri Residential Colony, Bhubaneswar',
-                    distance: '16.5 km',
-                    duration: '35 mins',
-                    vehicle: 'Tata Ace Reefer (OD 02 AX 8840)',
-                    produce: 'Organic Desi Ghee & Pulses (85 kg)',
-                    buyer: 'Dr. Debashis Mohanty',
-                    otp: 'Verified (OTP 554192)',
-                    earnings: '₹320',
-                    rateKm: '₹19.3/km',
-                    ref: 'IMPS-61029384',
-                    status: 'Settled to Bank',
-                  },
-                ].map(trip => (
-                  <tr key={trip.tripId} className="hover:bg-stone-50/80 transition">
-                    <td className="p-3.5">
-                      <div className="font-mono font-bold text-stone-900 dark:text-stone-100">{trip.tripId}</div>
-                      <div className="text-[10px] text-stone-500 dark:text-stone-400">{trip.date}</div>
-                      <span className="text-[9px] text-stone-400 font-mono">Ref {trip.orderRef}</span>
-                    </td>
-                    <td className="p-3.5">
-                      <div className="font-semibold text-stone-900 dark:text-stone-100 text-xs">{trip.destination}</div>
-                      <div className="text-[10px] text-stone-500 dark:text-stone-400 flex items-center gap-1 mt-0.5">
-                        <MapPin className="w-3 h-3 text-stone-400 shrink-0" />
-                        <span>From: {trip.origin}</span>
-                      </div>
-                    </td>
-                    <td className="p-3.5">
-                      <div className="font-bold text-blue-900 text-xs">{trip.distance}</div>
-                      <div className="text-[10px] text-stone-500 dark:text-stone-400">{trip.duration}</div>
-                    </td>
-                    <td className="p-3.5">
-                      <div className="font-medium text-stone-800 dark:text-stone-200 text-[11px]">{trip.vehicle}</div>
-                      <span className="text-[10px] text-emerald-700 font-semibold">Cold Chain Validated</span>
-                    </td>
-                    <td className="p-3.5">
-                      <div className="font-bold text-stone-900 dark:text-stone-100 text-xs">{trip.produce}</div>
-                      <div className="text-[10px] text-stone-500 dark:text-stone-400">Buyer: {trip.buyer}</div>
-                      <span className="text-[9px] text-emerald-700 font-mono font-semibold block mt-0.5">
-                        {trip.otp}
-                      </span>
-                    </td>
-                    <td className="p-3.5">
-                      <span className="font-black text-emerald-800 text-sm block">{trip.earnings}</span>
-                      <span className="text-[10px] text-emerald-700 font-semibold">100% Payout</span>
-                      <span className="text-[9px] text-stone-400 block">{trip.rateKm}</span>
-                    </td>
-                    <td className="p-3.5">
-                      <div className="font-mono text-[10px] font-bold text-stone-700 dark:text-stone-300">{trip.ref}</div>
-                      <div className="flex items-center gap-1 text-[10px] text-emerald-700 font-semibold">
-                        <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                        <span>{trip.status}</span>
-                      </div>
-                      <button
-                        onClick={() => alert(`e-Lorry Receipt for ${trip.tripId}\nConsignment: ${trip.produce}\nDistance: ${trip.distance}\nEarnings: ${trip.earnings}\nSettlement Ref: ${trip.ref}`)}
-                        className="text-[10px] text-blue-700 hover:text-blue-900 font-bold flex items-center gap-1 mt-1 cursor-pointer"
-                      >
-                        <FileText className="w-3 h-3" />
-                        <span>View e-LR</span>
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          {/* Completed Trip Invoice Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {[
+              {
+                tripId: '#TRIP-7492',
+                orderRef: '#ord_1079',
+                date: 'Completed 2 days ago',
+                origin: 'Nashik Farmer Collection Hub, MH',
+                destination: 'HAL 2nd Stage, Indiranagar, Bengaluru',
+                distance: '19.4 km',
+                duration: '35 mins',
+                vehicle: 'Tata Ace Reefer',
+                cargo: '25 kg Onions',
+                buyer: 'Ananya Sharma',
+                otp: 'Verified (OTP 482910)',
+                payout: '₹280 Net Freight',
+                rateKm: '₹15.2/km',
+                ref: '✓ Credited to SBI (IMPS-92018471)',
+                status: 'Settled to Bank',
+              },
+              {
+                tripId: '#TRIP-7488',
+                orderRef: '#ord_1065',
+                date: 'Completed 7 days ago',
+                origin: 'Khordha Krishi Vikas Kendra, OD',
+                destination: 'Patia Infocity DLF Square, Bhubaneswar',
+                distance: '24.2 km',
+                duration: '46 mins',
+                vehicle: 'Tata Ace Reefer',
+                cargo: '10 kg Tomatoes + 40 kg Chana',
+                buyer: 'Ananya Sharma',
+                otp: 'Verified (OTP 639102)',
+                payout: '₹340 Net Freight',
+                rateKm: '₹14.0/km',
+                ref: '✓ Credited to SBI (IMPS-83910245)',
+                status: 'Settled to Bank',
+              },
+              {
+                tripId: '#TRIP-7471',
+                orderRef: '#ord_bulk_910',
+                date: 'Completed 12 days ago',
+                origin: 'Mancheswar Agro Cold Hub, Bhubaneswar',
+                destination: 'Taj Vivanta Kitchens, Janpath, Bhubaneswar',
+                distance: '14.8 km',
+                duration: '31 mins',
+                vehicle: 'Mahindra Bolero Maxi',
+                cargo: '450 kg Export Onions',
+                buyer: 'Taj Vivanta Hospitality',
+                otp: 'Verified (OTP 720194)',
+                payout: '₹680 Net Freight',
+                rateKm: '₹45.9/km',
+                ref: '✓ Credited to SBI (RTGS-01928472)',
+                status: 'Settled to Bank',
+              },
+              {
+                tripId: '#TRIP-7455',
+                orderRef: '#ord_bulk_892',
+                date: 'Completed 18 days ago',
+                origin: 'Pipili Farm Cluster Aggregator, Puri',
+                destination: 'Puri Jagannath Bhojanalaya, Grand Road',
+                distance: '38.6 km',
+                duration: '58 mins',
+                vehicle: 'Tata Ace Reefer',
+                cargo: '280 kg Fresh Tomatoes',
+                buyer: 'Puri Jagannath Bhojanalaya',
+                otp: 'Verified (OTP 118492)',
+                payout: '₹850 Net Freight',
+                rateKm: '₹22.0/km',
+                ref: '✓ Credited to SBI (IMPS-72910481)',
+                status: 'Settled to Bank',
+              },
+              {
+                tripId: '#TRIP-7430',
+                orderRef: '#ord_bulk_870',
+                date: 'Completed 24 days ago',
+                origin: 'Sehore Krishi Mandi Hub, MP',
+                destination: 'Bengaluru Healthy Bakes Federation',
+                distance: '42.0 km',
+                duration: '1h 15m',
+                vehicle: 'Eicher 14-Foot Reefer',
+                cargo: '550 kg Sharbati Wheat',
+                buyer: 'Bengaluru Healthy Bakes',
+                otp: 'Verified (OTP 982104)',
+                payout: '₹1,450 Net Freight',
+                rateKm: '₹34.5/km',
+                ref: '✓ Credited to SBI (RTGS-98120412)',
+                status: 'Settled to Bank',
+              },
+              {
+                tripId: '#TRIP-7412',
+                orderRef: '#ord_loc_512',
+                date: 'Completed 28 days ago',
+                origin: 'Saheed Nagar Farmer Mart, Bhubaneswar',
+                destination: 'Khandagiri Residential Colony, Bhubaneswar',
+                distance: '16.5 km',
+                duration: '35 mins',
+                vehicle: 'Tata Ace Reefer',
+                cargo: '85 kg Desi Ghee & Pulses',
+                buyer: 'Dr. Debashis Mohanty',
+                otp: 'Verified (OTP 554192)',
+                payout: '₹320 Net Freight',
+                rateKm: '₹19.3/km',
+                ref: '✓ Credited to SBI (IMPS-61029384)',
+                status: 'Settled to Bank',
+              },
+            ].map(trip => (
+              <div
+                key={trip.tripId}
+                className="bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800 p-5 shadow-xs hover:border-blue-500/50 transition-all flex flex-col justify-between space-y-4"
+              >
+                {/* Header: Trip ID + Completed timestamp */}
+                <div className="flex items-start justify-between gap-2 border-b border-stone-100 dark:border-stone-800 pb-3">
+                  <div>
+                    <span className="font-mono font-black text-stone-900 dark:text-stone-100 text-sm tracking-tight">
+                      {trip.tripId}
+                    </span>
+                    <span className="text-[11px] text-stone-400 dark:text-stone-500 block mt-0.5">
+                      {trip.date} • Ref {trip.orderRef}
+                    </span>
+                  </div>
+                  <span className="px-2.5 py-1 rounded-full bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300 font-black text-[10px] tracking-wide shrink-0">
+                    {trip.distance} ({trip.duration})
+                  </span>
+                </div>
+
+                {/* Route: Origin -> Destination Badges */}
+                <div className="p-3 bg-stone-50 dark:bg-stone-950/70 rounded-xl border border-stone-100 dark:border-stone-800 space-y-2 text-xs">
+                  <div className="flex items-start gap-2">
+                    <div className="w-2.5 h-2.5 rounded-full bg-emerald-600 mt-0.5 shrink-0" />
+                    <div>
+                      <span className="text-[10px] text-stone-400 font-bold uppercase block">Origin Hub</span>
+                      <span className="font-semibold text-stone-800 dark:text-stone-200">{trip.origin}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-2">
+                    <div className="w-2.5 h-2.5 rounded-full bg-blue-600 mt-0.5 shrink-0" />
+                    <div>
+                      <span className="text-[10px] text-stone-400 font-bold uppercase block">Drop Location</span>
+                      <span className="font-semibold text-stone-800 dark:text-stone-200">{trip.destination}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Cargo & Vehicle Spec */}
+                <div className="space-y-1.5 text-xs">
+                  <div className="flex items-center justify-between text-stone-600 dark:text-stone-300">
+                    <span>Vehicle:</span>
+                    <strong className="text-stone-900 dark:text-stone-100">{trip.vehicle}</strong>
+                  </div>
+                  <div className="flex items-center justify-between text-stone-600 dark:text-stone-300">
+                    <span>Cargo Carried:</span>
+                    <strong className="text-stone-900 dark:text-stone-100">{trip.cargo}</strong>
+                  </div>
+                  <div className="flex items-center justify-between text-stone-600 dark:text-stone-300">
+                    <span>Recipient:</span>
+                    <span className="text-stone-700 dark:text-stone-300 font-medium">{trip.buyer} ({trip.otp})</span>
+                  </div>
+                </div>
+
+                {/* Payout & Settlement Info */}
+                <div className="pt-3 border-t border-stone-100 dark:border-stone-800 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-stone-500 dark:text-stone-400 font-bold uppercase">Disbursed Payout</span>
+                    <span className="text-base font-black text-emerald-700 dark:text-emerald-400">
+                      {trip.payout}
+                    </span>
+                  </div>
+
+                  <div className="p-2 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/80 rounded-xl flex items-center gap-1.5 text-[11px] font-bold text-emerald-800 dark:text-emerald-300">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                    <span className="truncate">{trip.ref}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>

@@ -33,6 +33,11 @@ interface AuthContextType {
   isSihModalOpen: boolean;
   activeTab: string;
   setActiveTab: (tab: string) => void;
+  escrowDisbursedDelta: number;
+  completedDeliveryIds: string[];
+  recordOtpDeliveryCompletion: (consignmentValue?: number, orderId?: string, freightFee?: number, farmerName?: string) => void;
+  escrowReleaseToast: { id: string; message: string; timestamp: number } | null;
+  clearEscrowReleaseToast: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -261,6 +266,43 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const openSihModal = () => setIsSihModalOpen(true);
   const closeSihModal = () => setIsSihModalOpen(false);
 
+  // Escrow & OTP Delivery Synchronization State
+  const [escrowDisbursedDelta, setEscrowDisbursedDelta] = useState<number>(() => {
+    const saved = localStorage.getItem('seedha_escrow_disbursed_delta');
+    return saved ? Number(saved) : 0;
+  });
+  const [completedDeliveryIds, setCompletedDeliveryIds] = useState<string[]>(() => {
+    const saved = localStorage.getItem('seedha_completed_delivery_ids');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [escrowReleaseToast, setEscrowReleaseToast] = useState<{ id: string; message: string; timestamp: number } | null>(null);
+
+  const recordOtpDeliveryCompletion = (consignmentValue?: number, orderId?: string, freightFee?: number, farmerName?: string) => {
+    const cropValue = consignmentValue !== undefined && consignmentValue > 0 ? consignmentValue : 1180;
+    const freight = freightFee && freightFee > 0 ? freightFee : 120;
+    const farmer = farmerName || 'Farmer Ramesh Patel';
+    setEscrowDisbursedDelta(prev => {
+      const next = prev + cropValue;
+      localStorage.setItem('seedha_escrow_disbursed_delta', String(next));
+      return next;
+    });
+    if (orderId) {
+      setCompletedDeliveryIds(prev => {
+        if (prev.includes(orderId)) return prev;
+        const next = [...prev, orderId];
+        localStorage.setItem('seedha_completed_delivery_ids', JSON.stringify(next));
+        return next;
+      });
+    }
+    setEscrowReleaseToast({
+      id: orderId || String(Date.now()),
+      message: `Consignment Delivered. OTP Verified. ₹${freight} Freight released to driver, ₹${cropValue.toLocaleString()} crop escrow credited to ${farmer}.`,
+      timestamp: Date.now(),
+    });
+  };
+
+  const clearEscrowReleaseToast = () => setEscrowReleaseToast(null);
+
   return (
     <AuthContext.Provider
       value={{
@@ -294,6 +336,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         isSihModalOpen,
         activeTab,
         setActiveTab,
+        escrowDisbursedDelta,
+        completedDeliveryIds,
+        recordOtpDeliveryCompletion,
+        escrowReleaseToast,
+        clearEscrowReleaseToast,
       }}
     >
       {children}

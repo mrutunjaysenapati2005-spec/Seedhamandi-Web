@@ -41,11 +41,13 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenCart }) => {
   const [isRoleMenuOpen, setIsRoleMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
-  // Dark Mode State
+  // Dark Mode State with prefers-color-scheme auto-detection
   const [isDark, setIsDark] = useState(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('theme') === 'dark' || 
-        (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme === 'dark') return true;
+      if (savedTheme === 'light') return false;
+      return window.matchMedia('(prefers-color-scheme: dark)').matches;
     }
     return false;
   });
@@ -60,6 +62,17 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenCart }) => {
       localStorage.setItem('theme', 'light');
     }
   }, [isDark]);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleChange = (e: MediaQueryListEvent) => {
+      if (!localStorage.getItem('theme')) {
+        setIsDark(e.matches);
+      }
+    };
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
 
   const toggleDarkMode = () => setIsDark(!isDark);
 
@@ -213,24 +226,26 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenCart }) => {
             {/* Cart Button (Always visible) */}
             <button
               onClick={onOpenCart}
-              className="relative p-2.5 text-stone-700 hover:text-emerald-700 hover:bg-stone-100 rounded-xl transition-colors"
+              className="relative min-w-[44px] min-h-[44px] w-11 h-11 flex items-center justify-center text-stone-700 dark:text-stone-300 hover:text-emerald-700 dark:hover:text-emerald-400 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-xl transition-colors cursor-pointer"
               title="Shopping Cart"
+              aria-label="Shopping Cart"
             >
               <ShoppingBag className="w-5 h-5" />
               {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-amber-500 text-stone-900 font-black text-[11px] w-5 h-5 rounded-full flex items-center justify-center shadow-sm">
+                <span className="absolute 1.5 1.5 bg-amber-500 text-stone-900 font-black text-[11px] w-5 h-5 rounded-full flex items-center justify-center shadow-sm">
                   {cartCount}
                 </span>
               )}
             </button>
 
-            {/* Dark Mode Toggle */}
+            {/* Dark Mode Toggle - Guaranteed 44x44px Touch Target */}
             <button
               onClick={toggleDarkMode}
-              className="p-2.5 text-stone-700 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-stone-800 rounded-xl transition-colors"
+              className="min-w-[44px] min-h-[44px] w-11 h-11 flex items-center justify-center text-stone-700 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-stone-800 rounded-xl transition-colors cursor-pointer"
               title="Toggle Theme"
+              aria-label="Toggle Theme"
             >
-              {isDark ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5" />}
+              {isDark ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5 text-stone-700 dark:text-stone-300" />}
             </button>
 
             {/* Quick Role Switcher Dropdown */}
@@ -338,7 +353,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenCart }) => {
             {/* Mobile menu trigger */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="lg:hidden p-2 text-stone-600 hover:text-stone-900 rounded-lg"
+              className="lg:hidden min-w-[44px] min-h-[44px] w-11 h-11 flex items-center justify-center text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white rounded-xl hover:bg-stone-100 dark:hover:bg-stone-800 transition cursor-pointer"
+              aria-label="Toggle Navigation Menu"
             >
               {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -348,13 +364,13 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenCart }) => {
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="lg:hidden bg-white border-b border-stone-200 px-4 pt-2 pb-4 space-y-2 animate-in fade-in duration-150">
+        <div className="lg:hidden bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-800 px-4 pt-2 pb-4 space-y-1.5 animate-in fade-in duration-150">
           <button
             onClick={() => {
               setActiveTab('landing');
               setIsMobileMenuOpen(false);
             }}
-            className="w-full text-left px-3 py-2 rounded-lg text-sm font-bold text-emerald-800 hover:bg-emerald-50"
+            className="w-full text-left px-3 py-2.5 rounded-xl text-sm font-bold text-emerald-800 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 cursor-pointer"
           >
             Home (Select Role)
           </button>
@@ -364,7 +380,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenCart }) => {
               setActiveTab('marketplace');
               setIsMobileMenuOpen(false);
             }}
-            className="w-full text-left px-3 py-2 rounded-lg text-sm font-semibold text-stone-700 hover:bg-stone-50"
+            className="w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer"
           >
             Consumer Market
           </button>
@@ -374,7 +390,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenCart }) => {
               setActiveTab('farmer_dashboard');
               setIsMobileMenuOpen(false);
             }}
-            className="w-full text-left px-3 py-2 rounded-lg text-sm font-semibold text-stone-700 hover:bg-stone-50"
+            className="w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer"
           >
             Farmer / FPO Hub
           </button>
@@ -384,7 +400,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenCart }) => {
               setActiveTab('logistics_dashboard');
               setIsMobileMenuOpen(false);
             }}
-            className="w-full text-left px-3 py-2 rounded-lg text-sm font-semibold text-stone-700 hover:bg-stone-50"
+            className="w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer"
           >
             Logistics Fleet (Bhubaneswar)
           </button>
@@ -393,7 +409,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenCart }) => {
               setActiveTab('demand_intel');
               setIsMobileMenuOpen(false);
             }}
-            className="w-full text-left px-3 py-2 rounded-lg text-sm font-semibold text-amber-800 bg-amber-50"
+            className="w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-900/50 cursor-pointer"
           >
             AI Demand Intel
           </button>

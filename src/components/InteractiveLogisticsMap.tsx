@@ -937,28 +937,30 @@ export const InteractiveLogisticsMap: React.FC<InteractiveLogisticsMapProps> = (
           </div>
         </div>
 
-        {/* Turn-by-Turn Waypoint Sequence */}
-        <div className="space-y-2">
+        {/* Turn-by-Turn Waypoint Sequence: Single Vertical Chronological Path */}
+        <div className="space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-xs font-extrabold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Optimized Multi-Stop Delivery Sequence (From Your GPS)</span>
+              <Sparkles className="w-4 h-4 text-emerald-400" />
+              <span>Multi-Stop Delivery Sequence (Chronological Route Path)</span>
             </span>
-            <span className="text-[11px] text-slate-400">
+            <span className="text-xs font-bold text-slate-400">
               {optimizedRoute.waypoints.length} Total Waypoints
             </span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            {optimizedRoute.waypoints.map(w => {
+          {/* Single Vertical Chronological Timeline */}
+          <div className="relative pl-6 sm:pl-8 space-y-3 before:absolute before:top-4 before:bottom-4 before:left-3 sm:before:left-4 before:w-0.5 before:bg-slate-700">
+            {optimizedRoute.waypoints.map((w, idx) => {
               const isStart = w.type === 'DRIVER_START';
               const isPickup = w.type === 'PICKUP';
               const isDrop = w.type === 'DROP';
+              const seqNum = isStart ? 'Start' : String(w.seq || idx);
 
               return (
                 <div
-                  key={`wp-card-${w.seq}`}
-                  className={`p-3 rounded-2xl border transition-all ${
+                  key={`wp-timeline-${w.seq}-${idx}`}
+                  className={`relative p-4 rounded-2xl border transition-all ${
                     isStart
                       ? 'bg-blue-950/40 border-blue-500/40'
                       : isPickup
@@ -966,43 +968,84 @@ export const InteractiveLogisticsMap: React.FC<InteractiveLogisticsMapProps> = (
                       : 'bg-indigo-950/30 border-indigo-500/40'
                   }`}
                 >
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <span
-                        className={`w-6 h-6 rounded-full font-mono font-black text-xs flex items-center justify-center shrink-0 ${
-                          isStart
-                            ? 'bg-blue-600 text-white'
-                            : isPickup
-                            ? 'bg-emerald-600 text-white'
-                            : 'bg-indigo-600 text-white'
-                        }`}
-                      >
-                        {isStart ? '★' : w.seq}
-                      </span>
-                      <div>
-                        <span className="text-xs font-black text-white block truncate max-w-[180px]">
-                          {w.name}
-                        </span>
-                        <span className="text-[10px] text-slate-400 block truncate max-w-[180px]">
-                          {w.location}
+                  {/* Waypoint timeline marker node */}
+                  <div
+                    className={`absolute -left-[31px] sm:-left-[39px] top-4 w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 border-slate-900 flex items-center justify-center font-mono font-black text-xs shadow-md z-10 ${
+                      isStart
+                        ? 'bg-blue-600 text-white'
+                        : isPickup
+                        ? 'bg-emerald-600 text-white'
+                        : 'bg-indigo-600 text-white'
+                    }`}
+                  >
+                    {isStart ? '0' : seqNum}
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {isStart && (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                            <Navigation className="w-3 h-3" />
+                            <span>Origin GPS Node</span>
+                          </span>
+                        )}
+                        {isPickup && (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                            <Sprout className="w-3 h-3" />
+                            <span>Pickup Node (Farmgate)</span>
+                          </span>
+                        )}
+                        {isDrop && (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                            <MapPin className="w-3 h-3" />
+                            <span>Drop Hub (Buyer / Storage)</span>
+                          </span>
+                        )}
+                        <span className="text-xs font-bold text-slate-400">
+                          Stop #{seqNum}
                         </span>
                       </div>
+
+                      <h4 className="text-sm font-bold text-white leading-snug">
+                        {w.name}
+                      </h4>
+                      <p className="text-xs text-slate-300 flex items-center gap-1">
+                        <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                        <span>{w.location}</span>
+                      </p>
                     </div>
 
-                    <div className="text-right shrink-0">
-                      <span className="text-[10px] font-mono font-bold text-amber-400 block">
-                        +{w.legDistanceKm} km
-                      </span>
-                      <span className="text-[10px] text-slate-400 block">
-                        ETA ~{w.cumulativeMins}m
-                      </span>
+                    <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-800 shrink-0 gap-1">
+                      <div className="text-left sm:text-right">
+                        <span className="text-xs font-mono font-bold text-amber-400 block">
+                          +{w.legDistanceKm} km leg
+                        </span>
+                        <span className="text-[11px] text-slate-400 block">
+                          Cumulative ETA: ~{w.cumulativeMins} mins
+                        </span>
+                      </div>
+                      {w.payout ? (
+                        <span className="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-black">
+                          ₹{w.payout} Freight Payout
+                        </span>
+                      ) : null}
                     </div>
                   </div>
 
-                  {w.cargo && (
-                    <div className="mt-2 pt-2 border-t border-slate-800 text-[10px] text-slate-300 flex items-center justify-between">
-                      <span className="truncate max-w-[200px]">{w.cargo}</span>
-                      {w.payout && <span className="font-bold text-emerald-400">₹{w.payout}</span>}
+                  {/* Cargo Weight & Specifications */}
+                  {(w.cargo || (w as any).weightKg) && (
+                    <div className="mt-3 pt-2.5 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-300">
+                      <div className="flex items-center gap-2">
+                        <Package className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                        <span className="font-semibold text-white">Cargo Weight:</span>
+                        <span className="text-slate-200">
+                          {(w as any).weightKg ? `${(w as any).weightKg} kg Crates` : w.cargo}
+                        </span>
+                      </div>
+                      <span className="text-[11px] text-slate-400 font-mono">
+                        Direct Handover OTP Protected
+                      </span>
                     </div>
                   )}
                 </div>

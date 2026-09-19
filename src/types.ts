@@ -126,9 +126,13 @@ export interface LogisticsPartner {
 
 export interface Order {
   id: string;
+  orderNumber?: string;
   consumerId: string;
   consumerName: string;
   consumerPhone: string;
+  consumerEmail?: string;
+  farmerId?: string;
+  farmerName?: string;
   shippingAddress: {
     street: string;
     city: string;
@@ -141,9 +145,11 @@ export interface Order {
   platformFee: number;
   totalAmount: number;
   paymentMethod: PaymentMethod;
-  paymentStatus: 'PAID' | 'ESCROW_LOCKED' | 'RELEASED_TO_FARMER';
+  paymentStatus: 'PAID' | 'PAID_ESCROW' | 'ESCROW_LOCKED' | 'RELEASED_TO_FARMER';
+  escrowLocked?: boolean;
   status: OrderStatus;
   deliveryOtp: string;
+  deliveryNotes?: string;
   logisticsId?: string;
   logisticsName?: string;
   vehicleNumber?: string;
@@ -151,8 +157,13 @@ export interface Order {
   isBulkOrder?: boolean;
   orderType?: 'RETAIL' | 'BULK_WHOLESALE';
   bulkDiscount?: number;
-  estimatedDeliveryTime: string;
-  statusHistory: Array<{
+  estimatedDeliveryTime?: string;
+  statusHistory?: Array<{
+    status: string;
+    timestamp: string;
+    note: string;
+  }>;
+  timeline?: Array<{
     status: string;
     timestamp: string;
     note: string;

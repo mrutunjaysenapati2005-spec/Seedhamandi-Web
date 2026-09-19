@@ -498,7 +498,7 @@ export const FarmerLowStockToast: React.FC<{
   if (alerts.length === 0) return null;
 
   return (
-    <div className="fixed top-20 right-4 sm:right-6 z-50 flex flex-col gap-2.5 max-w-sm w-full pointer-events-none">
+    <div className="fixed bottom-4 left-4 right-4 sm:bottom-auto sm:top-20 sm:right-6 sm:left-auto z-50 max-w-md mx-auto sm:mx-0 flex flex-col gap-2.5 w-full sm:w-[380px] pointer-events-none">
       {alerts.map(alert => (
         <div
           key={alert.id}
