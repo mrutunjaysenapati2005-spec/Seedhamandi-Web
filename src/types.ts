@@ -282,5 +282,12 @@ export interface RouteOptimizationResult {
     weightKg: number;
     etaMinutesFromStart: number;
     notes: string;
+    perishabilityScore?: number;
+    perishabilityTier?: 'HIGH' | 'MODERATE' | 'LOW';
+    transitSavings?: string;
+    customerOtp?: string;
+    coords?: { lat: number; lng: number };
+    location?: string;
+    type?: 'DRIVER_START' | 'PICKUP' | 'DROP';
   }>;
 }

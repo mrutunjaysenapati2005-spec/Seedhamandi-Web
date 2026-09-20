@@ -25,7 +25,7 @@ import {
   Pause,
   RotateCcw
 } from 'lucide-react';
-import { VehicleType } from '../types';
+import { VehicleType, RouteOptimizationResult } from '../types';
 
 export interface MapDeliveryRequest {
   id: string;
@@ -54,6 +54,7 @@ interface InteractiveLogisticsMapProps {
   driverVehiclePlate: string;
   onAcceptRequest?: (requestId: string) => void;
   onRejectRequest?: (requestId: string) => void;
+  aiRoutePlan?: RouteOptimizationResult | null;
 }
 
 interface GeolocationState {
@@ -81,6 +82,11 @@ export interface RouteWaypoint {
   legDurationMins: number;
   cumulativeKm: number;
   cumulativeMins: number;
+  perishabilityScore?: number;
+  perishabilityTier?: 'HIGH' | 'MODERATE' | 'LOW';
+  transitSavings?: string;
+  customerOtp?: string;
+  notes?: string;
 }
 
 // Haversine geodesic distance in kilometers
@@ -104,6 +110,7 @@ export const InteractiveLogisticsMap: React.FC<InteractiveLogisticsMapProps> = (
   driverVehiclePlate,
   onAcceptRequest,
   onRejectRequest,
+  aiRoutePlan,
 }) => {
   // Default regional fallback center (Mancheswar Central Agro Depot, Bhubaneswar)
   const defaultCenter = { lat: 20.316, lng: 85.864 };
@@ -290,6 +297,48 @@ export const InteractiveLogisticsMap: React.FC<InteractiveLogisticsMapProps> = (
   // Compute Optimized Multi-Stop Route Path
   // Starts from Driver's GPS Coordinates -> Sequenced Pickups -> Deliveries
   const optimizedRoute = useMemo(() => {
+    // If an explicit AI Multi-Stop Perishability Route Plan exists, prioritize its ordered waypoints
+    if (aiRoutePlan && aiRoutePlan.orderedWaypoints && aiRoutePlan.orderedWaypoints.length > 0) {
+      let cumKm = 0;
+      let cumMins = 0;
+      const count = aiRoutePlan.orderedWaypoints.length;
+      const waypoints: RouteWaypoint[] = aiRoutePlan.orderedWaypoints.map((w, idx) => {
+        const coords = w.coords || defaultCenter;
+        const legDist = idx === 0 ? 0 : Number(((aiRoutePlan.optimizedDistanceKm || 63.6) / (count - 1)).toFixed(1));
+        const legMins = idx === 0 ? 0 : Math.round((aiRoutePlan.optimizedDurationMins || 131) / (count - 1));
+        cumKm += legDist;
+        cumMins += legMins;
+
+        return {
+          seq: w.seq,
+          type: (w.type as any) || (idx === 0 ? 'DRIVER_START' : w.action.toLowerCase().includes('pickup') || w.action.toLowerCase().includes('loading') ? 'PICKUP' : 'DROP'),
+          requestId: w.stopId,
+          name: w.stopName,
+          location: w.location || w.stopName,
+          coords: coords,
+          cargo: `${w.produce} (${w.weightKg} kg)`,
+          payout: 180 + idx * 45,
+          legDistanceKm: legDist,
+          legDurationMins: legMins,
+          cumulativeKm: Math.round(cumKm * 10) / 10,
+          cumulativeMins: w.etaMinutesFromStart || cumMins,
+          perishabilityScore: w.perishabilityScore,
+          perishabilityTier: w.perishabilityTier,
+          transitSavings: w.transitSavings,
+          customerOtp: w.customerOtp,
+          notes: w.notes,
+        };
+      });
+
+      return {
+        waypoints,
+        totalKm: aiRoutePlan.optimizedDistanceKm || 63.6,
+        totalMins: aiRoutePlan.optimizedDurationMins || 131,
+        distanceSavedKm: aiRoutePlan.distanceSavedKm || 5.4,
+        fuelSavingsInr: aiRoutePlan.fuelCostSavedInr || 62,
+      };
+    }
+
     const driverPoint = { lat: geoState.lat, lng: geoState.lng };
     const routeRequests = filteredRequests.slice(0, 4); // optimize active batches
 
@@ -401,7 +450,7 @@ export const InteractiveLogisticsMap: React.FC<InteractiveLogisticsMapProps> = (
       distanceSavedKm: distanceSaved,
       fuelSavingsInr,
     };
-  }, [geoState.lat, geoState.lng, geoState.isLiveGps, filteredRequests]);
+  }, [geoState.lat, geoState.lng, geoState.isLiveGps, filteredRequests, aiRoutePlan]);
 
   // Vehicle Simulation along the path
   useEffect(() => {
@@ -1005,6 +1054,42 @@ export const InteractiveLogisticsMap: React.FC<InteractiveLogisticsMapProps> = (
                         <span className="text-xs font-bold text-slate-400">
                           Stop #{seqNum}
                         </span>
+
+                        {/* Interactive Simulation Status */}
+                        {(isSimulatingMove || simProgressStep > 0) && idx < simProgressStep && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-500 text-white shadow-xs">
+                            <CheckCircle2 className="w-3 h-3" />
+                            <span>COMPLETED</span>
+                          </span>
+                        )}
+                        {(isSimulatingMove || simProgressStep > 0) && idx === simProgressStep && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-400 text-slate-950 animate-pulse shadow-xs">
+                            <Truck className="w-3 h-3" />
+                            <span>CURRENT EN ROUTE</span>
+                          </span>
+                        )}
+
+                        {/* Perishability Score Pill */}
+                        {w.perishabilityScore !== undefined && (
+                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black border ${
+                            w.perishabilityTier === 'HIGH'
+                              ? 'bg-rose-500/20 text-rose-300 border-rose-500/40'
+                              : w.perishabilityTier === 'MODERATE'
+                              ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                              : 'bg-slate-700/40 text-slate-300 border-slate-600/40'
+                          }`}>
+                            <span>Perishability: {w.perishabilityScore}/10</span>
+                            <span>•</span>
+                            <span>{w.perishabilityTier === 'HIGH' ? 'HIGH (Expedited Cold Drop)' : w.perishabilityTier}</span>
+                          </span>
+                        )}
+
+                        {/* Transit Savings Pill */}
+                        {w.transitSavings && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                            <span>⚡ {w.transitSavings}</span>
+                          </span>
+                        )}
                       </div>
 
                       <h4 className="text-sm font-bold text-white leading-snug">
@@ -1033,21 +1118,31 @@ export const InteractiveLogisticsMap: React.FC<InteractiveLogisticsMapProps> = (
                     </div>
                   </div>
 
-                  {/* Cargo Weight & Specifications */}
-                  {(w.cargo || (w as any).weightKg) && (
-                    <div className="mt-3 pt-2.5 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-300">
-                      <div className="flex items-center gap-2">
-                        <Package className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                        <span className="font-semibold text-white">Cargo Weight:</span>
-                        <span className="text-slate-200">
-                          {(w as any).weightKg ? `${(w as any).weightKg} kg Crates` : w.cargo}
-                        </span>
-                      </div>
-                      <span className="text-[11px] text-slate-400 font-mono">
-                        Direct Handover OTP Protected
+                  {/* Cargo Weight, Notes & Customer OTP Handover */}
+                  <div className="mt-3 pt-2.5 border-t border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between text-xs text-slate-300 gap-2">
+                    <div className="flex items-center gap-2">
+                      <Package className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                      <span className="font-semibold text-white">Cargo:</span>
+                      <span className="text-slate-200">
+                        {(w as any).weightKg ? `${(w as any).weightKg} kg Crates` : w.cargo}
                       </span>
+                      {w.notes && (
+                        <span className="text-slate-400 text-[11px] font-mono hidden md:inline">
+                          • {w.notes}
+                        </span>
+                      )}
                     </div>
-                  )}
+                    {w.customerOtp ? (
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-500/20 text-blue-200 border border-blue-500/40 font-mono text-[11px] font-bold">
+                        <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                        <span>Consignment Handover OTP: {w.customerOtp}</span>
+                      </span>
+                    ) : (
+                      <span className="text-[11px] text-slate-400 font-mono">
+                        Direct Fleet Handover
+                      </span>
+                    )}
+                  </div>
                 </div>
               );
             })}

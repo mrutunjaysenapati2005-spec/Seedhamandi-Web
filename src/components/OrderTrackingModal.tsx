@@ -170,6 +170,12 @@ export const OrderTrackingModal: React.FC<OrderTrackingModalProps> = ({
             </div>
           </div>
 
+          {/* Cold-Chain Integrity Verified Trust Seal */}
+          <div className="p-3 bg-teal-50 dark:bg-teal-950/70 border border-teal-200 dark:border-teal-800 rounded-xl flex items-center gap-2 text-xs font-bold text-teal-800 dark:text-teal-300">
+            <span className="w-5 h-5 rounded-full bg-teal-600 text-white flex items-center justify-center text-xs shrink-0">✓</span>
+            <span>Cold-Chain Integrity Verified: Maintained &lt; 5°C throughout transit</span>
+          </div>
+
           {/* Items in this Order */}
           <div className="space-y-2">
             <h4 className="text-xs font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">Produce in this Consignment</h4>

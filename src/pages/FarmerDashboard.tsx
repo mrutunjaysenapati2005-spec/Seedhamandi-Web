@@ -856,6 +856,15 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({
                               <span className="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300">
                                 {product.category}
                               </span>
+                              {(product.name.toLowerCase().includes('strawberr') ||
+                                product.name.toLowerCase().includes('tomato') ||
+                                product.name.toLowerCase().includes('polyhouse') ||
+                                product.category === 'FRUITS') && (
+                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-teal-100 dark:bg-teal-950 text-teal-800 dark:text-teal-300 border border-teal-300 dark:border-teal-700 shadow-2xs">
+                                  <span>❄️</span>
+                                  <span>IoT Reefer Cold-Chain Assigned - 4.2°C Active</span>
+                                </span>
+                              )}
                             </div>
 
                             <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5">

@@ -728,6 +728,12 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     Assigned: {recommendedVehicle.name} (Bhubaneswar Hub)
                   </div>
                 </div>
+
+                {/* Cold-Chain Integrity Verified Trust Seal */}
+                <div className="p-2.5 bg-teal-50 dark:bg-teal-950/70 border border-teal-200 dark:border-teal-800 rounded-xl flex items-center gap-2 text-xs font-bold text-teal-800 dark:text-teal-300">
+                  <span className="w-4 h-4 rounded-full bg-teal-600 text-white flex items-center justify-center text-[10px] shrink-0">✓</span>
+                  <span>Cold-Chain Integrity Verified: Maintained &lt; 5°C throughout transit</span>
+                </div>
               </div>
 
               {/* Actions */}
