@@ -1,4 +1,5 @@
 import { Product, Order, DemandInsightsData, User, BulkRfq, CropForecastResult, RouteOptimizationResult, LogisticsPartner, AppNotification } from '../types';
+import { offlineSync } from './offlineSync';
 
 let cachedOrders: Order[] = [];
 let cachedProducts: Product[] = [];
@@ -205,6 +206,23 @@ export const api = {
 
   // Products
   async getProducts(params?: { category?: string; search?: string; farmerId?: string }): Promise<{ products: Product[] }> {
+    // If running in low-bandwidth / offline mode, immediately serve from embedded fallback DB
+    if (!offlineSync.isEffectiveOnline()) {
+      const offlineItems = offlineSync.getCachedProducts();
+      let filtered = [...offlineItems];
+      if (params?.category && params.category !== 'ALL') {
+        filtered = filtered.filter(p => p.category?.toUpperCase() === params.category?.toUpperCase());
+      }
+      if (params?.search) {
+        const s = params.search.toLowerCase();
+        filtered = filtered.filter(p => p.name.toLowerCase().includes(s) || p.description?.toLowerCase().includes(s));
+      }
+      if (params?.farmerId) {
+        filtered = filtered.filter(p => p.farmerId === params.farmerId);
+      }
+      return { products: filtered.length > 0 ? filtered : cachedProducts };
+    }
+
     const query = new URLSearchParams();
     if (params?.category) query.set('category', params.category);
     if (params?.search) query.set('search', params.search);
@@ -213,23 +231,35 @@ export const api = {
     const data = await safeFetch<{ products: Product[] }>(
       `/api/products?${query.toString()}`,
       undefined,
-      { products: cachedProducts }
+      { products: cachedProducts.length > 0 ? cachedProducts : offlineSync.getCachedProducts() }
     );
     if (data && Array.isArray(data.products) && data.products.length > 0) {
       cachedProducts = data.products;
+      // Keep offline fallback DB warm with latest server catalog
+      offlineSync.cacheProducts(data.products);
     }
-    return data || { products: cachedProducts };
+    return data || { products: cachedProducts.length > 0 ? cachedProducts : offlineSync.getCachedProducts() };
   },
 
   async getProductById(id: string): Promise<{ product?: Product; error?: string }> {
+    const local = offlineSync.getCachedProducts().find(p => p.id === id);
     return safeFetch<{ product?: Product; error?: string }>(
       `/api/products/${id}`,
       undefined,
-      { product: cachedProducts.find(p => p.id === id) }
+      { product: local || cachedProducts.find(p => p.id === id) }
     );
   },
 
   async createProduct(productData: Partial<Product>) {
+    if (!offlineSync.isEffectiveOnline()) {
+      offlineSync.enqueueMutation(
+        'LIST_PRODUCT',
+        productData,
+        `Listing: ${productData.name} (${productData.price} ₹/${productData.unit})`
+      );
+      return { message: 'Product saved in offline queue (will sync upon reconnection)', product: productData };
+    }
+
     return safeFetch(
       '/api/products',
       {
@@ -266,6 +296,16 @@ export const api = {
 
 // Orders
   async createOrder(orderData: { items: any[]; shippingAddress: any; paymentMethod: string; isBulkOrder?: boolean; deliveryNotes?: string }): Promise<{ message?: string; order: Order }> {
+    // If offline, bypass network immediately, save to local doc store, and enqueue for auto-sync
+    if (!offlineSync.isEffectiveOnline()) {
+      const fallback = createLocalMockOrder(orderData);
+      offlineSync.recordOfflineOrder(fallback);
+      return {
+        message: 'Order created & recorded in Offline Queue (Auto-syncs on reconnect)',
+        order: fallback
+      };
+    }
+
     try {
       const res = await fetch('/api/orders', {
         method: 'POST',
@@ -281,8 +321,9 @@ export const api = {
         } catch {
           // Response is non-JSON or rate limit message
         }
-        // Fall back gracefully to mock order state
+        // Fall back gracefully to local order state and queue it
         const fallback = createLocalMockOrder(orderData);
+        offlineSync.recordOfflineOrder(fallback);
         return { message: 'Order placed successfully & Escrow Locked', order: fallback };
       }
 
@@ -290,20 +331,22 @@ export const api = {
       try {
         const json = JSON.parse(text);
         if (json.order) {
-          // Cache order
           cachedOrders = [json.order, ...cachedOrders.filter(o => o.id !== json.order.id)];
           return json;
         }
         const fallback = createLocalMockOrder(orderData);
+        offlineSync.recordOfflineOrder(fallback);
         return { message: 'Order created', order: fallback };
       } catch {
         const fallback = createLocalMockOrder(orderData);
+        offlineSync.recordOfflineOrder(fallback);
         return { message: 'Order created', order: fallback };
       }
     } catch (err) {
       console.warn('createOrder network exception handled gracefully, generating local escrow order:', err);
       const fallback = createLocalMockOrder(orderData);
-      return { message: 'Order placed successfully', order: fallback };
+      offlineSync.recordOfflineOrder(fallback);
+      return { message: 'Order placed successfully (Queued for sync)', order: fallback };
     }
   },
 

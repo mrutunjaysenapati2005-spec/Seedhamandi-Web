@@ -19,6 +19,8 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { UserRole } from '../types';
+import { offlineSync } from '../services/offlineSync';
+import { PWAInstallButton } from './PWAInstallButton';
 
 interface NavbarProps {
   onOpenCart: () => void;
@@ -41,6 +43,28 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenCart }) => {
   const [isRoleMenuOpen, setIsRoleMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
+  // PWA Offline Sync State
+  const [syncStatus, setSyncStatus] = useState({
+    isOnline: offlineSync.isEffectiveOnline(),
+    isSimulatedOffline: offlineSync.isSimulationActive(),
+    pendingCount: offlineSync.getPendingMutations().length
+  });
+
+  useEffect(() => {
+    const unsub = offlineSync.subscribe((state) => {
+      setSyncStatus({
+        isOnline: state.isOnline,
+        isSimulatedOffline: state.isSimulatedOffline,
+        pendingCount: state.pendingCount
+      });
+    });
+    return () => unsub();
+  }, []);
+
+  const handleToggleSimulation = () => {
+    offlineSync.toggleSimulatedOffline();
+  };
+
   // Dark Mode State with prefers-color-scheme auto-detection
   const [isDark, setIsDark] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -103,18 +127,43 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenCart }) => {
             <span className="hidden md:inline text-emerald-300">• Zero Middlemen • Multimodal Logistics • AI Forecasting</span>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-3 flex-wrap justify-end">
             <button
               onClick={openSihModal}
-              className="text-amber-300 hover:text-amber-200 text-xs font-bold underline flex items-center gap-1"
+              className="text-amber-300 hover:text-amber-200 text-xs font-bold underline flex items-center gap-1 mr-1"
             >
               <span>Solution Overview</span>
             </button>
 
-            <div className="flex items-center gap-1 text-emerald-200">
-              <Database className="w-3.5 h-3.5 text-emerald-400" />
-              <span className="hidden sm:inline text-emerald-300 font-mono text-[11px] font-semibold">Synced</span>
-            </div>
+            {/* Interactive "Simulate Offline / 2G Mode" Judge Demo Button */}
+            <button
+              onClick={handleToggleSimulation}
+              className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold border transition flex items-center gap-1 cursor-pointer ${
+                syncStatus.isSimulatedOffline
+                  ? 'bg-amber-400 text-stone-950 border-amber-300 hover:bg-amber-300'
+                  : 'bg-emerald-950/70 text-emerald-200 border-emerald-500/30 hover:bg-emerald-800/80 hover:text-white'
+              }`}
+              title="Toggle simulated 2G/offline state for live judge demonstrations"
+            >
+              <span>📡 {syncStatus.isSimulatedOffline ? 'Simulating 2G (Restore Online)' : 'Test Offline / 2G'}</span>
+            </button>
+
+            {/* Live PWA Status Chip */}
+            {syncStatus.isOnline ? (
+              <div className="flex items-center gap-1.5 text-emerald-200 bg-emerald-950/70 px-2.5 py-0.5 rounded-full border border-emerald-500/30 shadow-2xs">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="text-[10px] font-mono font-bold text-emerald-300">
+                  PWA Offline-Ready • Synced
+                </span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1.5 text-amber-200 bg-amber-950/80 px-2.5 py-0.5 rounded-full border border-amber-500/40 shadow-2xs">
+                <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
+                <span className="text-[10px] font-mono font-bold text-amber-300">
+                  Offline Mode • Local Cache Active
+                </span>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -209,6 +258,9 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenCart }) => {
 
           {/* Right Action Icons & Controls */}
           <div className="flex items-center gap-2.5">
+            {/* PWA Install Button (One-click install on Android/Chrome, guided on iOS) */}
+            <PWAInstallButton />
+
             {/* AI Assistant SeedhaMitra Button */}
             <button
               onClick={openSeedhaMitra}

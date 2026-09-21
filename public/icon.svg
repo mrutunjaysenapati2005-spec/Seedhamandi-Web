@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#064e3b" />
+      <stop offset="50%" stop-color="#047857" />
+      <stop offset="100%" stop-color="#022c22" />
+    </linearGradient>
+    <linearGradient id="leafGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b" />
+      <stop offset="50%" stop-color="#fbbf24" />
+      <stop offset="100%" stop-color="#d97706" />
+    </linearGradient>
+    <linearGradient id="sproutGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#10b981" />
+      <stop offset="100%" stop-color="#34d399" />
+    </linearGradient>
+    <filter id="dropShadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.3" />
+    </filter>
+  </defs>
+
+  <!-- Base Rounded Container with Safe Margin -->
+  <rect width="512" height="512" rx="112" fill="url(#bgGrad)" />
+  <rect x="16" y="16" width="480" height="480" rx="96" fill="none" stroke="#10b981" stroke-width="4" stroke-opacity="0.35" />
+
+  <!-- Sun Rays Accent Behind Sprout -->
+  <g opacity="0.25" transform="translate(256, 256)">
+    <circle r="140" fill="none" stroke="#fbbf24" stroke-width="2" stroke-dasharray="8, 12" />
+    <circle r="190" fill="none" stroke="#34d399" stroke-width="1.5" stroke-dasharray="6, 18" />
+  </g>
+
+  <!-- Central Sprout & Seed Motif -->
+  <g filter="url(#dropShadow)">
+    <!-- Main Upward Stem -->
+    <path d="M256,390 C256,330 256,260 256,190" stroke="#34d399" stroke-width="22" stroke-linecap="round" fill="none" />
+    
+    <!-- Left Leaf (Golden Mandi Harvest) -->
+    <path d="M256,290 C210,290 140,250 140,180 C190,170 245,210 256,290 Z" fill="url(#leafGrad)" />
+    
+    <!-- Right Leaf (Vibrant Organic Sprout) -->
+    <path d="M256,240 C305,240 375,195 370,125 C315,120 265,165 256,240 Z" fill="url(#sproutGrad)" />
+
+    <!-- Central Bud Gem -->
+    <circle cx="256" cy="170" r="18" fill="#fef3c7" />
+
+    <!-- Base Pod / Soil Curve -->
+    <path d="M190,410 C220,430 292,430 322,410 C305,422 207,422 190,410 Z" fill="#fbbf24" />
+  </g>
+
+  <!-- Subtle Badge Text / Branding Accent -->
+  <text x="256" y="468" text-anchor="middle" fill="#ecfdf5" font-family="system-ui, -apple-system, sans-serif" font-size="28" font-weight="900" letter-spacing="4">SEEDHAMANDI</text>
+</svg>

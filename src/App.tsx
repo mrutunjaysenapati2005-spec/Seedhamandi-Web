@@ -17,6 +17,7 @@ import { api } from './services/api';
 import { CheckCircle2, Sprout, ArrowRight } from 'lucide-react';
 import { Toaster } from 'react-hot-toast';
 import { LogisticsNotificationCenter } from './components/LogisticsNotificationCenter';
+import { OfflineNotificationDrawer } from './components/OfflineNotificationDrawer';
 
 const MainContent: React.FC = () => {
   const { 
@@ -178,6 +179,9 @@ const MainContent: React.FC = () => {
           </button>
         </div>
       )}
+
+      {/* Floating Low-Bandwidth & Offline Sync Drawer */}
+      <OfflineNotificationDrawer />
     </div>
   );
 };
