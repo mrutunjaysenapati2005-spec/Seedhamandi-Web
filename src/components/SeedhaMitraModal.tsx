@@ -153,31 +153,33 @@ export const SeedhaMitraModal: React.FC = () => {
 
   const initialPrompts: Record<string, string[]> = {
     FARMER: [
-      'What is the current Mandi price vs Direct Farm price for red onions?',
-      'How to preserve tomato shelf life without cold storage?',
-      'What are the highest demand crops projected for next week?',
+      'How do Farmers earn 25-45% higher margin via SeedhaMandi?',
+      'How does AI Demand Forecasting & 7-Day Price Prediction work?',
+      'How does AI Route Optimization save 42% transit cost?',
+      'How does IoT Cold Chain (ESP32/DHT22) prevent transit spoilage?',
       'How does Aadhaar DBT direct bank payout escrow work?',
-      'Best organic pest control for sucking pests in chili and tomato?',
+      'What is the current Mandi price vs Direct Farm price for red onions?',
     ],
     FPO_REP: [
-      'How to aggregate produce for 54 rural farmers without smartphones?',
+      'How does AI Route Optimization cluster village farmgate pickups?',
+      'How to aggregate produce for rural farmers without smartphones?',
       'How does direct escrow disbursement work for individual farmers?',
-      'What are the best strategies for rural logistics consolidation?',
-      'How to verify quality grade sorting at rural aggregation centers?',
-      'What are the projected bulk order volumes for Bhubaneswar region?',
+      'How does AI Demand Forecasting prevent post-harvest market gluts?',
+      'What is the technical architecture of this prototype?',
     ],
     CONSUMER: [
       'Why is direct farm-to-door produce fresher and pesticide-free?',
       'How does the 6-digit OTP escrow protect my purchase?',
-      'What seasonal vegetables are arriving from Maharashtra and Odisha?',
+      'How does IoT Cold Chain tracking maintain 4-8°C during delivery?',
+      'How do Farmers earn 25-45% higher margin on SeedhaMandi?',
       'How can I trace my lot back to the verified farmer?',
-      'What is the shelf-life difference in cold-chain dispatched produce?',
     ],
     LOGISTICS: [
-      'What temperature should refrigerated vans maintain for fragile fruits?',
-      'How does the 6-stage OTP delivery handoff guarantee instant freight release?',
-      'What are the best multi-stop rural route planning practices?',
-      'How does waypoint telemetry track cold chain temperature?',
+      'How does AI Route Optimization calculate CVRP and save 38% fuel?',
+      'How do Logistics Partners earn higher income with Reverse-Load Matching?',
+      'How does IoT Cold Chain telemetry (ESP32 + DHT22) trigger re-routing?',
+      'How does the 6-digit OTP delivery handoff guarantee instant freight payout?',
+      'Explain the prototype technical architecture & offline PWA cache',
     ],
   };
 

@@ -1,5 +1,6 @@
 import { Product, Order, DemandInsightsData, User, BulkRfq, CropForecastResult, RouteOptimizationResult, LogisticsPartner, AppNotification } from '../types';
 import { offlineSync } from './offlineSync';
+import { getClientSideAIReply } from './aiKnowledge';
 
 let cachedOrders: Order[] = [];
 let cachedProducts: Product[] = [];
@@ -524,6 +525,9 @@ export const api = {
 
   // AI SeedhaMitra
   async askAI(message: string, history?: Array<{ sender: 'user' | 'bot'; text: string }>): Promise<{ reply: string }> {
+    if (!offlineSync.isEffectiveOnline()) {
+      return { reply: getClientSideAIReply(message) };
+    }
     return safeFetch(
       '/api/ai/chat',
       {
@@ -531,7 +535,7 @@ export const api = {
         headers: getHeaders(),
         body: JSON.stringify({ message, history }),
       },
-      { reply: 'Namaste! SeedhaMitra AI is analyzing real-time mandi prices and cold chain routes across Odisha and Maharashtra.' }
+      { reply: getClientSideAIReply(message) }
     );
   },
 

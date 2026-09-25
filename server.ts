@@ -1,5 +1,6 @@
 import express from 'express';
 import path from 'path';
+import fs from 'fs';
 import dotenv from 'dotenv';
 import http from 'http';
 import { EventEmitter } from 'events';
@@ -1275,6 +1276,17 @@ app.put('/api/rfqs/:id/match', authMiddleware, (req: any, res) => {
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
+});
+
+// Download SIH Defense Guide PDF
+app.get('/api/defense-guide-pdf', (req, res) => {
+  const filePath = path.join(process.cwd(), 'public', 'SIH_SeedhaMandi_Master_Defense_Guide.pdf');
+  if (fs.existsSync(filePath)) {
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename="SIH_SeedhaMandi_Master_Defense_Guide.pdf"');
+    return res.sendFile(filePath);
+  }
+  return res.status(404).json({ error: 'Defense guide PDF not found' });
 });
 
 /* ========================================================================== */
