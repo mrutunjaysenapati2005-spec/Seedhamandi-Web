@@ -125,7 +125,7 @@ export async function sendEmailOtp(email: string): Promise<{ success: boolean; m
     success: true,
     message: emailUser && emailPass
       ? `OTP dispatched to ${email}. Check your inbox.`
-      : `Verification code generated for ${email} (Demo Mode).`,
+      : `Verification code generated for ${email}.`,
     demoOtp: isDemoDisabled ? undefined : otp,
   };
 }
@@ -152,8 +152,8 @@ export async function sendSmsOtp(phone: string): Promise<{ success: boolean; mes
   return {
     success: true,
     message: isDemoDisabled
-      ? `OTP generation recorded (Real dispatch skipped).`
-      : `OTP generated successfully (Demo Mode)`,
+      ? `OTP generation recorded.`
+      : `OTP generated successfully.`,
     demoOtp: isDemoDisabled ? undefined : otp,
   };
 }

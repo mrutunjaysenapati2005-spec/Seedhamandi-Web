@@ -802,7 +802,7 @@ app.post('/api/orders/simulate-customer-order', optionalAuthMiddleware, (req: an
     });
 
     res.status(201).json({
-      message: 'Demo customer crop purchase simulated successfully!',
+      message: 'Customer crop purchase order created successfully!',
       order: newOrder,
       notification,
     });

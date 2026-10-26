@@ -1,6 +1,6 @@
 {
   "name": "SeedhaMandi",
-  "description": "Smart India Hackathon Prototype: Digital marketplace connecting farmers/FPOs directly with consumers and bulk buyers, multimodal logistics support, and AI for demand forecasting and route optimization.",
+  "description": "Direct farm-to-fork digital marketplace connecting farmers and FPOs directly with consumers and bulk buyers, featuring multimodal logistics support, AI demand forecasting, and route optimization.",
   "requestFramePermissions": [
     "geolocation"
   ],

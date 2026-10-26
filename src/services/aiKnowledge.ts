@@ -202,8 +202,8 @@ export function getClientSideAIReply(message: string, role?: string): string {
       `• When offline, users can continue to list crops, create consignments, or place orders.\n` +
       `• Actions are queued in \`localStorage\` (\`seedha_pending_offline_mutations\`).\n` +
       `• As soon as cellular network restores, the sync engine replays pending requests against the central server with zero data loss.\n\n` +
-      `#### 4. Live Evaluator Demo Button\n` +
-      `• The top navbar features an interactive **[📡 Test Offline / 2G Mode]** toggle so judges can verify offline operation live.`;
+      `#### 4. Low-Bandwidth / 2G Mode\n` +
+      `• The top navbar features an interactive **[📡 2G / Offline Mode]** toggle to switch to low-bandwidth local cache operation at any time.`;
   }
 
   // 8. ESCROW & 6-DIGIT OTP

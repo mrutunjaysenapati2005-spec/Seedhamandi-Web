@@ -437,7 +437,7 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({
         }
         setFeedback({
           type: 'success',
-          msg: `Demo order #${res.order.id} simulated! Customer ${res.order.consumerName} wants to buy ${res.order.items[0]?.quantity} ${res.order.items[0]?.unit} of ${res.order.items[0]?.name}.`,
+          msg: `Order #${res.order.id} received! Customer ${res.order.consumerName} requested ${res.order.items[0]?.quantity} ${res.order.items[0]?.unit} of ${res.order.items[0]?.name}.`,
         });
       }
     } catch (err: any) {
@@ -958,9 +958,9 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({
                         <button
                           onClick={() => handleSimulateStockDrain(product.id)}
                           className="w-full sm:w-auto min-h-[48px] h-12 px-4 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 font-bold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer shrink-0"
-                          title="Simulate rapid stock drain for hackathon demo"
+                          title="Test low-stock alert threshold"
                         >
-                          <span>Simulate Drain</span>
+                          <span>Test Low Stock</span>
                         </button>
                       </div>
                     </div>

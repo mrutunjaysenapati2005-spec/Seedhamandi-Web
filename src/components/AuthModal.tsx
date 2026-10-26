@@ -495,7 +495,7 @@ export const AuthModal: React.FC = () => {
                     <form onSubmit={handleVerifyLoginOtp} className="space-y-4 text-center">
                       {demoOtp && (
                         <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-2 text-sm flex flex-col items-center">
-                          <span className="font-bold text-amber-800 mb-1">Demo Mode Active</span>
+                          <span className="font-bold text-amber-800 mb-1">Instant Verification Code</span>
                           <span className="text-amber-900">Your verification code is: <strong className="text-lg bg-amber-100 px-2 py-0.5 rounded">{demoOtp}</strong></span>
                           <button
                             type="button"
@@ -859,7 +859,7 @@ export const AuthModal: React.FC = () => {
                 <form onSubmit={handleVerifyEmailOtp} className="space-y-4 text-center py-4">
                   {demoOtp && (
                     <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-2 text-sm flex flex-col items-center">
-                      <span className="font-bold text-amber-800 mb-1">Demo Mode Active</span>
+                      <span className="font-bold text-amber-800 mb-1">Instant Verification Code</span>
                       <span className="text-amber-900">Your verification code is: <strong className="text-lg bg-amber-100 px-2 py-0.5 rounded">{demoOtp}</strong></span>
                       <button
                         type="button"
@@ -919,7 +919,7 @@ export const AuthModal: React.FC = () => {
                 <form onSubmit={handleVerifySmsOtp} className="space-y-4 text-center py-4">
                   {demoOtp && (
                     <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-2 text-sm flex flex-col items-center">
-                      <span className="font-bold text-amber-800 mb-1">Demo Mode Active</span>
+                      <span className="font-bold text-amber-800 mb-1">Instant Verification Code</span>
                       <span className="text-amber-900">Your verification code is: <strong className="text-lg bg-amber-100 px-2 py-0.5 rounded">{demoOtp}</strong></span>
                       <button
                         type="button"

@@ -120,8 +120,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenCart }) => {
               onClick={openSihModal}
               className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-400 text-stone-950 text-[10px] font-black tracking-wider uppercase shadow-xs hover:bg-amber-300 transition"
             >
-              <Trophy className="w-3 h-3 text-stone-950" />
-              <span>SIH 2026 Prototype</span>
+              <ShieldCheck className="w-3 h-3 text-stone-950" />
+              <span>Direct Farm Network</span>
             </button>
             <span className="font-medium hidden sm:inline">100% Direct Farm-to-Consumer Digital Marketplace</span>
             <span className="hidden md:inline text-emerald-300">• Zero Middlemen • Multimodal Logistics • AI Forecasting</span>
@@ -132,10 +132,10 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenCart }) => {
               onClick={openSihModal}
               className="text-amber-300 hover:text-amber-200 text-xs font-bold underline flex items-center gap-1 mr-1"
             >
-              <span>Solution Overview</span>
+              <span>Platform Overview</span>
             </button>
 
-            {/* Interactive "Simulate Offline / 2G Mode" Judge Demo Button */}
+            {/* Interactive Low-Bandwidth / 2G Mode Toggle */}
             <button
               onClick={handleToggleSimulation}
               className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold border transition flex items-center gap-1 cursor-pointer ${
@@ -143,9 +143,9 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenCart }) => {
                   ? 'bg-amber-400 text-stone-950 border-amber-300 hover:bg-amber-300'
                   : 'bg-emerald-950/70 text-emerald-200 border-emerald-500/30 hover:bg-emerald-800/80 hover:text-white'
               }`}
-              title="Toggle simulated 2G/offline state for live judge demonstrations"
+              title="Toggle low-bandwidth 2G/offline mode"
             >
-              <span>📡 {syncStatus.isSimulatedOffline ? 'Simulating 2G (Restore Online)' : 'Test Offline / 2G'}</span>
+              <span>📡 {syncStatus.isSimulatedOffline ? '2G Offline Mode (Restore Online)' : '2G / Offline Mode'}</span>
             </button>
 
             {/* Live PWA Status Chip */}
@@ -182,7 +182,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenCart }) => {
             <div>
               <div className="flex items-center gap-1.5">
                 <span className="text-2xl font-extrabold tracking-tight text-emerald-950 dark:text-emerald-100 transition-colors">Seedha<span className="text-emerald-600 dark:text-emerald-400">Mandi</span></span>
-                <span className="text-[10px] font-bold uppercase tracking-wider bg-amber-100 dark:bg-amber-900/50 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700 px-1.5 py-0.5 rounded transition-colors">Prototype</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider bg-emerald-100 dark:bg-emerald-900/50 text-emerald-900 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-700 px-1.5 py-0.5 rounded transition-colors">Direct Trade</span>
               </div>
               <p className="text-[11px] text-stone-500 dark:text-stone-400 font-medium tracking-wide transition-colors">Direct from Farm, Straight to You</p>
             </div>

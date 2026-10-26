@@ -165,7 +165,7 @@ export const SeedhaMitraModal: React.FC = () => {
       'How to aggregate produce for rural farmers without smartphones?',
       'How does direct escrow disbursement work for individual farmers?',
       'How does AI Demand Forecasting prevent post-harvest market gluts?',
-      'What is the technical architecture of this prototype?',
+      'What is the technical architecture of SeedhaMandi?',
     ],
     CONSUMER: [
       'Why is direct farm-to-door produce fresher and pesticide-free?',
@@ -179,7 +179,7 @@ export const SeedhaMitraModal: React.FC = () => {
       'How do Logistics Partners earn higher income with Reverse-Load Matching?',
       'How does IoT Cold Chain telemetry (ESP32 + DHT22) trigger re-routing?',
       'How does the 6-digit OTP delivery handoff guarantee instant freight payout?',
-      'Explain the prototype technical architecture & offline PWA cache',
+      'Explain the platform technical architecture & offline PWA cache',
     ],
   };
 

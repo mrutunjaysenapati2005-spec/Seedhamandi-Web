@@ -348,7 +348,7 @@ export const FarmerDemandInventoryD3Chart: React.FC<FarmerDemandInventoryD3Chart
               <TrendingUp className="w-3.5 h-3.5" />
               <span>D3.js Predictive Engine</span>
             </span>
-            <span className="text-xs text-stone-500 dark:text-stone-400 font-medium">Smart India Hackathon AI Planning</span>
+            <span className="text-xs text-stone-500 dark:text-stone-400 font-medium">Predictive Supply & Demand Analytics</span>
           </div>
 
           <h3 className="text-lg sm:text-xl font-black text-stone-900 dark:text-stone-100 flex items-center gap-2">

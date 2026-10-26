@@ -248,7 +248,7 @@ export const DemandIntelligencePage: React.FC = () => {
           </div>
 
           <span className="text-xs text-stone-500 dark:text-stone-400 hidden lg:inline px-3 font-medium">
-            Smart India Hackathon Focus: High Farmer Realization & Waste Reduction
+            Core Impact: High Farmer Realization & Supply Chain Waste Reduction
           </span>
         </div>
 
@@ -722,7 +722,7 @@ export const DemandIntelligencePage: React.FC = () => {
                   Value Chain Transparency Calculator
                 </h2>
                 <p className="text-xs text-stone-500 dark:text-stone-400 mt-1 max-w-2xl">
-                  Simulate direct farmgate procurement to mathematically demonstrate how SeedhaMandi solves the problem statement: better prices for farmers, lower prices for consumers, and reduced supply chain waste.
+                  Calculate direct farmgate procurement economics to compare how SeedhaMandi delivers better prices for farmers, lower prices for consumers, and reduced supply chain waste.
                 </p>
               </div>
 
@@ -848,7 +848,7 @@ export const DemandIntelligencePage: React.FC = () => {
                           <h3 className="text-base font-extrabold text-stone-900 dark:text-stone-100">Direct Farmgate + AI Logistics</h3>
                         </div>
                         <span className="px-2.5 py-1 rounded-full bg-emerald-200 text-emerald-950 font-bold text-xs">
-                          Smart India Hackathon
+                          Zero Middlemen
                         </span>
                       </div>
 

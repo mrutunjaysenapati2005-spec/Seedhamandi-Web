@@ -51,11 +51,11 @@ export const SihModal: React.FC<SihModalProps> = ({
 
           <div className="flex items-center gap-2 mb-2">
             <span className="px-3 py-1 rounded-full bg-amber-400 text-stone-950 text-xs font-black tracking-wider uppercase flex items-center gap-1.5 shadow-xs">
-              <Trophy className="w-3.5 h-3.5 text-stone-950" />
-              Smart India Hackathon (SIH) Prototype
+              <ShieldCheck className="w-3.5 h-3.5 text-stone-950" />
+              Verified Platform Architecture
             </span>
             <span className="text-xs text-emerald-200 font-semibold hidden sm:inline">
-              Track: Agriculture, FoodTech & Rural Logistics
+              Agriculture, FoodTech & Rural Cold-Chain Logistics
             </span>
           </div>
 
@@ -181,11 +181,11 @@ export const SihModal: React.FC<SihModalProps> = ({
             </div>
           </div>
 
-          {/* Quick Demo Navigation Links */}
+          {/* Quick Navigation Links */}
           <div className="p-4 rounded-2xl bg-emerald-900 text-white flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
-              <span className="text-xs text-emerald-300 font-bold uppercase">Explore Prototype Modules</span>
-              <p className="text-sm font-extrabold text-white">Test all capabilities built for the hackathon jury</p>
+              <span className="text-xs text-emerald-300 font-bold uppercase">Explore Platform Modules</span>
+              <p className="text-sm font-extrabold text-white">Access core supply chain, logistics, and AI forecasting engines</p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <button

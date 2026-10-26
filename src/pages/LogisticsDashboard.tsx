@@ -208,7 +208,7 @@ const DualAiRouteOptimizerBanner: React.FC<{
                 Dual AI Engine: Multi-Stop Perishability & Route Optimizer
               </h3>
               <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
-                SIH Logistics Core
+                Live Logistics Core
               </span>
             </div>
             <p className="text-xs text-blue-200/85 max-w-2xl leading-relaxed">

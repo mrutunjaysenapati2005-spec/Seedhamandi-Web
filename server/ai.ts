@@ -18,9 +18,9 @@ function getGenAI(): GoogleGenAI | null {
 }
 
 export const SYSTEM_INSTRUCTION = `
-You are "SeedhaMitra" (सीधा मित्र) — the expert AI Agricultural, Technical & Platform Intelligence Advisor for SeedhaMandi (Smart India Hackathon winning prototype).
+You are "SeedhaMitra" (सीधा मित्र) — the expert AI Agricultural, Technical & Platform Intelligence Advisor for SeedhaMandi (India's Direct Farm-to-Fork Digital Marketplace & AI Logistics Network).
 
-You possess comprehensive, authoritative knowledge of EVERY aspect of the SeedhaMandi prototype, its underlying technologies, algorithms, business model, hardware, and field operations. You answer with utmost precision, analytical clarity, numbers, and structured Markdown formatting.
+You possess comprehensive, authoritative knowledge of EVERY aspect of the SeedhaMandi platform, its underlying technologies, algorithms, business model, hardware, and field operations. You answer with utmost precision, analytical clarity, numbers, and structured Markdown formatting.
 
 PRIMARY PILLARS OF SEEDHAMANDI YOU MUST MASTER:
 
@@ -37,7 +37,7 @@ PRIMARY PILLARS OF SEEDHAMANDI YOU MUST MASTER:
 3. FARMER EARNINGS & MARGIN DISRUPTION:
    - The APMC Middleman Problem: Traditional agricultural supply chains force produce through 3-4 intermediaries (Kachha Arhtiya, Pakka Arhtiya, Commission Agent, Wholesaler). Middlemen extract 6-12% commission, 3-5% unauthorized weighing/handling deductions, and trap farmers in 45-60 day delayed credit cycles. Farmers receive only 30-38% of the consumer rupee.
    - The SeedhaMandi Disruption: Direct farmgate-to-buyer transactions eliminate all middlemen commissions. Farmers achieve 25% to 45% HIGHER net realization per quintal.
-   - Real Prototype Examples:
+   - Real Market Examples:
      * Nashik Red Onions: APMC Mandi ₹21-23/kg ➔ SeedhaMandi ₹28/kg (+33% Farmer Gain)
      * Polyhouse Plum Tomatoes: APMC Mandi ₹22-24/kg ➔ SeedhaMandi ₹32/kg (+45% Farmer Gain)
      * Sehore Sharbati Wheat: APMC Mandi ₹35/kg ➔ SeedhaMandi ₹44/kg (+29% Farmer Gain)
@@ -65,7 +65,7 @@ PRIMARY PILLARS OF SEEDHAMANDI YOU MUST MASTER:
 7. FULL-STACK TECHNICAL ARCHITECTURE:
    - Frontend: React 18 SPA, TypeScript, Tailwind CSS, Lucide React icons, mobile-responsive layout.
    - Backend: Node.js with Express, REST APIs, WebSocket Server and Server-Sent Events (SSE) for real-time order tracking and IoT telemetry broadcast.
-   - Offline-First PWA: Custom Service Worker (public/sw.js) with Stale-While-Revalidate caching for static assets, network-first fallback for APIs, Web App Manifest (manifest.json) for standalone installation, local mutation sync queue (seedha_pending_offline_mutations), and interactive "Simulate Offline / 2G Mode" for live evaluator demos.
+   - Offline-First PWA: Custom Service Worker (public/sw.js) with Stale-While-Revalidate caching for static assets, network-first fallback for APIs, Web App Manifest (manifest.json) for standalone installation, local mutation sync queue (seedha_pending_offline_mutations), and interactive "2G / Offline Mode" for rural low-bandwidth resilience.
    - Escrow Engine: Simulated RBI nodal account with automated cryptographic OTP generation and multi-party atomic settlement.
    - AI Engine: Google GenAI SDK (@google/genai) with prioritized model cascade (gemini-3.1-flash-lite, gemini-3.8-flash, gemini-flash-latest) and comprehensive deterministic fallback agro-brain.
 
@@ -334,8 +334,8 @@ export function generateIntelligentFallbackReply(message: string, userContext?: 
       `• When offline, users can continue to list crops, create consignments, or place orders.\n` +
       `• Actions are queued in \`localStorage\` (\`seedha_pending_offline_mutations\`).\n` +
       `• As soon as cellular network restores, the sync engine replays pending requests against the central server with zero data loss.\n\n` +
-      `#### 4. Live Evaluator Demo Button\n` +
-      `• The top navbar features an interactive **[📡 Test Offline / 2G Mode]** toggle so judges can verify offline operation live.`;
+      `#### 4. Low-Bandwidth / 2G Mode\n` +
+      `• The top navbar features an interactive **[📡 2G / Offline Mode]** toggle for seamless rural low-bandwidth operation.`;
   }
 
   // 8. FPO REPRESENTATIVE MODEL & DIGITAL INCLUSION
@@ -383,27 +383,26 @@ export function generateIntelligentFallbackReply(message: string, userContext?: 
       `   - **Zero delayed credit cycles.**`;
   }
 
-  // 10. SMART INDIA HACKATHON PITCH & JUDGE Q&A
+  // 10. PLATFORM OVERVIEW & WORKFLOW GUIDE
   if (
     lower.includes('pitch') ||
-    lower.includes('judge') ||
-    lower.includes('90 second') ||
-    lower.includes('sih') ||
-    lower.includes('hackathon') ||
-    lower.includes('evaluation')
+    lower.includes('overview') ||
+    lower.includes('workflow') ||
+    lower.includes('how to use') ||
+    lower.includes('platform guide')
   ) {
-    return `### 🏆 Smart India Hackathon Live Prototype Pitch Guide\n\n` +
-      `Here is how to pitch the SeedhaMandi prototype in 90 seconds to judges:\n\n` +
-      `• **0:00–0:15 | The Hook (Home Screen & PWA)**:\n` +
-      `  *"Good morning judges. India loses 30% of perishable harvest and farmers lose 40% of their earnings to middleman cartels. This is SeedhaMandi — an offline-first direct farm-to-fork marketplace."* (Click the [📡 Test Offline Mode] badge to prove low-bandwidth resilience).\n\n` +
-      `• **0:15–0:35 | AI Route Optimization (Logistics Tab)**:\n` +
-      `  *"Rural freight is fragmented. Our Capacitated Vehicle Routing engine clusters smallholder consignments across villages, reducing empty deadhead miles by 42% and saving 38% fuel."* (Show the multi-stop route map).\n\n` +
-      `• **0:35–0:55 | IoT Cold Chain Telemetry (Cold Chain Tab)**:\n` +
-      `  *"For perishables like tomatoes, our ₹1,200 ESP32 + DHT22 sensor stack continuously tracks transit temperature. If it breaches 8°C, our system alerts the driver and reroutes to the nearest cold-storage hub."* (Show the live temperature graph).\n\n` +
-      `• **0:55–1:15 | SeedhaMitra AI & Demand Forecasting (AI Tab)**:\n` +
-      `  *"Farmers use SeedhaMitra to predict 7-day market arrivals and price corridors, preventing distress sales and increasing net income by 25–45%."* (Ask a question in SeedhaMitra).\n\n` +
-      `• **1:15–1:30 | Escrow Close & Impact**:\n` +
-      `  *"Orders settle via instant Aadhaar DBT upon 6-digit OTP delivery verification. SeedhaMandi delivers fair trade, zero waste, and guaranteed prosperity for India's 140M farmers."*`;
+    return `### 🌾 SeedhaMandi Complete Platform Workflow Guide\n\n` +
+      `Here is how the SeedhaMandi ecosystem connects farmers, buyers, and logistics partners end-to-end:\n\n` +
+      `• **1. Direct Marketplace & Offline-First PWA**:\n` +
+      `  India loses 30% of perishable harvest and farmers lose 40% of their earnings to middleman cartels. SeedhaMandi is an offline-first direct farm-to-fork marketplace with built-in **[📡 2G / Offline Mode]** resilience for rural connectivity.\n\n` +
+      `• **2. AI Route Optimization (Logistics Hub)**:\n` +
+      `  Our Capacitated Vehicle Routing (CVRP-TW) engine clusters smallholder consignments across villages, reducing empty deadhead miles by 42% and saving 38% fuel across tractors, mini-trucks, and reefer vans.\n\n` +
+      `• **3. IoT Cold Chain Telemetry**:\n` +
+      `  For perishables like tomatoes and strawberries, our ₹1,200 ESP32 + DHT22 sensor stack continuously tracks transit temperature. If it breaches 8°C, the system alerts the driver and reroutes to the nearest cold-storage hub.\n\n` +
+      `• **4. SeedhaMitra AI & Demand Forecasting**:\n` +
+      `  Farmers use SeedhaMitra to predict 7-day market arrivals and price corridors, preventing distress sales and increasing net income by 25–45%.\n\n` +
+      `• **5. Instant Escrow Settlement**:\n` +
+      `  Orders settle via instant Aadhaar DBT upon 6-digit OTP delivery verification—delivering fair trade, zero waste, and guaranteed direct payouts.`;
   }
 
   // 11. HINDI & HINGLISH QUERIES
@@ -461,7 +460,7 @@ export async function generateCropForecast(cropName: string, region: string = 'B
   const ai = getGenAI();
   if (ai) {
     try {
-      const prompt = `You are the AI Agricultural Economist for SeedhaMandi (Smart India Hackathon Prototype).
+      const prompt = `You are the AI Agricultural Economist for SeedhaMandi (Direct Farm-to-Fork Digital Marketplace).
 Analyze predictive demand and market price discovery for:
 Crop: "${cropName}"
 Region: "${region}"

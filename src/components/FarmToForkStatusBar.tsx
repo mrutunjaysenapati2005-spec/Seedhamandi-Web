@@ -558,7 +558,7 @@ export const FarmToForkStatusBar: React.FC<FarmToForkStatusBarProps> = ({
                     <button
                       onClick={handleAdvanceStage}
                       className="py-2 px-2.5 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 text-stone-700 dark:text-stone-300 rounded-xl text-[11px] font-bold transition border border-stone-200 dark:border-stone-700"
-                      title="Progress stage for demo preview"
+                      title="Update order fulfillment stage"
                     >
                       <Zap className="w-3.5 h-3.5 text-amber-600" />
                       <span className="hidden sm:inline ml-1">Advance Stage</span>

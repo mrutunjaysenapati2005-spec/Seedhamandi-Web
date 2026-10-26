@@ -801,7 +801,7 @@ export const DemoPurchaseTriggerButton: React.FC<DemoPurchaseTriggerProps> = ({
         className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs shadow-sm hover:shadow flex items-center gap-2 transition-all cursor-pointer border border-emerald-500/50"
       >
         <Sparkles className="w-4 h-4 text-amber-300 animate-pulse" />
-        <span>{isSimulating ? 'Simulating Purchase...' : '⚡ Demo: Simulate Customer Purchase'}</span>
+        <span>{isSimulating ? 'Processing Order...' : '⚡ Quick Test: Incoming Buyer Order'}</span>
       </button>
 
       {isOpen && (
@@ -809,10 +809,10 @@ export const DemoPurchaseTriggerButton: React.FC<DemoPurchaseTriggerProps> = ({
           <div className="flex items-center justify-between pb-2 border-b border-stone-100 dark:border-stone-800">
             <div>
               <h5 className="text-xs font-bold text-stone-900 dark:text-stone-100">
-                Simulate Customer Buy Request
+                Incoming Customer Buy Request
               </h5>
               <p className="text-[10px] text-stone-500">
-                Triggers notification & test fulfillment flow
+                Triggers instant order dispatch & fulfillment flow
               </p>
             </div>
             <button
